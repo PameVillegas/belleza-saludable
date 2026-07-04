@@ -16,6 +16,7 @@ function Home() {
     { icon: '👩‍⚕️', label: 'Profesional', path: '/profesional' },
     { icon: '⭐', label: 'Reseñas', path: '/resenas' },
     { icon: '📋', label: 'Mis Turnos', path: '/mis-turnos' },
+    { icon: '📜', label: 'Bases y Condiciones', path: '/bases-condiciones' },
   ];
 
   return (
@@ -52,13 +53,12 @@ function Home() {
       <div className="home-info-bar">
         <span>📍 Calle 30 N°416</span>
         <span>🕐 Lun a Vie: 9-12 y 14-19hs</span>
-        <span>📱 3388-403225</span>
       </div>
 
       {/* Redes */}
       <div className="home-social">
-        <a href="https://www.instagram.com/bellezasaludableameghino?igsh=MTduOHVqNGRoNjRuZw==" target="_blank" rel="noopener noreferrer">📷 Instagram</a>
-        <a href="https://wa.me/543388403225" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
+        <a href="https://www.instagram.com/bellezasaludableameghino?igsh=MTduOHVqNGRoNjRuZw==" target="_blank" rel="noopener noreferrer" className="social-btn instagram">📷 Instagram</a>
+        <a href="https://wa.me/543388403225" target="_blank" rel="noopener noreferrer" className="social-btn whatsapp">💬 WhatsApp</a>
       </div>
     </div>
   );

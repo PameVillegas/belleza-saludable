@@ -51,6 +51,7 @@ body {
   min-height: 100vh;
   padding-bottom: 70px; /* space for bottom nav */
   overflow-x: hidden;
+  background: url('/fondocolor.png') center/cover no-repeat fixed;
 }
 
 /* Hero Section - Full Image */
@@ -311,7 +312,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.95);
   border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: space-around;
@@ -319,6 +320,7 @@ body {
   padding: 0.5rem 0;
   z-index: 1000;
   box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(10px);
 }
 
 .nav-item {
@@ -384,6 +386,11 @@ body {
   margin: 0 auto;
   padding: 1.5rem;
   animation: fadeUp 0.4s ease-out;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: var(--radius);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(8px);
 }
 
 .booking-header {
@@ -1073,11 +1080,12 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.9);
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(10px);
 }
 
 .home-header-left {
@@ -1121,7 +1129,7 @@ body {
 .home-greeting {
   text-align: center;
   padding: 2rem 1.5rem 1.5rem;
-  background: linear-gradient(180deg, var(--color-beige) 0%, var(--color-white) 100%);
+  background: linear-gradient(180deg, rgba(248, 244, 241, 0.85) 0%, rgba(255, 255, 255, 0.8) 100%);
 }
 
 .home-greeting-logo {
@@ -1164,23 +1172,26 @@ body {
   justify-content: center;
   gap: 0.6rem;
   padding: 1.5rem 1rem;
-  background: var(--color-white);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
   min-height: 110px;
+  backdrop-filter: blur(4px);
 }
 
 .home-grid-item:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
   border-color: var(--color-sage);
+  background: rgba(168, 184, 165, 0.12);
 }
 
 .home-grid-item:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
+  background: rgba(168, 184, 165, 0.18);
 }
 
 .home-grid-icon {
@@ -1206,7 +1217,7 @@ body {
   justify-content: center;
   gap: 1rem;
   padding: 1.25rem 1.5rem;
-  background: var(--color-beige);
+  background: rgba(248, 244, 241, 0.85);
   font-size: 0.78rem;
   color: var(--color-text-light);
   border-top: 1px solid var(--color-border);
@@ -1218,7 +1229,7 @@ body {
   justify-content: center;
   gap: 1.5rem;
   padding: 1rem 1.5rem 2rem;
-  background: var(--color-beige);
+  background: rgba(248, 244, 241, 0.85);
 }
 
 .home-social a {
