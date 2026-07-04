@@ -1,18 +1,25 @@
-/* Variables */
+/* Variables - Paleta Belleza Saludable */
 :root {
-  --color-primary: #8b5cf6;
-  --color-primary-dark: #7c3aed;
-  --color-secondary: #f0abfc;
-  --color-bg: #faf5ff;
+  --color-lavanda: #E7D8F5;
+  --color-rosa: #F6C7D8;
+  --color-fucsia: #C85A8E;
+  --color-dorado: #F6D97A;
+  --color-blanco: #ffffff;
+  --color-primary: #C85A8E;
+  --color-primary-dark: #a94875;
+  --color-secondary: #E7D8F5;
+  --color-bg: #fefcff;
   --color-surface: #ffffff;
-  --color-text: #1f2937;
-  --color-text-light: #6b7280;
-  --color-border: #e5e7eb;
+  --color-text: #2d2d3a;
+  --color-text-light: #6b6b7b;
+  --color-border: #f0e6f6;
   --color-success: #10b981;
   --color-error: #ef4444;
-  --radius: 8px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --radius: 12px;
+  --radius-lg: 20px;
+  --shadow: 0 2px 8px rgba(200, 90, 142, 0.08);
+  --shadow-md: 0 8px 24px rgba(200, 90, 142, 0.12);
+  --shadow-lg: 0 12px 40px rgba(200, 90, 142, 0.15);
 }
 
 /* Reset */
@@ -23,29 +30,74 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--color-bg);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--color-lavanda) 0%, var(--color-rosa) 30%, var(--color-blanco) 60%, var(--color-lavanda) 100%);
+  background-attachment: fixed;
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
 }
 
 /* Layout */
-.container {
-  max-width: 600px;
-  margin: 0 auto;
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 1rem;
+}
+
+.container {
+  max-width: 550px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(231, 216, 245, 0.5);
+}
+
+/* Header / Logo */
+.app-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.app-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 4px 16px rgba(200, 90, 142, 0.2);
+  border: 3px solid var(--color-blanco);
+}
+
+.app-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-fucsia);
+  margin-bottom: 0.25rem;
+}
+
+.app-subtitle {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
 /* Tipografía */
 h1, h2, h3 {
   font-weight: 600;
   line-height: 1.3;
+  color: var(--color-text);
 }
 
-h1 { font-size: 1.75rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.25rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
 
 /* Botones */
 .btn {
@@ -58,48 +110,70 @@ h3 { font-size: 1.25rem; }
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: all 0.3s ease;
   min-height: 44px;
   min-width: 44px;
+  text-decoration: none;
 }
 
 .btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .btn-primary {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-fucsia), var(--color-primary-dark));
   color: white;
+  box-shadow: 0 4px 12px rgba(200, 90, 142, 0.3);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-dark);
+  box-shadow: 0 6px 20px rgba(200, 90, 142, 0.4);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background-color: var(--color-border);
-  color: var(--color-text);
+  background: var(--color-lavanda);
+  color: var(--color-fucsia);
+  border: 1px solid rgba(200, 90, 142, 0.2);
 }
 
 .btn-secondary:hover {
-  background-color: #d1d5db;
+  background: var(--color-rosa);
+}
+
+.btn-admin {
+  background: transparent;
+  color: var(--color-text-light);
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.btn-admin:hover {
+  background: var(--color-lavanda);
+  color: var(--color-fucsia);
+  border-color: var(--color-fucsia);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Formularios */
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.4rem;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--color-text-light);
 }
 
@@ -107,46 +181,50 @@ h3 { font-size: 1.25rem; }
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius);
   font-size: 1rem;
   min-height: 44px;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  background: var(--color-blanco);
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  border-color: var(--color-fucsia);
+  box-shadow: 0 0 0 3px rgba(200, 90, 142, 0.1);
 }
 
 /* Cards */
 .card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: var(--shadow);
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .card:hover {
   box-shadow: var(--shadow-md);
+  border-color: var(--color-rosa);
+  transform: translateY(-2px);
 }
 
 .card.selected {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  border-color: var(--color-fucsia);
+  box-shadow: 0 0 0 2px rgba(200, 90, 142, 0.15);
+  background: linear-gradient(135deg, rgba(231, 216, 245, 0.3), rgba(246, 199, 216, 0.2));
 }
 
 /* Stepper */
 .stepper {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 2rem;
 }
 
@@ -159,17 +237,19 @@ h3 { font-size: 1.25rem; }
   justify-content: center;
   font-weight: 600;
   font-size: 0.875rem;
-  background-color: var(--color-border);
+  background-color: var(--color-lavanda);
   color: var(--color-text-light);
+  transition: all 0.3s ease;
 }
 
 .stepper-step.active {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-fucsia), var(--color-primary-dark));
   color: white;
+  box-shadow: 0 3px 10px rgba(200, 90, 142, 0.3);
 }
 
 .stepper-step.completed {
-  background-color: var(--color-success);
+  background: var(--color-success);
   color: white;
 }
 
@@ -203,7 +283,7 @@ h3 { font-size: 1.25rem; }
 
 .slot-btn {
   padding: 0.5rem;
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
   cursor: pointer;
@@ -213,31 +293,52 @@ h3 { font-size: 1.25rem; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .slot-btn:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-fucsia);
+  background: rgba(231, 216, 245, 0.3);
 }
 
 .slot-btn.selected {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-fucsia), var(--color-primary-dark));
   color: white;
-  border-color: var(--color-primary);
+  border-color: var(--color-fucsia);
+  box-shadow: 0 3px 10px rgba(200, 90, 142, 0.25);
+}
+
+/* Footer admin link */
+.admin-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
 }
 
 /* Responsive */
 @media (min-width: 768px) {
-  .container {
+  .app-wrapper {
     padding: 2rem;
   }
 
-  h1 { font-size: 2rem; }
+  .container {
+    padding: 2.5rem;
+  }
+
+  .app-logo {
+    width: 140px;
+    height: 140px;
+  }
+
+  .app-title {
+    font-size: 1.8rem;
+  }
 }
 
 @media (min-width: 1024px) {
   .container {
-    max-width: 700px;
+    max-width: 600px;
   }
 }
 
@@ -248,4 +349,14 @@ h3 { font-size: 1.25rem; }
   align-items: center;
   padding: 2rem;
   color: var(--color-text-light);
+}
+
+/* Animación suave de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+  animation: fadeIn 0.4s ease-out;
 }
