@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 function Home() {
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
+  const clientSession = JSON.parse(sessionStorage.getItem('clientSession') || 'null');
+  const firstName = clientSession?.name?.split(' ')[0] || '';
 
   useEffect(() => {
     fetch('/api/services')
@@ -27,6 +29,13 @@ function Home() {
 
   return (
     <div className="fade-in">
+      {/* Saludo */}
+      {firstName && (
+        <div style={{ background: 'var(--color-beige)', padding: '0.75rem 1.5rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--color-text)' }}>
+          ✨ Bienvenida, <strong>{firstName}</strong>
+        </div>
+      )}
+
       {/* Hero */}
       <section className="hero">
         <div className="hero-content">
