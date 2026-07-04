@@ -1,6 +1,7 @@
 // === Estado y configuración ===
 const API = '/api';
 let currentAdmin = null;
+let calendarDate = new Date();
 
 // === Auth ===
 function checkSession() {
@@ -28,15 +29,12 @@ async function doLogin() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
     });
-
     const data = await res.json();
-
     if (!res.ok) {
       errorEl.textContent = data.error || 'Credenciales inválidas.';
       errorEl.style.display = 'block';
       return;
     }
-
     localStorage.setItem('adminSession', JSON.stringify(data.admin));
     currentAdmin = data.admin;
     errorEl.style.display = 'none';
@@ -61,7 +59,6 @@ function showApp() {
   loadDashboard();
 }
 
-// === Headers para requests autenticados ===
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
@@ -74,15 +71,16 @@ function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(`sec-${name}`).classList.add('active');
   document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
-  document.querySelector(`[data-section="${name}"]`).classList.add('active');
+  const link = document.querySelector(`[data-section="${name}"]`);
+  if (link) link.classList.add('active');
 
   if (name === 'dashboard') loadDashboard();
+  if (name === 'calendar') loadCalendar();
   if (name === 'appointments') loadAppointments();
   if (name === 'clients') loadClients();
   if (name === 'services') loadServices();
   if (name === 'schedules') loadSchedules();
 
-  // Cerrar sidebar en mobile
   if (window.innerWidth <= 768) toggleSidebar();
 }
 
@@ -91,7 +89,6 @@ function toggleSidebar() {
   document.getElementById('overlay').classList.toggle('active');
 }
 
-// === Modal ===
 function openModal(html) {
   document.getElementById('modalContent').innerHTML = html;
   document.getElementById('modalOverlay').classList.add('active');
@@ -115,22 +112,24 @@ async function loadDashboard() {
 
     document.getElementById('statsCards').innerHTML = `
       <div class="stat-card"><h4>Turnos hoy</h4><div class="value">${confirmed}</div></div>
-      <div class="stat-card"><h4>Cancelados</h4><div class="value" style="color:var(--error)">${cancelled}</div></div>
+      <div class="stat-card"><h4>Cancelados</h4><div class="value" style="color:var(--color-error)">${cancelled}</div></div>
       <div class="stat-card"><h4>Total del día</h4><div class="value">${appointments.length}</div></div>
     `;
 
     const confirmedAppts = appointments.filter(a => a.status === 'confirmed');
     if (confirmedAppts.length === 0) {
-      document.getElementById('todayAppointments').innerHTML = '<p style="color:var(--text-light)">No hay turnos para hoy.</p>';
+      document.getElementById('todayAppointments').innerHTML = '<p style="color:var(--color-text-muted)">No hay turnos para hoy.</p>';
     } else {
       document.getElementById('todayAppointments').innerHTML = `
         <table class="data-table">
-          <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Acción</th></tr></thead>
+          <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Duración</th><th>Precio</th><th>Acción</th></tr></thead>
           <tbody>${confirmedAppts.map(a => `
             <tr>
-              <td>${a.start_time.slice(0,5)}</td>
+              <td>${a.start_time.slice(0,5)} - ${a.end_time.slice(0,5)}</td>
               <td>${a.client_name}</td>
               <td>${a.service_name}</td>
+              <td>${a.duration_minutes} min</td>
+              <td>$${Number(a.service_price).toLocaleString()}</td>
               <td><button class="btn btn-danger btn-sm" onclick="cancelAppointment('${a.id}')">Cancelar</button></td>
             </tr>
           `).join('')}</tbody>
@@ -138,7 +137,117 @@ async function loadDashboard() {
       `;
     }
   } catch {
-    document.getElementById('todayAppointments').innerHTML = '<p style="color:var(--error)">Error al cargar datos.</p>';
+    document.getElementById('todayAppointments').innerHTML = '<p style="color:var(--color-error)">Error al cargar datos.</p>';
+  }
+}
+
+// === CALENDARIO / ALMANAQUE ===
+async function loadCalendar() {
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+  const monthName = calendarDate.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+
+  // Obtener primer y último día del mes
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const fromDate = firstDay.toISOString().split('T')[0];
+  const toDate = lastDay.toISOString().split('T')[0];
+
+  // Cargar turnos del mes
+  let appointments = [];
+  try {
+    const res = await fetch(`${API}/admin/appointments?from=${fromDate}&to=${toDate}`, { headers: authHeaders() });
+    appointments = await res.json();
+  } catch {}
+
+  // Agrupar por fecha
+  const byDate = {};
+  appointments.forEach(a => {
+    const d = a.date.split('T')[0];
+    if (!byDate[d]) byDate[d] = [];
+    byDate[d].push(a);
+  });
+
+  // Generar calendario
+  const startDayOfWeek = firstDay.getDay();
+  const daysInMonth = lastDay.getDate();
+  const today = new Date().toISOString().split('T')[0];
+
+  let calHtml = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <button class="btn btn-sm" onclick="changeMonth(-1)">← Anterior</button>
+      <h3 style="font-family:var(--font-display); text-transform:capitalize;">${monthName}</h3>
+      <button class="btn btn-sm" onclick="changeMonth(1)">Siguiente →</button>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-header">Dom</div><div class="cal-header">Lun</div>
+      <div class="cal-header">Mar</div><div class="cal-header">Mié</div>
+      <div class="cal-header">Jue</div><div class="cal-header">Vie</div>
+      <div class="cal-header">Sáb</div>
+  `;
+
+  // Espacios vacíos antes del primer día
+  for (let i = 0; i < startDayOfWeek; i++) {
+    calHtml += '<div class="cal-day empty"></div>';
+  }
+
+  // Días del mes
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayAppts = byDate[dateStr] || [];
+    const confirmedCount = dayAppts.filter(a => a.status === 'confirmed').length;
+    const isToday = dateStr === today;
+    const classes = `cal-day ${isToday ? 'today' : ''} ${confirmedCount > 0 ? 'has-appts' : ''}`;
+
+    calHtml += `
+      <div class="${classes}" onclick="showDayDetail('${dateStr}')">
+        <span class="cal-day-num">${day}</span>
+        ${confirmedCount > 0 ? `<span class="cal-badge">${confirmedCount}</span>` : ''}
+      </div>
+    `;
+  }
+
+  calHtml += '</div><div id="dayDetail" style="margin-top:1.5rem;"></div>';
+  document.getElementById('calendarContent').innerHTML = calHtml;
+}
+
+function changeMonth(offset) {
+  calendarDate.setMonth(calendarDate.getMonth() + offset);
+  loadCalendar();
+}
+
+async function showDayDetail(dateStr) {
+  try {
+    const res = await fetch(`${API}/admin/appointments?date=${dateStr}`, { headers: authHeaders() });
+    const appointments = await res.json();
+    const confirmed = appointments.filter(a => a.status === 'confirmed');
+
+    const dateFormatted = new Date(dateStr + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    let html = `<h3 style="font-family:var(--font-display); margin-bottom:1rem; text-transform:capitalize;">📅 ${dateFormatted}</h3>`;
+
+    if (confirmed.length === 0) {
+      html += '<p style="color:var(--color-text-muted)">Sin turnos confirmados para este día.</p>';
+    } else {
+      html += `<table class="data-table">
+        <thead><tr><th>Hora</th><th>Cliente</th><th>Tel</th><th>Servicio</th><th>Dur.</th><th>Precio</th><th>Acción</th></tr></thead>
+        <tbody>${confirmed.map(a => `
+          <tr>
+            <td><strong>${a.start_time.slice(0,5)}</strong> - ${a.end_time.slice(0,5)}</td>
+            <td>${a.client_name}</td>
+            <td>${a.client_phone || '-'}</td>
+            <td>${a.service_name}</td>
+            <td>${a.duration_minutes} min</td>
+            <td>$${Number(a.service_price).toLocaleString()}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="cancelAppointment('${a.id}'); showDayDetail('${dateStr}')">Cancelar</button></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+    }
+
+    document.getElementById('dayDetail').innerHTML = html;
+  } catch {
+    document.getElementById('dayDetail').innerHTML = '<p style="color:var(--color-error)">Error al cargar turnos.</p>';
   }
 }
 
@@ -155,19 +264,21 @@ async function loadAppointments() {
     const appointments = await res.json();
 
     if (appointments.length === 0) {
-      document.getElementById('appointmentsTable').innerHTML = '<p style="color:var(--text-light)">No se encontraron turnos.</p>';
+      document.getElementById('appointmentsTable').innerHTML = '<p style="color:var(--color-text-muted)">No se encontraron turnos.</p>';
       return;
     }
 
     document.getElementById('appointmentsTable').innerHTML = `
       <table class="data-table">
-        <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Duración</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody>${appointments.map(a => `
           <tr>
             <td>${a.date.split('T')[0]}</td>
-            <td>${a.start_time.slice(0,5)}</td>
+            <td>${a.start_time.slice(0,5)} - ${a.end_time.slice(0,5)}</td>
             <td>${a.client_name}</td>
             <td>${a.service_name}</td>
+            <td>${a.duration_minutes} min</td>
+            <td>$${Number(a.service_price).toLocaleString()}</td>
             <td><span class="badge badge-${a.status}">${a.status}</span></td>
             <td>
               ${a.status === 'confirmed' ? `<button class="btn btn-danger btn-sm" onclick="cancelAppointment('${a.id}')">Cancelar</button>` : ''}
@@ -177,23 +288,17 @@ async function loadAppointments() {
       </table>
     `;
   } catch {
-    document.getElementById('appointmentsTable').innerHTML = '<p style="color:var(--error)">Error al cargar turnos.</p>';
+    document.getElementById('appointmentsTable').innerHTML = '<p style="color:var(--color-error)">Error al cargar turnos.</p>';
   }
 }
 
 async function cancelAppointment(id) {
   if (!confirm('¿Está seguro de cancelar este turno?')) return;
-
   try {
-    await fetch(`${API}/admin/appointments/${id}/cancel`, {
-      method: 'PATCH',
-      headers: authHeaders()
-    });
+    await fetch(`${API}/admin/appointments/${id}/cancel`, { method: 'PATCH', headers: authHeaders() });
     loadDashboard();
     loadAppointments();
-  } catch {
-    alert('Error al cancelar el turno.');
-  }
+  } catch { alert('Error al cancelar el turno.'); }
 }
 
 function openNewAppointment() {
@@ -214,7 +319,7 @@ function openNewAppointment() {
     <input type="hidden" id="selectedClientId">
     <div class="form-group">
       <label>Servicio</label>
-      <select id="apptService" onchange="updateApptEndTime()"></select>
+      <select id="apptService"></select>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Fecha</label><input type="date" id="apptDate"></div>
@@ -232,27 +337,22 @@ function openNewAppointment() {
 async function loadServicesForSelect() {
   const res = await fetch(`${API}/services`);
   const services = await res.json();
-  const select = document.getElementById('apptService');
-  select.innerHTML = services.map(s => `<option value="${s.id}" data-duration="${s.duration_minutes}">${s.name} (${s.duration_minutes} min)</option>`).join('');
+  document.getElementById('apptService').innerHTML = services.map(s =>
+    `<option value="${s.id}">${s.name} (${s.duration_minutes} min)</option>`
+  ).join('');
 }
 
 async function searchClientForAppt() {
   const query = document.getElementById('searchClientInput').value.trim();
-  if (query.length < 2) {
-    document.getElementById('clientSearchResults').innerHTML = '';
-    return;
-  }
-
+  if (query.length < 2) { document.getElementById('clientSearchResults').innerHTML = ''; return; }
   const res = await fetch(`${API}/admin/clients?search=${encodeURIComponent(query)}`, { headers: authHeaders() });
   const clients = await res.json();
-
   let html = clients.map(c => `
-    <div style="padding:0.5rem; cursor:pointer; border-bottom:1px solid var(--border);" onclick="selectClientForAppt('${c.id}', '${c.name}')">
+    <div style="padding:0.5rem; cursor:pointer; border-bottom:1px solid var(--color-border);" onclick="selectClientForAppt('${c.id}', '${c.name}')">
       ${c.name} - ${c.phone}
     </div>
   `).join('');
-
-  html += `<div style="padding:0.5rem; cursor:pointer; color:var(--primary); font-weight:500;" onclick="showNewClientFields()">+ Crear cliente nuevo</div>`;
+  html += `<div style="padding:0.5rem; cursor:pointer; color:var(--color-sage-dark); font-weight:500;" onclick="showNewClientFields()">+ Crear cliente nuevo</div>`;
   document.getElementById('clientSearchResults').innerHTML = html;
 }
 
@@ -277,34 +377,20 @@ async function saveManualAppointment() {
     start_time: document.getElementById('apptTime').value,
     notes: document.getElementById('apptNotes').value
   };
-
-  if (clientId) {
-    body.client_id = clientId;
-  } else {
+  if (clientId) { body.client_id = clientId; }
+  else {
     body.client_name = document.getElementById('newClientName').value;
     body.client_phone = document.getElementById('newClientPhone').value;
     body.client_email = document.getElementById('newClientEmail').value;
   }
-
   try {
-    const res = await fetch(`${API}/admin/appointments/manual`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify(body)
-    });
-
+    const res = await fetch(`${API}/admin/appointments/manual`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
     const data = await res.json();
-    if (!res.ok) {
-      alert(data.error);
-      return;
-    }
-
+    if (!res.ok) { alert(data.error); return; }
     closeModal();
     loadAppointments();
     loadDashboard();
-  } catch {
-    alert('Error al crear el turno.');
-  }
+  } catch { alert('Error al crear el turno.'); }
 }
 
 // === Clientes ===
@@ -324,10 +410,9 @@ async function searchClients() {
 
 function renderClientsTable(clients) {
   if (clients.length === 0) {
-    document.getElementById('clientsTable').innerHTML = '<p style="color:var(--text-light)">No se encontraron clientes.</p>';
+    document.getElementById('clientsTable').innerHTML = '<p style="color:var(--color-text-muted)">No se encontraron clientes.</p>';
     return;
   }
-
   document.getElementById('clientsTable').innerHTML = `
     <table class="data-table">
       <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr></thead>
@@ -336,7 +421,7 @@ function renderClientsTable(clients) {
           <td>${c.name}</td>
           <td>${c.phone}</td>
           <td>${c.email}</td>
-          <td><button class="btn btn-sm" onclick="viewClient('${c.id}')">Ver</button></td>
+          <td><button class="btn btn-sm" onclick="viewClient('${c.id}')">Ver historial</button></td>
         </tr>
       `).join('')}</tbody>
     </table>
@@ -347,21 +432,27 @@ async function viewClient(id) {
   const res = await fetch(`${API}/admin/clients/${id}`, { headers: authHeaders() });
   const client = await res.json();
 
-  let apptHtml = '<p style="color:var(--text-light)">Sin historial.</p>';
+  let apptHtml = '<p style="color:var(--color-text-muted)">Sin historial de turnos.</p>';
   if (client.appointments && client.appointments.length > 0) {
     apptHtml = `<table class="data-table">
-      <thead><tr><th>Fecha</th><th>Servicio</th><th>Estado</th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Hora</th><th>Servicio</th><th>Precio</th><th>Estado</th></tr></thead>
       <tbody>${client.appointments.map(a => `
-        <tr><td>${a.date.split('T')[0]}</td><td>${a.service_name}</td><td><span class="badge badge-${a.status}">${a.status}</span></td></tr>
+        <tr>
+          <td>${a.date.split('T')[0]}</td>
+          <td>${a.start_time.slice(0,5)}</td>
+          <td>${a.service_name}</td>
+          <td>$${Number(a.service_price).toLocaleString()}</td>
+          <td><span class="badge badge-${a.status}">${a.status}</span></td>
+        </tr>
       `).join('')}</tbody>
     </table>`;
   }
 
   openModal(`
     <h3>${client.name}</h3>
-    <p>📞 ${client.phone}</p>
-    <p>✉️ ${client.email}</p>
-    <h4 style="margin-top:1rem;">Historial de turnos</h4>
+    <p style="margin-bottom:0.25rem;">📞 ${client.phone}</p>
+    <p style="margin-bottom:1rem;">✉️ ${client.email}</p>
+    <h4 style="font-family:var(--font-display); margin-bottom:0.75rem;">Historial de turnos</h4>
     ${apptHtml}
     <button class="btn" onclick="closeModal()" style="margin-top:1rem;">Cerrar</button>
   `);
@@ -381,20 +472,9 @@ function openNewClient() {
 }
 
 async function saveNewClient() {
-  const body = {
-    name: document.getElementById('ncName').value,
-    phone: document.getElementById('ncPhone').value,
-    email: document.getElementById('ncEmail').value
-  };
-
-  const res = await fetch(`${API}/admin/clients`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(body)
-  });
-
-  const data = await res.json();
-  if (!res.ok) { alert(data.error); return; }
+  const body = { name: document.getElementById('ncName').value, phone: document.getElementById('ncPhone').value, email: document.getElementById('ncEmail').value };
+  const res = await fetch(`${API}/admin/clients`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+  if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   closeModal();
   loadClients();
 }
@@ -403,7 +483,6 @@ async function saveNewClient() {
 async function loadServices() {
   const res = await fetch(`${API}/admin/services`, { headers: authHeaders() });
   const services = await res.json();
-
   document.getElementById('servicesTable').innerHTML = `
     <table class="data-table">
       <thead><tr><th>Nombre</th><th>Duración</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
@@ -440,19 +519,8 @@ function openNewService() {
 }
 
 async function saveNewService() {
-  const body = {
-    name: document.getElementById('svcName').value,
-    description: document.getElementById('svcDesc').value,
-    duration_minutes: parseInt(document.getElementById('svcDuration').value),
-    price: parseFloat(document.getElementById('svcPrice').value)
-  };
-
-  const res = await fetch(`${API}/admin/services`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(body)
-  });
-
+  const body = { name: document.getElementById('svcName').value, description: document.getElementById('svcDesc').value, duration_minutes: parseInt(document.getElementById('svcDuration').value), price: parseFloat(document.getElementById('svcPrice').value) };
+  const res = await fetch(`${API}/admin/services`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   closeModal();
   loadServices();
@@ -461,7 +529,6 @@ async function saveNewService() {
 async function editService(id) {
   const res = await fetch(`${API}/admin/services/${id}`, { headers: authHeaders() });
   const s = await res.json();
-
   openModal(`
     <h3>Editar Servicio</h3>
     <div class="form-group"><label>Nombre</label><input type="text" id="svcName" value="${s.name}"></div>
@@ -478,19 +545,8 @@ async function editService(id) {
 }
 
 async function updateService(id) {
-  const body = {
-    name: document.getElementById('svcName').value,
-    description: document.getElementById('svcDesc').value,
-    duration_minutes: parseInt(document.getElementById('svcDuration').value),
-    price: parseFloat(document.getElementById('svcPrice').value)
-  };
-
-  const res = await fetch(`${API}/admin/services/${id}`, {
-    method: 'PUT',
-    headers: authHeaders(),
-    body: JSON.stringify(body)
-  });
-
+  const body = { name: document.getElementById('svcName').value, description: document.getElementById('svcDesc').value, duration_minutes: parseInt(document.getElementById('svcDuration').value), price: parseFloat(document.getElementById('svcPrice').value) };
+  const res = await fetch(`${API}/admin/services/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   closeModal();
   loadServices();
@@ -511,15 +567,15 @@ async function loadSchedules() {
 
   let html = '<div style="display:grid; gap:0.75rem;">';
   for (let day = 0; day < 7; day++) {
-    const schedule = schedules.find(s => s.day_of_week === day);
-    html += `
-      <div class="stat-card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
-        <strong>${DAYS[day]}</strong>
-        ${schedule && schedule.is_active
-          ? `<span>${schedule.start_time.slice(0,5)} - ${schedule.end_time.slice(0,5)} (${schedule.slot_duration_minutes} min)</span>`
-          : `<span style="color:var(--text-light)">Cerrado</span>`}
-      </div>
-    `;
+    const daySchedules = schedules.filter(s => s.day_of_week === day);
+    html += `<div class="stat-card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+      <strong>${DAYS[day]}</strong>`;
+    if (daySchedules.length > 0 && daySchedules.some(s => s.is_active)) {
+      html += `<span>${daySchedules.map(s => s.start_time.slice(0,5) + ' - ' + s.end_time.slice(0,5)).join(' | ')}</span>`;
+    } else {
+      html += `<span style="color:var(--color-text-muted)">Cerrado</span>`;
+    }
+    html += '</div>';
   }
   html += '</div>';
   html += `<button class="btn btn-primary" onclick="openEditSchedules()" style="margin-top:1rem;">Editar horarios</button>`;
@@ -528,9 +584,8 @@ async function loadSchedules() {
   // Bloqueos
   const bRes = await fetch(`${API}/admin/schedules/blocked`, { headers: authHeaders() });
   const blocked = await bRes.json();
-
   if (blocked.length === 0) {
-    document.getElementById('blockedTable').innerHTML = '<p style="color:var(--text-light)">Sin bloqueos configurados.</p>';
+    document.getElementById('blockedTable').innerHTML = '<p style="color:var(--color-text-muted)">Sin bloqueos configurados.</p>';
   } else {
     document.getElementById('blockedTable').innerHTML = `
       <table class="data-table">
@@ -551,25 +606,21 @@ async function loadSchedules() {
 function openEditSchedules() {
   let html = '<h3>Editar Horarios</h3>';
   for (let day = 0; day < 7; day++) {
-    html += `
-      <div style="margin-bottom:0.75rem; padding:0.75rem; border:1px solid var(--border); border-radius:var(--radius);">
-        <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-          <input type="checkbox" id="day${day}Active" checked> <strong>${DAYS[day]}</strong>
-        </label>
-        <div class="form-row">
-          <div class="form-group"><label>Inicio</label><input type="time" id="day${day}Start" value="09:00"></div>
-          <div class="form-group"><label>Fin</label><input type="time" id="day${day}End" value="18:00"></div>
-          <div class="form-group"><label>Slot (min)</label><input type="number" id="day${day}Slot" value="30" min="5"></div>
-        </div>
+    html += `<div style="margin-bottom:0.75rem; padding:0.75rem; border:1px solid var(--color-border); border-radius:var(--radius-sm);">
+      <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+        <input type="checkbox" id="day${day}Active" ${day >= 1 && day <= 5 ? 'checked' : ''}> <strong>${DAYS[day]}</strong>
+      </label>
+      <div class="form-row">
+        <div class="form-group"><label>Inicio</label><input type="time" id="day${day}Start" value="09:00"></div>
+        <div class="form-group"><label>Fin</label><input type="time" id="day${day}End" value="19:00"></div>
+        <div class="form-group"><label>Slot (min)</label><input type="number" id="day${day}Slot" value="60" min="5"></div>
       </div>
-    `;
+    </div>`;
   }
-  html += `
-    <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
-      <button class="btn" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveSchedules()">Guardar</button>
-    </div>
-  `;
+  html += `<div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+    <button class="btn" onclick="closeModal()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveSchedules()">Guardar</button>
+  </div>`;
   openModal(html);
 }
 
@@ -578,22 +629,10 @@ async function saveSchedules() {
   for (let day = 0; day < 7; day++) {
     const active = document.getElementById(`day${day}Active`).checked;
     if (active) {
-      schedules.push({
-        day_of_week: day,
-        start_time: document.getElementById(`day${day}Start`).value,
-        end_time: document.getElementById(`day${day}End`).value,
-        slot_duration_minutes: parseInt(document.getElementById(`day${day}Slot`).value),
-        is_active: true
-      });
+      schedules.push({ day_of_week: day, start_time: document.getElementById(`day${day}Start`).value, end_time: document.getElementById(`day${day}End`).value, slot_duration_minutes: parseInt(document.getElementById(`day${day}Slot`).value), is_active: true });
     }
   }
-
-  const res = await fetch(`${API}/admin/schedules`, {
-    method: 'PUT',
-    headers: authHeaders(),
-    body: JSON.stringify({ schedules })
-  });
-
+  const res = await fetch(`${API}/admin/schedules`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ schedules }) });
   if (!res.ok) { alert('Error al guardar horarios.'); return; }
   closeModal();
   loadSchedules();
@@ -616,19 +655,8 @@ function openNewBlock() {
 }
 
 async function saveBlock() {
-  const body = {
-    date: document.getElementById('blockDate').value,
-    start_time: document.getElementById('blockStart').value || null,
-    end_time: document.getElementById('blockEnd').value || null,
-    reason: document.getElementById('blockReason').value || null
-  };
-
-  const res = await fetch(`${API}/admin/schedules/blocked`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify(body)
-  });
-
+  const body = { date: document.getElementById('blockDate').value, start_time: document.getElementById('blockStart').value || null, end_time: document.getElementById('blockEnd').value || null, reason: document.getElementById('blockReason').value || null };
+  const res = await fetch(`${API}/admin/schedules/blocked`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { alert('Error al crear bloqueo.'); return; }
   closeModal();
   loadSchedules();
@@ -642,8 +670,6 @@ async function deleteBlock(id) {
 
 // === Inicialización ===
 document.addEventListener('DOMContentLoaded', checkSession);
-
-// Enter para login
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && document.getElementById('loginSection').style.display !== 'none') {
     doLogin();

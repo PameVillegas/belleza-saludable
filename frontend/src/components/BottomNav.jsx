@@ -8,12 +8,14 @@ function BottomNav() {
   const navItems = [
     { id: 'home', icon: '🏠', label: 'Inicio', path: '/' },
     { id: 'services', icon: '💆', label: 'Tratamientos', path: '/turnos' },
-    { id: 'book', icon: '📅', label: 'Turnos', path: '/turnos' },
+    { id: 'book', icon: '📅', label: 'Reservar', path: '/turnos' },
+    { id: 'history', icon: '📋', label: 'Mis turnos', path: '/mis-turnos' },
   ];
 
-  const isActive = (itemPath) => {
-    if (itemPath === '/' && path === '/') return true;
-    if (itemPath === '/turnos' && path !== '/') return true;
+  const isActive = (itemId) => {
+    if (itemId === 'home' && path === '/') return true;
+    if (itemId === 'history' && path === '/mis-turnos') return true;
+    if ((itemId === 'services' || itemId === 'book') && ['/turnos', '/fecha-hora', '/datos', '/confirmacion'].includes(path)) return true;
     return false;
   };
 
@@ -22,7 +24,7 @@ function BottomNav() {
       {navItems.map(item => (
         <button
           key={item.id}
-          className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+          className={`nav-item ${isActive(item.id) ? 'active' : ''}`}
           onClick={() => navigate(item.path)}
           aria-label={item.label}
         >

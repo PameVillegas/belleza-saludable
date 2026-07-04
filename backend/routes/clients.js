@@ -41,7 +41,7 @@ router.get('/:id', async (req, res) => {
     }
 
     const appointmentsResult = await pool.query(
-      `SELECT a.*, s.name as service_name
+      `SELECT a.*, s.name as service_name, s.price as service_price, s.duration_minutes
        FROM appointments a
        JOIN services s ON a.service_id = s.id
        WHERE a.client_id = $1

@@ -4,6 +4,7 @@ import SelectService from './pages/SelectService';
 import SelectDateTime from './pages/SelectDateTime';
 import ClientData from './pages/ClientData';
 import Confirmation from './pages/Confirmation';
+import MyAppointments from './pages/MyAppointments';
 import BottomNav from './components/BottomNav';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="/fecha-hora" element={<SelectDateTime />} />
           <Route path="/datos" element={<ClientData />} />
           <Route path="/confirmacion" element={<Confirmation />} />
+          <Route path="/mis-turnos" element={<MyAppointments />} />
         </Routes>
         <WhatsAppButton />
         <BottomNav />

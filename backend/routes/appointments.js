@@ -91,13 +91,15 @@ router.get('/my', async (req, res) => {
     }
 
     const result = await pool.query(
-      `SELECT a.date, a.start_time, a.end_time, a.status, s.name as service_name
+      `SELECT a.id, a.date, a.start_time, a.end_time, a.status, a.created_at,
+              s.name as service_name, s.duration_minutes, s.price as service_price,
+              c.name as client_name, c.phone as client_phone, c.email as client_email
        FROM appointments a
        JOIN clients c ON a.client_id = c.id
        JOIN services s ON a.service_id = s.id
        WHERE (c.phone = $1 OR c.email = $1)
        ORDER BY a.date DESC, a.start_time DESC
-       LIMIT 10`,
+       LIMIT 20`,
       [search]
     );
 
@@ -114,7 +116,8 @@ router.get('/', authMiddleware, async (req, res) => {
     const { date, status, client_id } = req.query;
 
     let query = `
-      SELECT a.*, c.name as client_name, c.phone as client_phone, s.name as service_name
+      SELECT a.*, c.name as client_name, c.phone as client_phone, c.email as client_email,
+             s.name as service_name, s.duration_minutes, s.price as service_price
       FROM appointments a
       JOIN clients c ON a.client_id = c.id
       JOIN services s ON a.service_id = s.id
@@ -139,6 +142,13 @@ router.get('/', authMiddleware, async (req, res) => {
       query += ` AND a.client_id = $${paramIndex}`;
       params.push(client_id);
       paramIndex++;
+    }
+
+    // Filtro por rango de fechas (para calendario)
+    if (req.query.from && req.query.to) {
+      query += ` AND a.date >= $${paramIndex} AND a.date <= $${paramIndex + 1}`;
+      params.push(req.query.from, req.query.to);
+      paramIndex += 2;
     }
 
     query += ' ORDER BY a.date, a.start_time';
