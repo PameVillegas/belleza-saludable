@@ -1049,7 +1049,16 @@ async function loadWhatsAppStatus() {
 
     let html = '';
 
-    if (data.status === 'connected') {
+    if (data.status === 'unavailable') {
+      html = `
+        <div class="stat-card" style="text-align:center; padding:2rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">⚠️</div>
+          <h3 style="font-family:var(--font-display); margin-bottom:0.5rem;">WhatsApp no disponible</h3>
+          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1rem;">El servidor no tiene Chromium instalado para WhatsApp Web. Podés enviar recordatorios manualmente desde la sección Recordatorios.</p>
+        </div>
+      `;
+      stopWAPolling();
+    } else if (data.status === 'connected') {
       html = `
         <div class="stat-card" style="text-align:center; padding:2rem;">
           <div style="font-size:3rem; margin-bottom:1rem;">✅</div>

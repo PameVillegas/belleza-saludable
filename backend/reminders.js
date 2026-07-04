@@ -1,5 +1,12 @@
 const pool = require('./db/pool');
-const { sendMessage, getStatus } = require('./whatsapp');
+let whatsappModule = null;
+try {
+  whatsappModule = require('./whatsapp');
+} catch (err) {
+  console.log('[Recordatorios] WhatsApp module no disponible');
+}
+
+const { sendMessage, getStatus } = whatsappModule || { sendMessage: () => false, getStatus: () => ({ status: 'unavailable' }) };
 
 // Número de WhatsApp del negocio (sin +)
 const BUSINESS_PHONE = '543388403225';

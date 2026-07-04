@@ -40,10 +40,15 @@ app.use('/api/admin/reviews', reviewsRoutes);
 
 // Sistema de recordatorios automáticos por WhatsApp
 const { startRemindersCron, getPendingReminders } = require('./reminders');
-const { initWhatsApp, getStatus: getWhatsAppStatus, logout: logoutWhatsApp, restart: restartWhatsApp, sendMessage: sendWAMessage } = require('./whatsapp');
-
-// Iniciar WhatsApp
-initWhatsApp();
+let whatsapp = null;
+try {
+  whatsapp = require('./whatsapp');
+  whatsapp.initWhatsApp().catch(err => {
+    console.error('[WhatsApp] No se pudo inicializar (Chromium no disponible?):', err.message);
+  });
+} catch (err) {
+  console.error('[WhatsApp] Módulo no disponible:', err.message);
+}
 startRemindersCron();
 
 // Endpoint admin: ver recordatorios del día
@@ -59,29 +64,33 @@ app.get('/api/admin/reminders', require('./middleware/auth'), async (req, res) =
 
 // Endpoint admin: estado de WhatsApp (QR, conectado, etc.)
 app.get('/api/admin/whatsapp/status', require('./middleware/auth'), (req, res) => {
-  const status = getWhatsAppStatus();
+  if (!whatsapp) return res.json({ status: 'unavailable' });
+  const status = whatsapp.getStatus();
   res.json(status);
 });
 
 // Endpoint admin: desconectar WhatsApp
 app.post('/api/admin/whatsapp/logout', require('./middleware/auth'), async (req, res) => {
-  await logoutWhatsApp();
+  if (!whatsapp) return res.json({ message: 'WhatsApp no disponible.' });
+  await whatsapp.logout();
   res.json({ message: 'Sesión de WhatsApp cerrada.' });
 });
 
 // Endpoint admin: reiniciar WhatsApp (genera nuevo QR)
 app.post('/api/admin/whatsapp/restart', require('./middleware/auth'), async (req, res) => {
-  await restartWhatsApp();
+  if (!whatsapp) return res.json({ message: 'WhatsApp no disponible en este servidor.' });
+  await whatsapp.restart();
   res.json({ message: 'Reiniciando WhatsApp... Esperá unos segundos y refrescá para ver el QR.' });
 });
 
 // Endpoint admin: enviar mensaje manual por WhatsApp
 app.post('/api/admin/whatsapp/send', require('./middleware/auth'), async (req, res) => {
+  if (!whatsapp) return res.status(500).json({ error: 'WhatsApp no disponible.' });
   const { phone, message } = req.body;
   if (!phone || !message) {
     return res.status(400).json({ error: 'Se requiere phone y message.' });
   }
-  const sent = await sendWAMessage(phone, message);
+  const sent = await whatsapp.sendMessage(phone, message);
   if (sent) {
     res.json({ success: true, message: 'Mensaje enviado.' });
   } else {
