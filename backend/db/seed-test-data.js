@@ -115,6 +115,20 @@ async function seedTestData() {
       ON CONFLICT DO NOTHING
     `);
 
+    // Crear reseñas de prueba
+    await client.query(`
+      INSERT INTO reviews (client_name, service_name, stars, text, is_approved) VALUES
+      ('María L.', 'Limpieza Facial Profunda', 5, 'Excelente atención, mi piel cambió muchísimo. Se nota la dedicación y el profesionalismo en cada sesión.', true),
+      ('Carolina P.', 'Peelings Químicos', 5, 'Los tratamientos faciales son increíbles. Mariana te explica todo y te hace sentir muy cómoda.', true),
+      ('Luciana M.', 'Ondas Rusas + Presoterapia', 5, 'Llevo 6 meses con las ondas rusas y presoterapia, los resultados son notorios. Super recomendable.', true),
+      ('Valentina R.', 'Microneedling / Dermapen', 5, 'El microneedling me cambió la piel por completo. Las marcas de acné se redujeron muchísimo.', true),
+      ('Sofía G.', 'Lifting de Pestañas', 5, 'Me hice el lifting de pestañas y quedé encantada. La mirada se abre totalmente, muy natural.', true),
+      ('Florencia D.', 'Limpieza Premium', 4, 'Muy buena la limpieza premium, sentí la piel súper hidratada y luminosa por días.', true),
+      ('Andrea M.', 'Presoterapia', 5, 'La presoterapia es lo mejor para las piernas cansadas. Salís como nueva.', true),
+      ('Camila T.', 'Laminado de Cejas', 5, 'Me encanta el laminado de cejas, quedan perfectas y prolijas por semanas.', true)
+      ON CONFLICT DO NOTHING
+    `);
+
     await client.query('COMMIT');
     console.log('✓ Datos de prueba cargados:');
     console.log(`  - ${clientes.length} clientes`);

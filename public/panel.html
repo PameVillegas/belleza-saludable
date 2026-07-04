@@ -532,6 +532,7 @@
         <a href="#" onclick="showSection('clients')" data-section="clients">👥 Clientes</a>
         <a href="#" onclick="showSection('services')" data-section="services">💆 Servicios</a>
         <a href="#" onclick="showSection('products')" data-section="products">🧴 Productos</a>
+        <a href="#" onclick="showSection('reviews')" data-section="reviews">⭐ Reseñas</a>
         <a href="#" onclick="showSection('schedules')" data-section="schedules">⏰ Horarios</a>
         <a href="#" onclick="showSection('users')" data-section="users">👤 Administradores</a>
         <a href="#" onclick="showSection('clientUsers')" data-section="clientUsers">🔑 Usuarios Clientes</a>
@@ -670,6 +671,15 @@
           <button class="btn btn-primary" onclick="openNewProduct()">+ Nuevo producto</button>
         </div>
         <div id="productsTable"></div>
+      </div>
+
+      <!-- Reseñas -->
+      <div class="section" id="sec-reviews">
+        <div class="main-header">
+          <h2>⭐ Reseñas</h2>
+        </div>
+        <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Reseñas escritas por las clientas. Podés aprobar, ocultar o eliminar.</p>
+        <div id="reviewsTable"></div>
       </div>
     </main>
   </div>

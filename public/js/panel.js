@@ -86,6 +86,7 @@ function showSection(name) {
   if (name === 'products') loadProducts();
   if (name === 'reminders') loadReminders();
   if (name === 'whatsapp') loadWhatsAppStatus();
+  if (name === 'reviews') loadReviews();
 
   if (window.innerWidth <= 768) toggleSidebar();
 }
@@ -1116,4 +1117,49 @@ async function disconnectWhatsApp() {
   } catch {
     alert('Error al desconectar.');
   }
+}
+
+// === Reseñas ===
+async function loadReviews() {
+  try {
+    const res = await fetch(`${API}/admin/reviews/all`, { headers: authHeaders() });
+    const reviews = await res.json();
+
+    if (reviews.length === 0) {
+      document.getElementById('reviewsTable').innerHTML = '<p style="color:var(--color-text-muted)">No hay reseñas aún.</p>';
+      return;
+    }
+
+    document.getElementById('reviewsTable').innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>Estrellas</th><th>Cliente</th><th>Servicio</th><th>Comentario</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>${reviews.map(r => `
+          <tr>
+            <td style="color:var(--color-gold);">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</td>
+            <td>${r.client_name}</td>
+            <td>${r.service_name || '-'}</td>
+            <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.text}">${r.text}</td>
+            <td>${r.is_approved ? '<span class="badge badge-confirmed">Visible</span>' : '<span class="badge badge-cancelled">Oculta</span>'}</td>
+            <td>
+              <button class="btn btn-sm" onclick="toggleReview('${r.id}')">${r.is_approved ? 'Ocultar' : 'Mostrar'}</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteReview('${r.id}')">Eliminar</button>
+            </td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `;
+  } catch {
+    document.getElementById('reviewsTable').innerHTML = '<p style="color:var(--color-error)">Error al cargar reseñas.</p>';
+  }
+}
+
+async function toggleReview(id) {
+  await fetch(`${API}/admin/reviews/${id}/toggle`, { method: 'PATCH', headers: authHeaders() });
+  loadReviews();
+}
+
+async function deleteReview(id) {
+  if (!confirm('¿Eliminar esta reseña?')) return;
+  await fetch(`${API}/admin/reviews/${id}`, { method: 'DELETE', headers: authHeaders() });
+  loadReviews();
 }

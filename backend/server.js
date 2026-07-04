@@ -22,6 +22,7 @@ const appointmentsRoutes = require('./routes/appointments');
 const availabilityRoutes = require('./routes/availability');
 const productsRoutes = require('./routes/products');
 const incomeRoutes = require('./routes/income');
+const reviewsRoutes = require('./routes/reviews');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/services', servicesRoutes);
@@ -34,6 +35,8 @@ app.use('/api/availability', availabilityRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/admin/products', productsRoutes);
 app.use('/api/admin/income', incomeRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/admin/reviews', reviewsRoutes);
 
 // Sistema de recordatorios automáticos por WhatsApp
 const { startRemindersCron, getPendingReminders } = require('./reminders');

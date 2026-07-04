@@ -91,3 +91,17 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE INDEX IF NOT EXISTS idx_products_active ON products(is_active);
+
+-- Tabla de reseñas
+CREATE TABLE IF NOT EXISTS reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID REFERENCES clients(id),
+  client_name VARCHAR(255) NOT NULL,
+  service_name VARCHAR(255),
+  stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5),
+  text TEXT NOT NULL,
+  is_approved BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_approved ON reviews(is_approved, created_at DESC);
