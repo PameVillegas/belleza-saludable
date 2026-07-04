@@ -526,8 +526,10 @@
         <a href="#" onclick="showSection('dashboard')" class="active" data-section="dashboard">📊 Dashboard</a>
         <a href="#" onclick="showSection('calendar')" data-section="calendar">🗓️ Calendario</a>
         <a href="#" onclick="showSection('appointments')" data-section="appointments">📅 Turnos</a>
+        <a href="#" onclick="showSection('income')" data-section="income">💰 Ingresos</a>
         <a href="#" onclick="showSection('clients')" data-section="clients">👥 Clientes</a>
         <a href="#" onclick="showSection('services')" data-section="services">💆 Servicios</a>
+        <a href="#" onclick="showSection('products')" data-section="products">🧴 Productos</a>
         <a href="#" onclick="showSection('schedules')" data-section="schedules">⏰ Horarios</a>
         <a href="#" onclick="showSection('users')" data-section="users">👤 Administradores</a>
         <a href="#" onclick="showSection('clientUsers')" data-section="clientUsers">🔑 Usuarios Clientes</a>
@@ -624,6 +626,30 @@
           <input type="text" id="clientUserSearch" placeholder="Buscar por nombre, usuario o teléfono..." oninput="searchClientUsers()">
         </div>
         <div id="clientUsersTable"></div>
+      </div>
+
+      <!-- Ingresos -->
+      <div class="section" id="sec-income">
+        <div class="main-header">
+          <h2>💰 Ingresos</h2>
+        </div>
+        <div class="cards-grid" id="incomeStats" style="margin-bottom:1.5rem;"></div>
+        <h3 style="font-family:var(--font-display); font-weight:600; margin-bottom:1rem;">Buscar por rango de fechas</h3>
+        <div class="search-bar">
+          <input type="date" id="incomeFrom">
+          <input type="date" id="incomeTo">
+          <button class="btn btn-primary" onclick="searchIncome()">Buscar</button>
+        </div>
+        <div id="incomeResults"></div>
+      </div>
+
+      <!-- Productos -->
+      <div class="section" id="sec-products">
+        <div class="main-header">
+          <h2>🧴 Productos</h2>
+          <button class="btn btn-primary" onclick="openNewProduct()">+ Nuevo producto</button>
+        </div>
+        <div id="productsTable"></div>
       </div>
     </main>
   </div>

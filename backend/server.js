@@ -20,6 +20,8 @@ const schedulesRoutes = require('./routes/schedules');
 const clientsRoutes = require('./routes/clients');
 const appointmentsRoutes = require('./routes/appointments');
 const availabilityRoutes = require('./routes/availability');
+const productsRoutes = require('./routes/products');
+const incomeRoutes = require('./routes/income');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/services', servicesRoutes);
@@ -29,6 +31,9 @@ app.use('/api/admin/clients', clientsRoutes);
 app.use('/api/admin/appointments', appointmentsRoutes);
 app.use('/api/appointments', appointmentsRoutes);
 app.use('/api/availability', availabilityRoutes);
+app.use('/api/products', productsRoutes);
+app.use('/api/admin/products', productsRoutes);
+app.use('/api/admin/income', incomeRoutes);
 
 // En producción, servir el build de React para rutas no-API
 if (process.env.NODE_ENV === 'production') {

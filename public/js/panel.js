@@ -82,6 +82,8 @@ function showSection(name) {
   if (name === 'schedules') loadSchedules();
   if (name === 'users') loadUsers();
   if (name === 'clientUsers') loadClientUsers();
+  if (name === 'income') loadIncome();
+  if (name === 'products') loadProducts();
 
   if (window.innerWidth <= 768) toggleSidebar();
 }
@@ -838,4 +840,167 @@ function renderClientUsers(users) {
       `).join('')}</tbody>
     </table>
   `;
+}
+
+// === Ingresos ===
+async function loadIncome() {
+  try {
+    const res = await fetch(`${API}/admin/income`, { headers: authHeaders() });
+    const data = await res.json();
+
+    document.getElementById('incomeStats').innerHTML = `
+      <div class="stat-card"><h4>Ingresos hoy</h4><div class="value">$${data.today.total.toLocaleString()}</div><p style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">${data.today.count} turnos</p></div>
+      <div class="stat-card"><h4>Ingresos del mes</h4><div class="value">$${data.month.total.toLocaleString()}</div><p style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">${data.month.count} turnos</p></div>
+    `;
+  } catch {
+    document.getElementById('incomeStats').innerHTML = '<p style="color:var(--color-error)">Error al cargar ingresos.</p>';
+  }
+}
+
+async function searchIncome() {
+  const from = document.getElementById('incomeFrom').value;
+  const to = document.getElementById('incomeTo').value;
+
+  if (!from || !to) {
+    alert('Seleccioná ambas fechas.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/admin/income/search?from=${from}&to=${to}`, { headers: authHeaders() });
+    const data = await res.json();
+
+    let html = `
+      <div class="stat-card" style="margin-bottom:1rem;">
+        <h4>Total del período</h4>
+        <div class="value">$${data.total.toLocaleString()}</div>
+        <p style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">${data.count} turnos</p>
+      </div>
+    `;
+
+    if (data.appointments.length > 0) {
+      html += `
+        <table class="data-table">
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Precio</th><th>Estado</th></tr></thead>
+          <tbody>${data.appointments.map(a => `
+            <tr>
+              <td>${a.date.split('T')[0]}</td>
+              <td>${a.start_time.slice(0,5)}</td>
+              <td>${a.client_name}</td>
+              <td>${a.service_name}</td>
+              <td>$${Number(a.price).toLocaleString()}</td>
+              <td><span class="badge badge-${a.status}">${a.status}</span></td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      `;
+    } else {
+      html += '<p style="color:var(--color-text-muted)">No hay ingresos en este período.</p>';
+    }
+
+    document.getElementById('incomeResults').innerHTML = html;
+  } catch {
+    document.getElementById('incomeResults').innerHTML = '<p style="color:var(--color-error)">Error al buscar ingresos.</p>';
+  }
+}
+
+// === Productos ===
+async function loadProducts() {
+  try {
+    const res = await fetch(`${API}/admin/products/all`, { headers: authHeaders() });
+    const products = await res.json();
+
+    if (products.length === 0) {
+      document.getElementById('productsTable').innerHTML = '<p style="color:var(--color-text-muted)">No hay productos cargados.</p>';
+      return;
+    }
+
+    document.getElementById('productsTable').innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>Imagen</th><th>Nombre</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>${products.map(p => `
+          <tr>
+            <td>${p.image_url ? `<img src="${p.image_url}" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">` : '<span style="color:var(--color-text-muted)">Sin imagen</span>'}</td>
+            <td><strong>${p.name}</strong><br><span style="font-size:0.75rem; color:var(--color-text-muted);">${p.description || ''}</span></td>
+            <td>$${Number(p.price).toLocaleString()}</td>
+            <td>${p.is_active ? '<span class="badge badge-confirmed">Activo</span>' : '<span class="badge badge-cancelled">Inactivo</span>'}</td>
+            <td>
+              <button class="btn btn-sm" onclick="editProduct('${p.id}')">Editar</button>
+              ${p.is_active ? `<button class="btn btn-danger btn-sm" onclick="deactivateProduct('${p.id}')">Desactivar</button>` : ''}
+            </td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `;
+  } catch {
+    document.getElementById('productsTable').innerHTML = '<p style="color:var(--color-error)">Error al cargar productos.</p>';
+  }
+}
+
+function openNewProduct() {
+  openModal(`
+    <h3>Nuevo Producto</h3>
+    <div class="form-group"><label>Nombre</label><input type="text" id="prodName"></div>
+    <div class="form-group"><label>Descripción</label><textarea id="prodDesc" rows="3"></textarea></div>
+    <div class="form-group"><label>Precio</label><input type="number" id="prodPrice" min="0" step="0.01"></div>
+    <div class="form-group"><label>URL de imagen</label><input type="text" id="prodImage" placeholder="https://..."></div>
+    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Podés subir la imagen a <a href="https://imgbb.com" target="_blank">imgbb.com</a> y pegar el link acá.</p>
+    <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNewProduct()">Guardar</button>
+    </div>
+  `);
+}
+
+async function saveNewProduct() {
+  const body = {
+    name: document.getElementById('prodName').value,
+    description: document.getElementById('prodDesc').value,
+    price: parseFloat(document.getElementById('prodPrice').value) || 0,
+    image_url: document.getElementById('prodImage').value || null
+  };
+  const res = await fetch(`${API}/admin/products`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+  if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+  closeModal();
+  loadProducts();
+}
+
+async function editProduct(id) {
+  const res = await fetch(`${API}/admin/products/all`, { headers: authHeaders() });
+  const products = await res.json();
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+
+  openModal(`
+    <h3>Editar Producto</h3>
+    <div class="form-group"><label>Nombre</label><input type="text" id="prodName" value="${p.name}"></div>
+    <div class="form-group"><label>Descripción</label><textarea id="prodDesc" rows="3">${p.description || ''}</textarea></div>
+    <div class="form-group"><label>Precio</label><input type="number" id="prodPrice" value="${p.price}" min="0" step="0.01"></div>
+    <div class="form-group"><label>URL de imagen</label><input type="text" id="prodImage" value="${p.image_url || ''}" placeholder="https://..."></div>
+    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Podés subir la imagen a <a href="https://imgbb.com" target="_blank">imgbb.com</a> y pegar el link acá.</p>
+    ${p.image_url ? `<img src="${p.image_url}" style="width:100px; height:100px; object-fit:cover; border-radius:8px; margin-top:0.5rem;">` : ''}
+    <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="updateProduct('${id}')">Guardar</button>
+    </div>
+  `);
+}
+
+async function updateProduct(id) {
+  const body = {
+    name: document.getElementById('prodName').value,
+    description: document.getElementById('prodDesc').value,
+    price: parseFloat(document.getElementById('prodPrice').value) || 0,
+    image_url: document.getElementById('prodImage').value || null
+  };
+  const res = await fetch(`${API}/admin/products/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+  if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+  closeModal();
+  loadProducts();
+}
+
+async function deactivateProduct(id) {
+  if (!confirm('¿Desactivar este producto?')) return;
+  await fetch(`${API}/admin/products/${id}/deactivate`, { method: 'PATCH', headers: authHeaders() });
+  loadProducts();
 }

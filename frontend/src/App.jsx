@@ -10,6 +10,7 @@ import MyAppointments from './pages/MyAppointments';
 import Reviews from './pages/Reviews';
 import Professional from './pages/Professional';
 import Terms from './pages/Terms';
+import Products from './pages/Products';
 import BottomNav from './components/BottomNav';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -29,6 +30,7 @@ function App() {
           <Route path="/resenas" element={<Reviews />} />
           <Route path="/profesional" element={<Professional />} />
           <Route path="/bases-condiciones" element={<Terms />} />
+          <Route path="/productos" element={<Products />} />
         </Routes>
         <WhatsAppButton />
         <BottomNav />
