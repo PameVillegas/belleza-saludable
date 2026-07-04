@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Turno - Belleza Saludable</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #faf5ff;
+      color: #1f2937;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 500px;
+      margin: 2rem auto;
+      text-align: center;
+    }
+    h1 { color: #8b5cf6; margin-bottom: 0.5rem; }
+    .subtitle { color: #6b7280; margin-bottom: 2rem; }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+    .card h3 { margin-bottom: 0.75rem; }
+    .card p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .search-box input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      min-height: 44px;
+    }
+    .search-box button {
+      padding: 0.75rem 1.5rem;
+      background: #8b5cf6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      min-height: 44px;
+      font-size: 0.9rem;
+    }
+    .search-box button:hover { background: #7c3aed; }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge-confirmed { background: #d1fae5; color: #065f46; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; }
+    .info-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    .info-section h3 { margin-bottom: 0.75rem; color: #8b5cf6; }
+    .info-section p { margin-bottom: 0.5rem; font-size: 0.9rem; }
+    #results { margin-bottom: 1.5rem; }
+    .error { color: #ef4444; font-size: 0.875rem; margin-bottom: 1rem; }
+
+    @media (max-width: 768px) {
+      .search-box { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💜 Belleza Saludable</h1>
+    <p class="subtitle">Consultá el estado de tu turno</p>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Tu teléfono o email">
+      <button onclick="searchMyAppointments()">Buscar</button>
+    </div>
+
+    <div id="error" class="error" style="display:none;"></div>
+    <div id="results"></div>
+
+    <div class="info-section">
+      <h3>📍 Contacto</h3>
+      <p>📞 Teléfono: (011) 1234-5678</p>
+      <p>📧 Email: info@bellezasaludable.com</p>
+      <p>📍 Dirección: Av. Ejemplo 1234, CABA</p>
+      <p>🕐 Lunes a Viernes: 9:00 - 18:00 | Sábados: 9:00 - 13:00</p>
+    </div>
+  </div>
+
+  <script>
+    async function searchMyAppointments() {
+      const query = document.getElementById('searchInput').value.trim();
+      const errorEl = document.getElementById('error');
+      const resultsEl = document.getElementById('results');
+
+      if (!query) {
+        errorEl.textContent = 'Ingresá tu teléfono o email.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      errorEl.style.display = 'none';
+      resultsEl.innerHTML = '<p style="color:#6b7280">Buscando...</p>';
+
+      try {
+        // Buscar cliente por teléfono o email via endpoint público
+        const res = await fetch(`/api/appointments/my?search=${encodeURIComponent(query)}`);
+
+        if (!res.ok) {
+          resultsEl.innerHTML = '<p style="color:#6b7280">No se encontraron turnos con esos datos.</p>';
+          return;
+        }
+
+        const appointments = await res.json();
+
+        if (appointments.length === 0) {
+          resultsEl.innerHTML = '<p style="color:#6b7280">No se encontraron turnos con esos datos.</p>';
+          return;
+        }
+
+        resultsEl.innerHTML = appointments.map(a => `
+          <div class="card">
+            <h3>${a.service_name}</h3>
+            <p>📅 Fecha: ${new Date(a.date + 'T12:00:00').toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+            <p>⏰ Horario: ${a.start_time.slice(0,5)} hs</p>
+            <p>Estado: <span class="badge badge-${a.status}">${a.status === 'confirmed' ? 'Confirmado' : a.status === 'cancelled' ? 'Cancelado' : 'Completado'}</span></p>
+          </div>
+        `).join('');
+      } catch {
+        resultsEl.innerHTML = '<p style="color:#ef4444">Error de conexión. Intentá más tarde.</p>';
+      }
+    }
+
+    document.getElementById('searchInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchMyAppointments();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: belleza-saludable
+    runtime: node
+    buildCommand: npm install && cd frontend && npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: belleza-saludable-db
+          property: connectionString
+
+databases:
+  - name: belleza-saludable-db
+    plan: free
