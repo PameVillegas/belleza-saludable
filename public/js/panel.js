@@ -85,6 +85,7 @@ function showSection(name) {
   if (name === 'income') loadIncome();
   if (name === 'products') loadProducts();
   if (name === 'reminders') loadReminders();
+  if (name === 'whatsapp') loadWhatsAppStatus();
 
   if (window.innerWidth <= 768) toggleSidebar();
 }
@@ -1034,5 +1035,85 @@ async function loadReminders() {
     `;
   } catch {
     document.getElementById('remindersTable').innerHTML = '<p style="color:var(--color-error)">Error al cargar recordatorios.</p>';
+  }
+}
+
+// === WhatsApp ===
+let waPollingInterval = null;
+
+async function loadWhatsAppStatus() {
+  try {
+    const res = await fetch(`${API}/admin/whatsapp/status`, { headers: authHeaders() });
+    const data = await res.json();
+
+    let html = '';
+
+    if (data.status === 'connected') {
+      html = `
+        <div class="stat-card" style="text-align:center; padding:2rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">✅</div>
+          <h3 style="font-family:var(--font-display); margin-bottom:0.5rem;">WhatsApp Conectado</h3>
+          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Los recordatorios se envían automáticamente 1 hora antes de cada turno.</p>
+          <button class="btn btn-danger" onclick="disconnectWhatsApp()">Desconectar</button>
+        </div>
+      `;
+      stopWAPolling();
+    } else if (data.status === 'qr_pending' && data.qrDataUrl) {
+      html = `
+        <div class="stat-card" style="text-align:center; padding:2rem;">
+          <h3 style="font-family:var(--font-display); margin-bottom:1rem;">Escaneá el código QR</h3>
+          <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.5rem;">Abrí WhatsApp en tu celular → Dispositivos vinculados → Vincular un dispositivo</p>
+          <img src="${data.qrDataUrl}" alt="QR WhatsApp" style="width:280px; height:280px; border-radius:12px; border:2px solid var(--color-border);">
+          <p style="color:var(--color-text-muted); font-size:0.75rem; margin-top:1rem;">El QR se actualiza automáticamente...</p>
+        </div>
+      `;
+      startWAPolling();
+    } else {
+      html = `
+        <div class="stat-card" style="text-align:center; padding:2rem;">
+          <div style="font-size:3rem; margin-bottom:1rem;">📱</div>
+          <h3 style="font-family:var(--font-display); margin-bottom:0.5rem;">WhatsApp Desconectado</h3>
+          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Conectá tu WhatsApp para enviar recordatorios automáticos a tus clientas.</p>
+          <button class="btn btn-primary" onclick="connectWhatsApp()">Conectar WhatsApp</button>
+        </div>
+      `;
+      stopWAPolling();
+    }
+
+    document.getElementById('whatsappContent').innerHTML = html;
+  } catch {
+    document.getElementById('whatsappContent').innerHTML = '<p style="color:var(--color-error)">Error al verificar estado de WhatsApp.</p>';
+  }
+}
+
+function startWAPolling() {
+  if (waPollingInterval) return;
+  waPollingInterval = setInterval(loadWhatsAppStatus, 5000);
+}
+
+function stopWAPolling() {
+  if (waPollingInterval) {
+    clearInterval(waPollingInterval);
+    waPollingInterval = null;
+  }
+}
+
+async function connectWhatsApp() {
+  document.getElementById('whatsappContent').innerHTML = '<div class="loading">Iniciando WhatsApp... Esperá unos segundos...</div>';
+  try {
+    await fetch(`${API}/admin/whatsapp/restart`, { method: 'POST', headers: authHeaders() });
+    setTimeout(loadWhatsAppStatus, 5000);
+  } catch {
+    document.getElementById('whatsappContent').innerHTML = '<p style="color:var(--color-error)">Error al iniciar WhatsApp.</p>';
+  }
+}
+
+async function disconnectWhatsApp() {
+  if (!confirm('¿Desconectar WhatsApp? Los recordatorios automáticos dejarán de enviarse.')) return;
+  try {
+    await fetch(`${API}/admin/whatsapp/logout`, { method: 'POST', headers: authHeaders() });
+    loadWhatsAppStatus();
+  } catch {
+    alert('Error al desconectar.');
   }
 }

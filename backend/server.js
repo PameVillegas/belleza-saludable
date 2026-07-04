@@ -37,6 +37,10 @@ app.use('/api/admin/income', incomeRoutes);
 
 // Sistema de recordatorios automáticos por WhatsApp
 const { startRemindersCron, getPendingReminders } = require('./reminders');
+const { initWhatsApp, getStatus: getWhatsAppStatus, logout: logoutWhatsApp, restart: restartWhatsApp, sendMessage: sendWAMessage } = require('./whatsapp');
+
+// Iniciar WhatsApp
+initWhatsApp();
 startRemindersCron();
 
 // Endpoint admin: ver recordatorios del día
@@ -47,6 +51,38 @@ app.get('/api/admin/reminders', require('./middleware/auth'), async (req, res) =
   } catch (err) {
     console.error('Error al obtener recordatorios:', err);
     res.status(500).json({ error: 'Error interno.' });
+  }
+});
+
+// Endpoint admin: estado de WhatsApp (QR, conectado, etc.)
+app.get('/api/admin/whatsapp/status', require('./middleware/auth'), (req, res) => {
+  const status = getWhatsAppStatus();
+  res.json(status);
+});
+
+// Endpoint admin: desconectar WhatsApp
+app.post('/api/admin/whatsapp/logout', require('./middleware/auth'), async (req, res) => {
+  await logoutWhatsApp();
+  res.json({ message: 'Sesión de WhatsApp cerrada.' });
+});
+
+// Endpoint admin: reiniciar WhatsApp (genera nuevo QR)
+app.post('/api/admin/whatsapp/restart', require('./middleware/auth'), async (req, res) => {
+  await restartWhatsApp();
+  res.json({ message: 'Reiniciando WhatsApp... Esperá unos segundos y refrescá para ver el QR.' });
+});
+
+// Endpoint admin: enviar mensaje manual por WhatsApp
+app.post('/api/admin/whatsapp/send', require('./middleware/auth'), async (req, res) => {
+  const { phone, message } = req.body;
+  if (!phone || !message) {
+    return res.status(400).json({ error: 'Se requiere phone y message.' });
+  }
+  const sent = await sendWAMessage(phone, message);
+  if (sent) {
+    res.json({ success: true, message: 'Mensaje enviado.' });
+  } else {
+    res.status(500).json({ success: false, error: 'No se pudo enviar. Verificá que WhatsApp esté conectado.' });
   }
 });
 

@@ -1,4 +1,5 @@
 const pool = require('./db/pool');
+const { sendMessage, getStatus } = require('./whatsapp');
 
 // Número de WhatsApp del negocio (sin +)
 const BUSINESS_PHONE = '543388403225';
@@ -133,53 +134,22 @@ async function checkAndSendReminders() {
       );
 
       console.log(`[Recordatorio] Turno ${appointment.id} - ${appointment.client_name} (${appointment.start_time.slice(0,5)})`);
-      console.log(`  Mensaje: ${message.substring(0, 80)}...`);
-      console.log(`  WhatsApp link: ${whatsappLink.substring(0, 100)}...`);
 
-      // Si tenemos API de WhatsApp configurada, enviar automáticamente
-      if (process.env.WHATSAPP_API_TOKEN && process.env.WHATSAPP_PHONE_ID) {
-        await sendWhatsAppMessage(appointment.client_phone, message);
+      // Enviar por WhatsApp si está conectado
+      const waState = getStatus();
+      if (waState.status === 'connected') {
+        const sent = await sendMessage(appointment.client_phone, message);
+        if (sent) {
+          console.log(`  ✓ WhatsApp enviado a ${appointment.client_name}`);
+        } else {
+          console.log(`  ✗ No se pudo enviar WhatsApp a ${appointment.client_name}`);
+        }
+      } else {
+        console.log(`  ⚠ WhatsApp no conectado. Recordatorio registrado pero no enviado.`);
       }
     }
   } catch (err) {
     console.error('[Recordatorios] Error:', err.message);
-  }
-}
-
-/**
- * Envía mensaje via WhatsApp Cloud API (Meta)
- * Requiere WHATSAPP_API_TOKEN y WHATSAPP_PHONE_ID en .env
- */
-async function sendWhatsAppMessage(phone, message) {
-  try {
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
-    const fullPhone = cleanPhone.startsWith('54') ? cleanPhone : `54${cleanPhone}`;
-
-    const response = await fetch(
-      `https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_ID}/messages`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.WHATSAPP_API_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: fullPhone,
-          type: 'text',
-          text: { body: message }
-        })
-      }
-    );
-
-    if (response.ok) {
-      console.log(`  ✓ WhatsApp enviado a ${fullPhone}`);
-    } else {
-      const err = await response.json();
-      console.error(`  ✗ Error enviando WhatsApp:`, err);
-    }
-  } catch (err) {
-    console.error(`  ✗ Error de conexión WhatsApp:`, err.message);
   }
 }
 

@@ -528,6 +528,7 @@
         <a href="#" onclick="showSection('appointments')" data-section="appointments">📅 Turnos</a>
         <a href="#" onclick="showSection('income')" data-section="income">💰 Ingresos</a>
         <a href="#" onclick="showSection('reminders')" data-section="reminders">📨 Recordatorios</a>
+        <a href="#" onclick="showSection('whatsapp')" data-section="whatsapp">📱 WhatsApp</a>
         <a href="#" onclick="showSection('clients')" data-section="clients">👥 Clientes</a>
         <a href="#" onclick="showSection('services')" data-section="services">💆 Servicios</a>
         <a href="#" onclick="showSection('products')" data-section="products">🧴 Productos</a>
@@ -651,6 +652,15 @@
         </div>
         <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Los recordatorios se envían automáticamente 1 hora antes del turno. Acá podés ver el estado y enviar manualmente.</p>
         <div id="remindersTable"></div>
+      </div>
+
+      <!-- WhatsApp -->
+      <div class="section" id="sec-whatsapp">
+        <div class="main-header">
+          <h2>📱 WhatsApp</h2>
+        </div>
+        <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Vinculá tu WhatsApp escaneando el código QR. Una vez conectado, los recordatorios se envían automáticamente.</p>
+        <div id="whatsappContent"></div>
       </div>
 
       <!-- Productos -->
