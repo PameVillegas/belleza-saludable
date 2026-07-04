@@ -3,7 +3,7 @@ services:
     name: belleza-saludable
     runtime: node
     buildCommand: npm install && cd frontend && npm install && npm run build
-    startCommand: node backend/db/setup.js && node backend/server.js
+    startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
         value: production
