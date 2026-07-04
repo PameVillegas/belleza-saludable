@@ -13,7 +13,7 @@ function ClientData() {
   const slot = JSON.parse(sessionStorage.getItem('selectedSlot') || 'null');
 
   if (!service || !date || !slot) {
-    navigate('/');
+    navigate('/turnos');
     return null;
   }
 
@@ -68,14 +68,17 @@ function ClientData() {
   };
 
   return (
-    <div>
+    <div className="booking-container fade-up">
       <Stepper currentStep={3} />
-      <h2 style={{ marginBottom: '1rem' }}>Tus datos</h2>
+      <div className="booking-header">
+        <h2 className="booking-title">Tus datos</h2>
+        <p className="booking-subtitle">Completá tus datos para confirmar el turno</p>
+      </div>
 
       {/* Resumen */}
-      <div className="card" style={{ marginBottom: '1.5rem', background: 'var(--color-bg)' }}>
-        <p><strong>{service.name}</strong></p>
-        <p style={{ fontSize: '0.875rem', color: 'var(--color-text-light)' }}>
+      <div className="card" style={{ marginBottom: '1.5rem', background: 'var(--color-beige)' }}>
+        <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>{service.name}</p>
+        <p style={{ fontSize: '0.82rem', color: 'var(--color-text-light)' }}>
           📅 {formatDate(date)} &nbsp; ⏰ {slot.start} hs
         </p>
       </div>
@@ -91,20 +94,20 @@ function ClientData() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Tu nombre"
+            placeholder="Tu nombre completo"
             required
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="phone">Teléfono</label>
+          <label htmlFor="phone">Teléfono / WhatsApp</label>
           <input
             type="tel"
             id="phone"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="Ej: 11-1234-5678"
+            placeholder="Ej: 3388-123456"
             required
           />
         </div>
@@ -122,12 +125,16 @@ function ClientData() {
           />
         </div>
 
+        <div className="cancel-notice">
+          ⚠️ Si no podés asistir, por favor cancelá tu turno con anticipación para que otra persona pueda tomarlo.
+        </div>
+
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem' }}>
           <button type="button" className="btn btn-secondary" onClick={() => navigate('/fecha-hora')}>
             ← Atrás
           </button>
           <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? 'Reservando...' : 'Confirmar turno'}
+            {submitting ? 'Reservando...' : 'Confirmar turno ✓'}
           </button>
         </div>
       </form>

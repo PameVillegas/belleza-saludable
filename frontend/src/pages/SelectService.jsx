@@ -26,34 +26,45 @@ function SelectService() {
     navigate('/fecha-hora');
   };
 
-  if (loading) return <div className="loading">Cargando servicios...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  const getServiceIcon = (name) => {
+    const n = name.toLowerCase();
+    if (n.includes('limpieza')) return '✨';
+    if (n.includes('peeling')) return '🧴';
+    if (n.includes('microneedling') || n.includes('dermapen')) return '💎';
+    if (n.includes('lifting') || n.includes('pestañas')) return '👁️';
+    if (n.includes('cejas') || n.includes('perfilado') || n.includes('laminado')) return '✏️';
+    if (n.includes('ondas') || n.includes('presoterapia')) return '⚡';
+    if (n.includes('lipo')) return '🔥';
+    return '💆';
+  };
+
+  if (loading) return <div className="loading">Cargando tratamientos...</div>;
+  if (error) return <div className="booking-container"><div className="error-message">{error}</div></div>;
 
   return (
-    <div>
+    <div className="booking-container fade-up">
       <Stepper currentStep={1} />
-      <h2 style={{ marginBottom: '1rem', textAlign: 'center' }}>Elegí un servicio</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div className="booking-header">
+        <h2 className="booking-title">Elegí un tratamiento</h2>
+        <p className="booking-subtitle">Seleccioná el servicio que querés reservar</p>
+      </div>
+      <div className="services-grid" style={{ gridTemplateColumns: '1fr' }}>
         {services.map(service => (
           <button
             key={service.id}
-            className="card"
+            className="service-card"
             onClick={() => handleSelect(service)}
-            style={{ cursor: 'pointer', textAlign: 'left', width: '100%' }}
             aria-label={`Seleccionar ${service.name}`}
           >
-            <h3 style={{ fontSize: '0.95rem', color: 'var(--color-fucsia)' }}>{service.name}</h3>
-            {service.description && (
-              <p style={{ color: 'var(--color-text-light)', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                {service.description}
-              </p>
-            )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
-              <span>⏱ {service.duration_minutes} min</span>
-              {Number(service.price) > 0 && (
-                <span style={{ fontWeight: '600', color: 'var(--color-text)' }}>${Number(service.price).toLocaleString()}</span>
-              )}
+            <div className="service-icon">{getServiceIcon(service.name)}</div>
+            <div className="service-info">
+              <div className="service-name">{service.name}</div>
+              <div className="service-duration">
+                ⏱ {service.duration_minutes} min
+                {Number(service.price) > 0 && ` · $${Number(service.price).toLocaleString()}`}
+              </div>
             </div>
+            <span className="service-arrow">›</span>
           </button>
         ))}
       </div>

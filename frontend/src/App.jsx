@@ -1,21 +1,26 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
+import Home from './pages/Home';
 import SelectService from './pages/SelectService';
 import SelectDateTime from './pages/SelectDateTime';
 import ClientData from './pages/ClientData';
 import Confirmation from './pages/Confirmation';
+import BottomNav from './components/BottomNav';
+import WhatsAppButton from './components/WhatsAppButton';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<SelectService />} />
-          <Route path="fecha-hora" element={<SelectDateTime />} />
-          <Route path="datos" element={<ClientData />} />
-          <Route path="confirmacion" element={<Confirmation />} />
-        </Route>
-      </Routes>
+      <div className="app-shell">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/turnos" element={<SelectService />} />
+          <Route path="/fecha-hora" element={<SelectDateTime />} />
+          <Route path="/datos" element={<ClientData />} />
+          <Route path="/confirmacion" element={<Confirmation />} />
+        </Routes>
+        <WhatsAppButton />
+        <BottomNav />
+      </div>
     </BrowserRouter>
   );
 }

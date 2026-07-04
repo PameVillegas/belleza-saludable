@@ -16,7 +16,7 @@ function SelectDateTime() {
 
   useEffect(() => {
     if (!service) {
-      navigate('/');
+      navigate('/turnos');
       return;
     }
 
@@ -61,19 +61,21 @@ function SelectDateTime() {
   };
 
   if (loading) return <div className="loading">Cargando fechas...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  if (error) return <div className="booking-container"><div className="error-message">{error}</div></div>;
 
   return (
-    <div>
+    <div className="booking-container fade-up">
       <Stepper currentStep={2} />
-      <h2 style={{ marginBottom: '0.5rem' }}>Elegí fecha y hora</h2>
-      <p style={{ color: 'var(--color-text-light)', marginBottom: '1rem', fontSize: '0.875rem' }}>
-        Servicio: {service.name}
-      </p>
+      <div className="booking-header">
+        <h2 className="booking-title">Elegí día y horario</h2>
+        <p className="booking-subtitle">{service.name} · {service.duration_minutes} min</p>
+      </div>
 
-      {/* Selector de fecha */}
+      {/* Fechas */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem' }}>Fecha:</label>
+        <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
+          Fecha disponible:
+        </label>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
           {dates.slice(0, 14).map(date => (
             <button
@@ -87,14 +89,18 @@ function SelectDateTime() {
           ))}
         </div>
         {dates.length === 0 && (
-          <p style={{ color: 'var(--color-text-light)' }}>No hay fechas disponibles en los próximos días.</p>
+          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+            No hay fechas disponibles en los próximos días.
+          </p>
         )}
       </div>
 
-      {/* Selector de horario */}
+      {/* Horarios */}
       {selectedDate && (
-        <div>
-          <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem' }}>Horario:</label>
+        <div className="fade-in">
+          <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
+            Horario disponible:
+          </label>
           {loadingSlots ? (
             <div className="loading">Cargando horarios...</div>
           ) : (
@@ -112,21 +118,19 @@ function SelectDateTime() {
             </div>
           )}
           {!loadingSlots && slots.length === 0 && (
-            <p style={{ color: 'var(--color-text-light)' }}>No hay horarios disponibles para esta fecha.</p>
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+              No hay horarios disponibles para esta fecha.
+            </p>
           )}
         </div>
       )}
 
-      {/* Botones de navegación */}
+      {/* Navegación */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
-        <button className="btn btn-secondary" onClick={() => navigate('/')}>
+        <button className="btn btn-secondary" onClick={() => navigate('/turnos')}>
           ← Atrás
         </button>
-        <button
-          className="btn btn-primary"
-          disabled={!selectedSlot}
-          onClick={handleContinue}
-        >
+        <button className="btn btn-primary" disabled={!selectedSlot} onClick={handleContinue}>
           Continuar →
         </button>
       </div>
