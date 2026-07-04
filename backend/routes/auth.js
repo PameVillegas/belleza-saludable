@@ -171,4 +171,95 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Sesión cerrada correctamente.' });
 });
 
+// === AUTH DE CLIENTES ===
+
+// POST /api/auth/client/register - Registro de cliente
+router.post('/client/register', async (req, res) => {
+  try {
+    const { name, phone, email, username, password } = req.body;
+
+    if (!name || !phone || !email || !username || !password) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos: nombre, teléfono, email, usuario y contraseña.' });
+    }
+
+    if (username.length < 3) {
+      return res.status(400).json({ error: 'El usuario debe tener al menos 3 caracteres.' });
+    }
+
+    if (password.length < 4) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres.' });
+    }
+
+    // Verificar si el username ya existe
+    const existingUser = await pool.query('SELECT id FROM clients WHERE username = $1', [username]);
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({ error: 'Ese nombre de usuario ya está en uso.' });
+    }
+
+    // Verificar si email o phone ya existen
+    const existingContact = await pool.query('SELECT id FROM clients WHERE email = $1 OR phone = $2', [email, phone]);
+    if (existingContact.rows.length > 0) {
+      // Actualizar el cliente existente con username/password
+      const result = await pool.query(
+        'UPDATE clients SET username = $1, password = $2, name = $3 WHERE email = $4 OR phone = $5 RETURNING id, name, username, phone, email',
+        [username, password, name, email, phone]
+      );
+      return res.status(201).json({ message: 'Cuenta creada exitosamente.', client: result.rows[0] });
+    }
+
+    const result = await pool.query(
+      'INSERT INTO clients (name, phone, email, username, password) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, username, phone, email',
+      [name, phone, email, username, password]
+    );
+
+    res.status(201).json({ message: 'Cuenta creada exitosamente.', client: result.rows[0] });
+  } catch (err) {
+    console.error('Error en registro de cliente:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// POST /api/auth/client/login - Login de cliente
+router.post('/client/login', loginLimiter, async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Usuario y contraseña son requeridos.' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, name, username, phone, email FROM clients WHERE username = $1 AND password = $2',
+      [username, password]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Usuario o contraseña incorrectos.' });
+    }
+
+    res.json({ message: 'Login exitoso', client: result.rows[0] });
+  } catch (err) {
+    console.error('Error en login de cliente:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// GET /api/auth/client/users - Admin: listar clientes con contraseñas
+router.get('/client/users', async (req, res) => {
+  try {
+    const adminUser = req.headers['x-admin-username'];
+    if (!adminUser) {
+      return res.status(401).json({ error: 'No autorizado.' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, name, phone, email, username, password, created_at FROM clients WHERE username IS NOT NULL ORDER BY name'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error al listar usuarios clientes:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
 module.exports = router;

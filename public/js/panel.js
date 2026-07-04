@@ -81,6 +81,7 @@ function showSection(name) {
   if (name === 'services') loadServices();
   if (name === 'schedules') loadSchedules();
   if (name === 'users') loadUsers();
+  if (name === 'clientUsers') loadClientUsers();
 
   if (window.innerWidth <= 768) toggleSidebar();
 }
@@ -791,4 +792,50 @@ async function deleteAdmin(id) {
   const res = await fetch(`${API}/auth/admins/${id}`, { method: 'DELETE', headers: authHeaders() });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   loadUsers();
+}
+
+// === Usuarios Clientes ===
+let allClientUsers = [];
+
+async function loadClientUsers() {
+  try {
+    const res = await fetch(`${API}/auth/client/users`, { headers: authHeaders() });
+    allClientUsers = await res.json();
+    renderClientUsers(allClientUsers);
+  } catch {
+    document.getElementById('clientUsersTable').innerHTML = '<p style="color:var(--color-error)">Error al cargar usuarios.</p>';
+  }
+}
+
+function searchClientUsers() {
+  const query = document.getElementById('clientUserSearch').value.toLowerCase().trim();
+  if (!query) { renderClientUsers(allClientUsers); return; }
+  const filtered = allClientUsers.filter(c =>
+    c.name.toLowerCase().includes(query) ||
+    (c.username && c.username.toLowerCase().includes(query)) ||
+    c.phone.includes(query)
+  );
+  renderClientUsers(filtered);
+}
+
+function renderClientUsers(users) {
+  if (users.length === 0) {
+    document.getElementById('clientUsersTable').innerHTML = '<p style="color:var(--color-text-muted)">No hay clientes registrados con cuenta.</p>';
+    return;
+  }
+  document.getElementById('clientUsersTable').innerHTML = `
+    <table class="data-table">
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Usuario</th><th>Contraseña</th><th>Registrado</th></tr></thead>
+      <tbody>${users.map(c => `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.phone}</td>
+          <td>${c.email}</td>
+          <td><strong>${c.username}</strong></td>
+          <td><code style="background:var(--color-beige); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem;">${c.password}</code></td>
+          <td style="font-size:0.78rem; color:var(--color-text-muted);">${new Date(c.created_at).toLocaleDateString('es-AR')}</td>
+        </tr>
+      `).join('')}</tbody>
+    </table>
+  `;
 }

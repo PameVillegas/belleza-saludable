@@ -528,7 +528,8 @@
         <a href="#" onclick="showSection('clients')" data-section="clients">👥 Clientes</a>
         <a href="#" onclick="showSection('services')" data-section="services">💆 Servicios</a>
         <a href="#" onclick="showSection('schedules')" data-section="schedules">⏰ Horarios</a>
-        <a href="#" onclick="showSection('users')" data-section="users">👤 Usuarios</a>
+        <a href="#" onclick="showSection('users')" data-section="users">👤 Administradores</a>
+        <a href="#" onclick="showSection('clientUsers')" data-section="clientUsers">🔑 Usuarios Clientes</a>
         <a href="#" onclick="doLogout()" class="logout-link">🚪 Cerrar sesión</a>
       </nav>
     </aside>
@@ -603,13 +604,25 @@
         <div id="blockedTable"></div>
       </div>
 
-      <!-- Usuarios -->
+      <!-- Usuarios Admin -->
       <div class="section" id="sec-users">
         <div class="main-header">
           <h2>Administradores</h2>
         </div>
-        <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Usuarios registrados con sus credenciales. Si olvidás tu contraseña, acá la podés ver.</p>
+        <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Usuarios administradores con sus credenciales.</p>
         <div id="usersTable"></div>
+      </div>
+
+      <!-- Usuarios Clientes -->
+      <div class="section" id="sec-clientUsers">
+        <div class="main-header">
+          <h2>Usuarios Clientes</h2>
+        </div>
+        <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Clientes registrados con sus credenciales. Si algún cliente se olvida su contraseña, acá la podés ver.</p>
+        <div class="search-bar">
+          <input type="text" id="clientUserSearch" placeholder="Buscar por nombre, usuario o teléfono..." oninput="searchClientUsers()">
+        </div>
+        <div id="clientUsersTable"></div>
       </div>
     </main>
   </div>
