@@ -8,7 +8,7 @@ function Home() {
   useEffect(() => {
     fetch('/api/services')
       .then(res => res.json())
-      .then(data => setServices(data.slice(0, 6)))
+      .then(data => setServices(data.slice(0, 8)))
       .catch(() => {});
   }, []);
 
@@ -21,6 +21,7 @@ function Home() {
     if (n.includes('cejas') || n.includes('perfilado') || n.includes('laminado')) return '✏️';
     if (n.includes('ondas') || n.includes('presoterapia')) return '⚡';
     if (n.includes('lipo')) return '🔥';
+    if (n.includes('depilación') || n.includes('depilacion')) return '✂️';
     return '💆';
   };
 
@@ -60,7 +61,7 @@ function Home() {
               <div className="service-icon">{getServiceIcon(service.name)}</div>
               <div className="service-info">
                 <div className="service-name">{service.name}</div>
-                <div className="service-duration">⏱ {service.duration_minutes} min</div>
+                <div className="service-duration">⏱ {service.duration_minutes} min{Number(service.price) > 0 ? ` · $${Number(service.price).toLocaleString()}` : ' · Consultar'}</div>
               </div>
               <span className="service-arrow">›</span>
             </button>

@@ -19,16 +19,11 @@ async function seed() {
     `, ['admin', 'admin123', 'Mariana Farias']);
 
     // Horarios de atención: Lunes a Viernes
-    // Mañana: 9:00 a 12:00
-    // Tarde: 14:00 a 19:00
     for (let day = 1; day <= 5; day++) {
-      // Turno mañana
       await client.query(`
         INSERT INTO schedules (day_of_week, start_time, end_time, slot_duration_minutes, is_active)
         VALUES ($1, $2, $3, $4, $5)
       `, [day, '09:00', '12:00', 60, true]);
-
-      // Turno tarde
       await client.query(`
         INSERT INTO schedules (day_of_week, start_time, end_time, slot_duration_minutes, is_active)
         VALUES ($1, $2, $3, $4, $5)
@@ -37,34 +32,40 @@ async function seed() {
 
     // Servicios FACIALES
     const faciales = [
-      ['Limpieza de cutis profunda', 'Limpieza facial profunda profesional', 60, 0],
-      ['Limpieza premium', 'Limpieza facial premium con productos de alta gama', 60, 0],
-      ['Peelings químicos', 'Tratamiento de renovación celular con ácidos', 60, 0],
-      ['Peeling mecánico (Microdermoabrasión/Espátula ultrasónica/Dermaplaning)', 'Exfoliación mecánica profesional', 60, 0],
-      ['Microneedling / Dermapen', 'Estimulación con microagujas para rejuvenecimiento', 60, 0],
-      ['Microneedling (Dermapen + Exosomas y/o activos)', 'Dermapen combinado con exosomas y activos de última generación', 60, 0],
+      ['Limpieza facial profunda', 'Limpieza facial profunda profesional', 60, 35000],
+      ['Limpieza facial profunda + Perfilado de cejas', 'Limpieza profunda combinada con diseño de cejas', 60, 40000],
+      ['Limpieza premium', 'Limpieza facial premium con productos de alta gama', 60, 40000],
+      ['Peelings químicos', 'Tratamiento de renovación celular con ácidos. Precio base, puede variar según tratamiento', 60, 40000],
+      ['Peeling mecánico (Microdermoabrasión/Espátula ultrasónica/Dermaplaning)', 'Exfoliación mecánica profesional. Precio base, puede variar', 60, 40000],
+      ['Microneedling / Dermapen', 'Estimulación con microagujas para rejuvenecimiento. Precio base', 60, 40000],
+      ['Microneedling (Dermapen + Exosomas y/o activos)', 'Dermapen combinado con exosomas y activos de última generación. Precio base', 60, 40000],
     ];
 
     // Otros servicios
     const otros = [
-      ['Lifting de pestañas', 'Curvado y fijación de pestañas naturales', 60, 0],
-      ['Lifting de pestañas + Perfilado de cejas', 'Combo lifting de pestañas y diseño de cejas', 90, 0],
-      ['Perfilado de cejas', 'Diseño y depilación de cejas', 20, 0],
-      ['Laminado de cejas', 'Alisado y fijación de cejas', 60, 0],
-      ['Laminado de cejas + Perfilado de cejas', 'Combo laminado y perfilado de cejas', 90, 0],
+      ['Lifting de pestañas', 'Curvado y fijación de pestañas naturales', 60, 25000],
+      ['Lifting de pestañas + Perfilado de cejas', 'Combo lifting de pestañas y diseño de cejas', 90, 30000],
+      ['Perfilado de cejas', 'Diseño y depilación de cejas', 20, 8000],
+      ['Laminado de cejas', 'Alisado y fijación de cejas', 60, 25000],
+      ['Laminado de cejas + Perfilado de cejas', 'Combo laminado y perfilado de cejas', 90, 30000],
     ];
 
     // Servicios corporales
     const corporales = [
-      ['Ondas Rusas', 'Electroestimulación muscular para tonificar', 45, 0],
-      ['Ondas Rusas + Presoterapia', 'Combo tonificación y drenaje', 60, 0],
-      ['Lipoláser', 'Reducción de adiposidad localizada con láser', 45, 0],
-      ['Lipoláser + Presoterapia', 'Combo lipoláser y drenaje linfático', 60, 0],
-      ['Lipoláser + Ondas Rusas', 'Combo reducción y tonificación', 60, 0],
-      ['Presoterapia', 'Drenaje linfático mecánico', 45, 0],
+      ['Ondas Rusas', 'Electroestimulación muscular para tonificar. Consultar por pack de sesiones', 45, 0],
+      ['Ondas Rusas + Presoterapia', 'Combo tonificación y drenaje. Consultar por pack de sesiones', 60, 0],
+      ['Lipoláser (por zona)', 'Reducción de adiposidad localizada con láser. Precio por zona', 45, 25000],
+      ['Lipoláser + Presoterapia', 'Combo lipoláser y drenaje linfático. Consultar precio', 60, 0],
+      ['Lipoláser + Ondas Rusas', 'Combo reducción y tonificación. Consultar precio', 60, 0],
+      ['Presoterapia', 'Drenaje linfático mecánico. Consultar por sesiones', 45, 0],
     ];
 
-    const todosServicios = [...faciales, ...otros, ...corporales];
+    // Depilación definitiva
+    const depilacion = [
+      ['Depilación definitiva', 'Consultar precio por zona y combos disponibles', 30, 0],
+    ];
+
+    const todosServicios = [...faciales, ...otros, ...corporales, ...depilacion];
 
     for (const [name, description, duration, price] of todosServicios) {
       await client.query(`

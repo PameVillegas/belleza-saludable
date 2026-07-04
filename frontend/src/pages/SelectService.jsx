@@ -35,6 +35,7 @@ function SelectService() {
     if (n.includes('cejas') || n.includes('perfilado') || n.includes('laminado')) return '✏️';
     if (n.includes('ondas') || n.includes('presoterapia')) return '⚡';
     if (n.includes('lipo')) return '🔥';
+    if (n.includes('depilación') || n.includes('depilacion')) return '✂️';
     return '💆';
   };
 
@@ -61,7 +62,9 @@ function SelectService() {
               <div className="service-name">{service.name}</div>
               <div className="service-duration">
                 ⏱ {service.duration_minutes} min
-                {Number(service.price) > 0 && ` · $${Number(service.price).toLocaleString()}`}
+                {Number(service.price) > 0
+                  ? ` · $${Number(service.price).toLocaleString()}`
+                  : ' · Consultar precio'}
               </div>
             </div>
             <span className="service-arrow">›</span>
