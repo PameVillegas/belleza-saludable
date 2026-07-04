@@ -54,8 +54,8 @@ function SelectService() {
           <button
             key={service.id}
             className="service-card"
-            onClick={() => handleSelect(service)}
-            aria-label={`Seleccionar ${service.name}`}
+            onClick={() => navigate(`/servicio/${service.id}`)}
+            aria-label={`Ver ${service.name}`}
           >
             <div className="service-icon">{getServiceIcon(service.name)}</div>
             <div className="service-info">

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Welcome from './pages/Welcome';
 import Home from './pages/Home';
 import SelectService from './pages/SelectService';
+import ServiceDetail from './pages/ServiceDetail';
 import SelectDateTime from './pages/SelectDateTime';
 import ClientData from './pages/ClientData';
 import Confirmation from './pages/Confirmation';
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Welcome />} />
           <Route path="/inicio" element={<Home />} />
           <Route path="/turnos" element={<SelectService />} />
+          <Route path="/servicio/:id" element={<ServiceDetail />} />
           <Route path="/fecha-hora" element={<SelectDateTime />} />
           <Route path="/datos" element={<ClientData />} />
           <Route path="/confirmacion" element={<Confirmation />} />

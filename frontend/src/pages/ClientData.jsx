@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Stepper from '../components/Stepper';
 
 function ClientData() {
-  const [formData, setFormData] = useState({ name: '', phone: '', email: '' });
+  const navigate = useNavigate();
+  const clientSession = JSON.parse(sessionStorage.getItem('clientSession') || 'null');
+
+  const [formData, setFormData] = useState({
+    name: clientSession?.name || '',
+    phone: clientSession?.phone || '',
+    email: clientSession?.email || ''
+  });
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const navigate = useNavigate();
 
   const service = JSON.parse(sessionStorage.getItem('selectedService') || 'null');
   const date = sessionStorage.getItem('selectedDate');
@@ -71,16 +77,21 @@ function ClientData() {
     <div className="booking-container fade-up">
       <Stepper currentStep={3} />
       <div className="booking-header">
-        <h2 className="booking-title">Tus datos</h2>
-        <p className="booking-subtitle">Completá tus datos para confirmar el turno</p>
+        <h2 className="booking-title">Confirmar datos</h2>
+        <p className="booking-subtitle">Verificá tus datos para confirmar el turno</p>
       </div>
 
-      {/* Resumen */}
+      {/* Resumen del turno */}
       <div className="card" style={{ marginBottom: '1.5rem', background: 'var(--color-beige)' }}>
-        <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>{service.name}</p>
+        <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>💆 {service.name}</p>
         <p style={{ fontSize: '0.82rem', color: 'var(--color-text-light)' }}>
-          📅 {formatDate(date)} &nbsp; ⏰ {slot.start} hs
+          📅 {formatDate(date)} &nbsp; ⏰ {slot.start} - {slot.end} hs &nbsp; ⏱ {service.duration_minutes} min
         </p>
+        {Number(service.price) > 0 && (
+          <p style={{ fontSize: '0.82rem', color: 'var(--color-text-light)', marginTop: '0.25rem' }}>
+            💰 ${Number(service.price).toLocaleString()}
+          </p>
+        )}
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -88,45 +99,17 @@ function ClientData() {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Nombre completo</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Tu nombre completo"
-            required
-          />
+          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Tu nombre completo" required />
         </div>
 
         <div className="form-group">
           <label htmlFor="phone">Teléfono / WhatsApp</label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="Ej: 3388-123456"
-            required
-          />
+          <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Ej: 3388-123456" required />
         </div>
 
         <div className="form-group">
           <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="tu@email.com"
-            required
-          />
-        </div>
-
-        <div className="cancel-notice">
-          ⚠️ Si no podés asistir, por favor cancelá tu turno con anticipación para que otra persona pueda tomarlo.
+          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="tu@email.com" required />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem' }}>
