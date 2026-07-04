@@ -6,6 +6,43 @@ async function seedTestData() {
   try {
     await client.query('BEGIN');
 
+    // Asegurar que las tablas nuevas existan
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS products (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        price DECIMAL(10,2) NOT NULL DEFAULT 0,
+        image_url TEXT,
+        is_active BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS reviews (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        client_id UUID,
+        client_name VARCHAR(255) NOT NULL,
+        service_name VARCHAR(255),
+        stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5),
+        text TEXT NOT NULL,
+        is_approved BOOLEAN NOT NULL DEFAULT true,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    // Agregar columna image_url a services si no existe
+    await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='services' AND column_name='image_url') THEN
+          ALTER TABLE services ADD COLUMN image_url TEXT;
+        END IF;
+      END $$;
+    `);
+
     // Crear clientes de prueba
     const clientes = [
       ['María López', '3388-111111', 'maria.lopez@email.com'],

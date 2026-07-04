@@ -45,9 +45,11 @@ try {
   whatsapp = require('./whatsapp');
   whatsapp.initWhatsApp().catch(err => {
     console.error('[WhatsApp] No se pudo inicializar (Chromium no disponible?):', err.message);
+    whatsapp = null;
   });
 } catch (err) {
   console.error('[WhatsApp] Módulo no disponible:', err.message);
+  whatsapp = null;
 }
 startRemindersCron();
 
