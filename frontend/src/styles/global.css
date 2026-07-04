@@ -1126,7 +1126,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: linear-gradient(180deg, var(--color-beige) 0%, var(--color-white) 100%);
+  background: url('/fondocolor.png') center/cover no-repeat fixed;
 }
 
 .welcome-card {
