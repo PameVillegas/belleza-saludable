@@ -2,7 +2,7 @@ services:
   - type: web
     name: belleza-saludable
     runtime: node
-    buildCommand: npm install && cd frontend && npm install && npm run build && cd .. && node backend/db/migrate.js && node backend/db/seed-test-data.js
+    buildCommand: npm install && cd frontend && npm install && npm run build && cd .. && node backend/db/setup.js
     startCommand: npm start
     envVars:
       - key: NODE_ENV
