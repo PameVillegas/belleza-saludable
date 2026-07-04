@@ -45,6 +45,14 @@ function Home() {
           <button className="hero-btn" onClick={() => navigate('/turnos')}>
             📅 Reservar turno
           </button>
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button className="hero-btn" style={{ background: 'var(--color-white)', color: 'var(--color-sage-dark)', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '0.75rem 1.5rem', fontSize: '0.88rem' }} onClick={() => navigate('/turnos')}>
+              💆 Tratamientos
+            </button>
+            <button className="hero-btn" style={{ background: 'var(--color-white)', color: 'var(--color-sage-dark)', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '0.75rem 1.5rem', fontSize: '0.88rem' }} onClick={() => navigate('/resenas')}>
+              ⭐ Reseñas
+            </button>
+          </div>
           <div className="hero-info">
             <span>📍 Calle 30 N°416</span>
             <span>🕐 Lun a Vie: 9 a 12hs y 14 a 19hs</span>
