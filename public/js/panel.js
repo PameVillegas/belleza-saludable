@@ -80,6 +80,7 @@ function showSection(name) {
   if (name === 'clients') loadClients();
   if (name === 'services') loadServices();
   if (name === 'schedules') loadSchedules();
+  if (name === 'users') loadUsers();
 
   if (window.innerWidth <= 768) toggleSidebar();
 }
@@ -675,3 +676,119 @@ document.addEventListener('keydown', (e) => {
     doLogin();
   }
 });
+
+// === Registro ===
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+  document.getElementById('loginTitle').textContent = 'Crear cuenta';
+  document.getElementById('loginSub').textContent = 'Registrá un nuevo administrador';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginSuccess').style.display = 'none';
+}
+
+function showLogin() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('loginTitle').textContent = 'Panel de Administración';
+  document.getElementById('loginSub').textContent = 'Ingresá tus credenciales para acceder';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginSuccess').style.display = 'none';
+}
+
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const username = document.getElementById('regUser').value.trim();
+  const password = document.getElementById('regPass').value.trim();
+  const errorEl = document.getElementById('loginError');
+  const successEl = document.getElementById('loginSuccess');
+
+  errorEl.style.display = 'none';
+  successEl.style.display = 'none';
+
+  if (!name || !username || !password) {
+    errorEl.textContent = 'Completá todos los campos.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errorEl.textContent = data.error;
+      errorEl.style.display = 'block';
+      return;
+    }
+    successEl.textContent = '✓ Cuenta creada. Ya podés iniciar sesión.';
+    successEl.style.display = 'block';
+    setTimeout(() => showLogin(), 2000);
+  } catch {
+    errorEl.textContent = 'Error de conexión.';
+    errorEl.style.display = 'block';
+  }
+}
+
+// === Gestión de Usuarios ===
+async function loadUsers() {
+  try {
+    const res = await fetch(`${API}/auth/admins`, { headers: authHeaders() });
+    const admins = await res.json();
+
+    document.getElementById('usersTable').innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>Nombre</th><th>Usuario</th><th>Contraseña</th><th>Creado</th><th>Acciones</th></tr></thead>
+        <tbody>${admins.map(a => `
+          <tr>
+            <td>${a.name}</td>
+            <td><strong>${a.username}</strong></td>
+            <td><code style="background:var(--color-beige); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem;">${a.password}</code></td>
+            <td style="font-size:0.78rem; color:var(--color-text-muted);">${new Date(a.created_at).toLocaleDateString('es-AR')}</td>
+            <td>
+              <button class="btn btn-sm" onclick="editAdmin('${a.id}', '${a.name}', '${a.username}', '${a.password}')">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteAdmin('${a.id}')">Eliminar</button>
+            </td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `;
+  } catch {
+    document.getElementById('usersTable').innerHTML = '<p style="color:var(--color-error)">Error al cargar usuarios.</p>';
+  }
+}
+
+function editAdmin(id, name, username, password) {
+  openModal(`
+    <h3>Editar Administrador</h3>
+    <div class="form-group"><label>Nombre</label><input type="text" id="editAdminName" value="${name}"></div>
+    <div class="form-group"><label>Usuario</label><input type="text" id="editAdminUser" value="${username}"></div>
+    <div class="form-group"><label>Contraseña</label><input type="text" id="editAdminPass" value="${password}"></div>
+    <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAdmin('${id}')">Guardar</button>
+    </div>
+  `);
+}
+
+async function saveAdmin(id) {
+  const body = {
+    name: document.getElementById('editAdminName').value,
+    username: document.getElementById('editAdminUser').value,
+    password: document.getElementById('editAdminPass').value
+  };
+  const res = await fetch(`${API}/auth/admins/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+  if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+  closeModal();
+  loadUsers();
+}
+
+async function deleteAdmin(id) {
+  if (!confirm('¿Eliminar este administrador?')) return;
+  const res = await fetch(`${API}/auth/admins/${id}`, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+  loadUsers();
+}

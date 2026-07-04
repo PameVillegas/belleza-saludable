@@ -39,6 +39,133 @@ router.post('/login', loginLimiter, async (req, res) => {
   }
 });
 
+// POST /api/auth/register - Registrar nuevo admin
+router.post('/register', async (req, res) => {
+  try {
+    const { username, password, name } = req.body;
+
+    if (!username || !password || !name) {
+      return res.status(400).json({ error: 'Username, password y nombre son requeridos.' });
+    }
+
+    if (username.length < 3) {
+      return res.status(400).json({ error: 'El username debe tener al menos 3 caracteres.' });
+    }
+
+    if (password.length < 4) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres.' });
+    }
+
+    // Verificar si ya existe
+    const existing = await pool.query('SELECT id FROM admins WHERE username = $1', [username]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: 'Ese nombre de usuario ya está en uso.' });
+    }
+
+    const result = await pool.query(
+      'INSERT INTO admins (username, password, name) VALUES ($1, $2, $3) RETURNING id, username, name',
+      [username, password, name]
+    );
+
+    res.status(201).json({
+      message: 'Registro exitoso. Ya podés iniciar sesión.',
+      admin: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Error en registro:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// GET /api/auth/admins - Listar todos los admins (con contraseñas)
+router.get('/admins', async (req, res) => {
+  try {
+    const username = req.headers['x-admin-username'];
+    if (!username) {
+      return res.status(401).json({ error: 'No autorizado.' });
+    }
+
+    const result = await pool.query(
+      'SELECT id, username, password, name, created_at FROM admins ORDER BY created_at'
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error al listar admins:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// PUT /api/auth/admins/:id - Editar admin
+router.put('/admins/:id', async (req, res) => {
+  try {
+    const username = req.headers['x-admin-username'];
+    if (!username) {
+      return res.status(401).json({ error: 'No autorizado.' });
+    }
+
+    const { id } = req.params;
+    const { username: newUsername, password, name } = req.body;
+
+    if (!newUsername || !password || !name) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos.' });
+    }
+
+    // Verificar duplicados excluyendo el actual
+    const existing = await pool.query('SELECT id FROM admins WHERE username = $1 AND id != $2', [newUsername, id]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: 'Ese nombre de usuario ya está en uso.' });
+    }
+
+    const result = await pool.query(
+      'UPDATE admins SET username = $1, password = $2, name = $3 WHERE id = $4 RETURNING id, username, name',
+      [newUsername, password, name, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Admin no encontrado.' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error al editar admin:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// DELETE /api/auth/admins/:id - Eliminar admin
+router.delete('/admins/:id', async (req, res) => {
+  try {
+    const username = req.headers['x-admin-username'];
+    if (!username) {
+      return res.status(401).json({ error: 'No autorizado.' });
+    }
+
+    const { id } = req.params;
+
+    // No permitir eliminarse a sí mismo
+    const self = await pool.query('SELECT id FROM admins WHERE username = $1', [username]);
+    if (self.rows.length > 0 && self.rows[0].id === id) {
+      return res.status(400).json({ error: 'No podés eliminar tu propia cuenta.' });
+    }
+
+    // Verificar que quede al menos un admin
+    const count = await pool.query('SELECT COUNT(*) FROM admins');
+    if (parseInt(count.rows[0].count) <= 1) {
+      return res.status(400).json({ error: 'Debe existir al menos un administrador.' });
+    }
+
+    const result = await pool.query('DELETE FROM admins WHERE id = $1 RETURNING id', [id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Admin no encontrado.' });
+    }
+
+    res.json({ message: 'Administrador eliminado.' });
+  } catch (err) {
+    console.error('Error al eliminar admin:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
 // POST /api/auth/logout
 router.post('/logout', (req, res) => {
   res.json({ message: 'Sesión cerrada correctamente.' });

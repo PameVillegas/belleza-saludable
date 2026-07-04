@@ -469,18 +469,44 @@
   <div class="login-container" id="loginSection">
     <div class="login-box">
       <img src="/logobelleza.jpg" alt="Belleza Saludable" class="login-logo">
-      <h1>Panel de Administración</h1>
-      <p class="login-sub">Ingresá tus credenciales para acceder</p>
+      <h1 id="loginTitle">Panel de Administración</h1>
+      <p class="login-sub" id="loginSub">Ingresá tus credenciales para acceder</p>
       <div id="loginError" style="display:none; background:rgba(239,68,68,0.08); color:#991b1b; padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.82rem; border:1px solid rgba(239,68,68,0.2);"></div>
-      <div class="form-group">
-        <label for="loginUser">Usuario</label>
-        <input type="text" id="loginUser" placeholder="admin">
+      <div id="loginSuccess" style="display:none; background:rgba(16,185,129,0.08); color:#065f46; padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.82rem; border:1px solid rgba(16,185,129,0.2);"></div>
+      <!-- Login form -->
+      <div id="loginForm">
+        <div class="form-group">
+          <label for="loginUser">Usuario</label>
+          <input type="text" id="loginUser" placeholder="admin">
+        </div>
+        <div class="form-group">
+          <label for="loginPass">Contraseña</label>
+          <input type="password" id="loginPass" placeholder="••••••">
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="doLogin()">Ingresar</button>
+        <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--color-text-muted);">
+          ¿No tenés cuenta? <a href="#" onclick="showRegister()" style="color:var(--color-sage-dark); font-weight:500;">Registrarse</a>
+        </p>
       </div>
-      <div class="form-group">
-        <label for="loginPass">Contraseña</label>
-        <input type="password" id="loginPass" placeholder="••••••">
+      <!-- Register form -->
+      <div id="registerForm" style="display:none;">
+        <div class="form-group">
+          <label for="regName">Nombre completo</label>
+          <input type="text" id="regName" placeholder="Tu nombre">
+        </div>
+        <div class="form-group">
+          <label for="regUser">Usuario</label>
+          <input type="text" id="regUser" placeholder="Mínimo 3 caracteres">
+        </div>
+        <div class="form-group">
+          <label for="regPass">Contraseña</label>
+          <input type="password" id="regPass" placeholder="Mínimo 4 caracteres">
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="doRegister()">Crear cuenta</button>
+        <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--color-text-muted);">
+          ¿Ya tenés cuenta? <a href="#" onclick="showLogin()" style="color:var(--color-sage-dark); font-weight:500;">Iniciar sesión</a>
+        </p>
       </div>
-      <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="doLogin()">Ingresar</button>
     </div>
   </div>
 
@@ -502,6 +528,7 @@
         <a href="#" onclick="showSection('clients')" data-section="clients">👥 Clientes</a>
         <a href="#" onclick="showSection('services')" data-section="services">💆 Servicios</a>
         <a href="#" onclick="showSection('schedules')" data-section="schedules">⏰ Horarios</a>
+        <a href="#" onclick="showSection('users')" data-section="users">👤 Usuarios</a>
         <a href="#" onclick="doLogout()" class="logout-link">🚪 Cerrar sesión</a>
       </nav>
     </aside>
@@ -574,6 +601,15 @@
         <h3 style="margin: 2rem 0 1rem; font-family: var(--font-display); font-weight: 600;">Bloqueos</h3>
         <button class="btn btn-primary btn-sm" onclick="openNewBlock()" style="margin-bottom:1rem;">+ Nuevo bloqueo</button>
         <div id="blockedTable"></div>
+      </div>
+
+      <!-- Usuarios -->
+      <div class="section" id="sec-users">
+        <div class="main-header">
+          <h2>Administradores</h2>
+        </div>
+        <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Usuarios registrados con sus credenciales. Si olvidás tu contraseña, acá la podés ver.</p>
+        <div id="usersTable"></div>
       </div>
     </main>
   </div>
