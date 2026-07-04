@@ -308,12 +308,30 @@ h3 { font-size: 1.1rem; }
   box-shadow: 0 3px 10px rgba(200, 90, 142, 0.25);
 }
 
-/* Footer admin link */
-.admin-footer {
+/* Info de contacto */
+.app-info {
+  color: var(--color-text-light);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* Footer */
+.app-footer {
   text-align: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--color-border);
+}
+
+.cancel-notice {
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(246, 217, 122, 0.15);
+  border-radius: var(--radius);
+  border: 1px solid rgba(246, 217, 122, 0.4);
+  line-height: 1.4;
 }
 
 /* Responsive */
