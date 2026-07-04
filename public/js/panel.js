@@ -519,8 +519,16 @@ function openNewService() {
       <div class="form-group"><label>Duración (min)</label><input type="number" id="svcDuration" min="5"></div>
       <div class="form-group"><label>Precio</label><input type="number" id="svcPrice" min="0" step="0.01"></div>
     </div>
-    <div class="form-group"><label>URL de imagen</label><input type="text" id="svcImage" placeholder="https://..."></div>
-    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Subí la foto a <a href="https://imgbb.com" target="_blank">imgbb.com</a> desde tu celular y pegá el link acá.</p>
+    <div class="form-group">
+      <label>Foto del tratamiento</label>
+      <div id="imageUploadArea" style="border:2px dashed var(--color-border); border-radius:var(--radius-sm); padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.2s; position:relative;" onclick="document.getElementById('svcImageFile').click()" ondragover="event.preventDefault(); this.style.borderColor='var(--color-sage)'; this.style.background='var(--color-sage-light)'" ondragleave="this.style.borderColor='var(--color-border)'; this.style.background=''" ondrop="handleImageDrop(event)">
+        <input type="file" id="svcImageFile" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+        <div id="imagePreview" style="display:none;"><img id="imagePreviewImg" style="max-width:100%; max-height:150px; border-radius:8px;"><br><button type="button" class="btn btn-sm" style="margin-top:0.5rem;" onclick="event.stopPropagation(); clearImageUpload()">Quitar foto</button></div>
+        <div id="imagePlaceholder">📷 Tocá acá o arrastrá una foto</div>
+        <div id="imageUploading" style="display:none;">⏳ Subiendo...</div>
+      </div>
+      <input type="hidden" id="svcImage" value="">
+    </div>
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveNewService()">Guardar</button>
@@ -547,9 +555,16 @@ async function editService(id) {
       <div class="form-group"><label>Duración (min)</label><input type="number" id="svcDuration" value="${s.duration_minutes}" min="5"></div>
       <div class="form-group"><label>Precio</label><input type="number" id="svcPrice" value="${s.price}" min="0" step="0.01"></div>
     </div>
-    <div class="form-group"><label>URL de imagen</label><input type="text" id="svcImage" value="${s.image_url || ''}" placeholder="https://..."></div>
-    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Subí la foto a <a href="https://imgbb.com" target="_blank">imgbb.com</a> desde tu celular y pegá el link acá.</p>
-    ${s.image_url ? `<img src="${s.image_url}" style="width:100px; height:80px; object-fit:cover; border-radius:8px; margin-top:0.5rem;">` : ''}
+    <div class="form-group">
+      <label>Foto del tratamiento</label>
+      <div id="imageUploadArea" style="border:2px dashed var(--color-border); border-radius:var(--radius-sm); padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.2s; position:relative;" onclick="document.getElementById('svcImageFile').click()" ondragover="event.preventDefault(); this.style.borderColor='var(--color-sage)'; this.style.background='var(--color-sage-light)'" ondragleave="this.style.borderColor='var(--color-border)'; this.style.background=''" ondrop="handleImageDrop(event)">
+        <input type="file" id="svcImageFile" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+        <div id="imagePreview" style="${s.image_url ? '' : 'display:none;'}"><img id="imagePreviewImg" src="${s.image_url || ''}" style="max-width:100%; max-height:150px; border-radius:8px;"><br><button type="button" class="btn btn-sm" style="margin-top:0.5rem;" onclick="event.stopPropagation(); clearImageUpload()">Quitar foto</button></div>
+        <div id="imagePlaceholder" style="${s.image_url ? 'display:none;' : ''}">📷 Tocá acá o arrastrá una foto</div>
+        <div id="imageUploading" style="display:none;">⏳ Subiendo...</div>
+      </div>
+      <input type="hidden" id="svcImage" value="${s.image_url || ''}">
+    </div>
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="updateService('${id}')">Guardar</button>
@@ -1177,4 +1192,69 @@ async function deleteReview(id) {
   if (!confirm('¿Eliminar esta reseña?')) return;
   await fetch(`${API}/admin/reviews/${id}`, { method: 'DELETE', headers: authHeaders() });
   loadReviews();
+}
+
+// === Upload de Imágenes ===
+async function uploadImageToServer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      // Guardar como data URL directamente (se almacena en la DB)
+      resolve(reader.result);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleImageSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await processImageUpload(file);
+}
+
+async function handleImageDrop(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const area = document.getElementById('imageUploadArea');
+  area.style.borderColor = 'var(--color-border)';
+  area.style.background = '';
+
+  const file = event.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) {
+    alert('Solo se permiten archivos de imagen.');
+    return;
+  }
+  await processImageUpload(file);
+}
+
+async function processImageUpload(file) {
+  const placeholder = document.getElementById('imagePlaceholder');
+  const uploading = document.getElementById('imageUploading');
+  const preview = document.getElementById('imagePreview');
+  const previewImg = document.getElementById('imagePreviewImg');
+  const hiddenInput = document.getElementById('svcImage');
+
+  placeholder.style.display = 'none';
+  uploading.style.display = 'block';
+  preview.style.display = 'none';
+
+  try {
+    const url = await uploadImageToServer(file);
+    hiddenInput.value = url;
+    previewImg.src = url;
+    uploading.style.display = 'none';
+    preview.style.display = 'block';
+  } catch (err) {
+    uploading.style.display = 'none';
+    placeholder.style.display = 'block';
+    alert('Error al subir la imagen. Intentá de nuevo.');
+  }
+}
+
+function clearImageUpload() {
+  document.getElementById('svcImage').value = '';
+  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('imagePlaceholder').style.display = 'block';
+  document.getElementById('svcImageFile').value = '';
 }
