@@ -1,30 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function MyAppointments() {
-  const [search, setSearch] = useState('');
   const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!search.trim()) return;
+  const clientSession = JSON.parse(sessionStorage.getItem('clientSession') || 'null');
 
-    setLoading(true);
-    setError(null);
-    setSearched(true);
-
-    try {
-      const res = await fetch(`/api/appointments/my?search=${encodeURIComponent(search.trim())}`);
-      const data = await res.json();
-      setAppointments(data);
-    } catch {
-      setError('Error al buscar tus turnos.');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!clientSession) {
+      navigate('/');
+      return;
     }
-  };
+
+    // Buscar turnos por teléfono o email del cliente logueado
+    const searchValue = clientSession.phone || clientSession.email;
+
+    fetch(`/api/appointments/my?search=${encodeURIComponent(searchValue)}`)
+      .then(res => res.json())
+      .then(data => {
+        setAppointments(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Error al cargar tus turnos.');
+        setLoading(false);
+      });
+  }, []);
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr.split('T')[0] + 'T12:00:00');
@@ -37,35 +41,24 @@ function MyAppointments() {
     return { text: 'Completado', color: 'var(--color-sage)' };
   };
 
+  if (loading) return <div className="loading">Cargando tus turnos...</div>;
+
   return (
     <div className="booking-container fade-up">
       <div className="booking-header">
         <h2 className="booking-title">Mis turnos</h2>
-        <p className="booking-subtitle">Consultá tu historial de reservas</p>
+        <p className="booking-subtitle">Hola {clientSession?.name?.split(' ')[0]}, acá está tu historial</p>
       </div>
-
-      <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem' }}>
-        <div className="form-group">
-          <label htmlFor="search">Ingresá tu teléfono o email</label>
-          <input
-            type="text"
-            id="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Ej: 3388-123456 o tu@email.com"
-          />
-        </div>
-        <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-          {loading ? 'Buscando...' : 'Buscar mis turnos'}
-        </button>
-      </form>
 
       {error && <div className="error-message">{error}</div>}
 
-      {searched && !loading && appointments.length === 0 && (
-        <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>
-          No se encontraron turnos con esos datos.
-        </p>
+      {appointments.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }}>Todavía no tenés turnos reservados.</p>
+          <button className="btn btn-primary" onClick={() => navigate('/turnos')}>
+            Reservar mi primer turno
+          </button>
+        </div>
       )}
 
       {appointments.length > 0 && (
