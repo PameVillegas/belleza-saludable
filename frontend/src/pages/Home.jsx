@@ -112,7 +112,9 @@ function Home() {
           <a href="https://wa.me/543388403225" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
             💬
           </a>
-          <a href="#" aria-label="Instagram">📷</a>
+          <a href="https://www.instagram.com/bellezasaludableameghino?igsh=MTduOHVqNGRoNjRuZw==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            📷
+          </a>
         </div>
       </footer>
     </div>
