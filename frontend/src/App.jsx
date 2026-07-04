@@ -8,6 +8,7 @@ import ClientData from './pages/ClientData';
 import Confirmation from './pages/Confirmation';
 import MyAppointments from './pages/MyAppointments';
 import Reviews from './pages/Reviews';
+import Professional from './pages/Professional';
 import BottomNav from './components/BottomNav';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/confirmacion" element={<Confirmation />} />
           <Route path="/mis-turnos" element={<MyAppointments />} />
           <Route path="/resenas" element={<Reviews />} />
+          <Route path="/profesional" element={<Professional />} />
         </Routes>
         <WhatsAppButton />
         <BottomNav />
