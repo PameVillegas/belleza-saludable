@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS services (
   description TEXT,
   duration_minutes INTEGER NOT NULL,
   price DECIMAL(10,2) NOT NULL,
+  image_url TEXT,
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()

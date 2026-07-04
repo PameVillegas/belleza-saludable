@@ -492,9 +492,10 @@ async function loadServices() {
   const services = await res.json();
   document.getElementById('servicesTable').innerHTML = `
     <table class="data-table">
-      <thead><tr><th>Nombre</th><th>Duración</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Imagen</th><th>Nombre</th><th>Duración</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>${services.map(s => `
         <tr>
+          <td>${s.image_url ? `<img src="${s.image_url}" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">` : '<span style="color:var(--color-text-muted); font-size:0.75rem;">Sin foto</span>'}</td>
           <td>${s.name}</td>
           <td>${s.duration_minutes} min</td>
           <td>$${Number(s.price).toLocaleString()}</td>
@@ -518,6 +519,8 @@ function openNewService() {
       <div class="form-group"><label>Duración (min)</label><input type="number" id="svcDuration" min="5"></div>
       <div class="form-group"><label>Precio</label><input type="number" id="svcPrice" min="0" step="0.01"></div>
     </div>
+    <div class="form-group"><label>URL de imagen</label><input type="text" id="svcImage" placeholder="https://..."></div>
+    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Subí la foto a <a href="https://imgbb.com" target="_blank">imgbb.com</a> desde tu celular y pegá el link acá.</p>
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveNewService()">Guardar</button>
@@ -526,7 +529,7 @@ function openNewService() {
 }
 
 async function saveNewService() {
-  const body = { name: document.getElementById('svcName').value, description: document.getElementById('svcDesc').value, duration_minutes: parseInt(document.getElementById('svcDuration').value), price: parseFloat(document.getElementById('svcPrice').value) };
+  const body = { name: document.getElementById('svcName').value, description: document.getElementById('svcDesc').value, duration_minutes: parseInt(document.getElementById('svcDuration').value), price: parseFloat(document.getElementById('svcPrice').value), image_url: document.getElementById('svcImage').value || null };
   const res = await fetch(`${API}/admin/services`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   closeModal();
@@ -544,6 +547,9 @@ async function editService(id) {
       <div class="form-group"><label>Duración (min)</label><input type="number" id="svcDuration" value="${s.duration_minutes}" min="5"></div>
       <div class="form-group"><label>Precio</label><input type="number" id="svcPrice" value="${s.price}" min="0" step="0.01"></div>
     </div>
+    <div class="form-group"><label>URL de imagen</label><input type="text" id="svcImage" value="${s.image_url || ''}" placeholder="https://..."></div>
+    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Subí la foto a <a href="https://imgbb.com" target="_blank">imgbb.com</a> desde tu celular y pegá el link acá.</p>
+    ${s.image_url ? `<img src="${s.image_url}" style="width:100px; height:80px; object-fit:cover; border-radius:8px; margin-top:0.5rem;">` : ''}
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="updateService('${id}')">Guardar</button>
@@ -552,7 +558,7 @@ async function editService(id) {
 }
 
 async function updateService(id) {
-  const body = { name: document.getElementById('svcName').value, description: document.getElementById('svcDesc').value, duration_minutes: parseInt(document.getElementById('svcDuration').value), price: parseFloat(document.getElementById('svcPrice').value) };
+  const body = { name: document.getElementById('svcName').value, description: document.getElementById('svcDesc').value, duration_minutes: parseInt(document.getElementById('svcDuration').value), price: parseFloat(document.getElementById('svcPrice').value), image_url: document.getElementById('svcImage').value || null };
   const res = await fetch(`${API}/admin/services/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   closeModal();

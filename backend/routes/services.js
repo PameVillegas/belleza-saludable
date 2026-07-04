@@ -7,7 +7,7 @@ const authMiddleware = require('../middleware/auth');
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, description, duration_minutes, price FROM services WHERE is_active = true ORDER BY name'
+      'SELECT id, name, description, duration_minutes, price, image_url FROM services WHERE is_active = true ORDER BY name'
     );
     res.json(result.rows);
   } catch (err) {
@@ -36,7 +36,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // POST /api/admin/services - Admin: crear servicio
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, description, duration_minutes, price } = req.body;
+    const { name, description, duration_minutes, price, image_url } = req.body;
 
     if (!name || !duration_minutes || price === undefined) {
       return res.status(400).json({ error: 'Nombre, duración y precio son requeridos.' });
@@ -51,10 +51,10 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 
     const result = await pool.query(
-      `INSERT INTO services (name, description, duration_minutes, price)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO services (name, description, duration_minutes, price, image_url)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [name, description || null, duration_minutes, price]
+      [name, description || null, duration_minutes, price, image_url || null]
     );
 
     res.status(201).json(result.rows[0]);
@@ -68,16 +68,16 @@ router.post('/', authMiddleware, async (req, res) => {
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, duration_minutes, price } = req.body;
+    const { name, description, duration_minutes, price, image_url } = req.body;
 
     if (!name || !duration_minutes || price === undefined) {
       return res.status(400).json({ error: 'Nombre, duración y precio son requeridos.' });
     }
 
     const result = await pool.query(
-      `UPDATE services SET name = $1, description = $2, duration_minutes = $3, price = $4, updated_at = NOW()
-       WHERE id = $5 RETURNING *`,
-      [name, description || null, duration_minutes, price, id]
+      `UPDATE services SET name = $1, description = $2, duration_minutes = $3, price = $4, image_url = $5, updated_at = NOW()
+       WHERE id = $6 RETURNING *`,
+      [name, description || null, duration_minutes, price, image_url || null, id]
     );
 
     if (result.rows.length === 0) {

@@ -19,6 +19,9 @@ async function migrate() {
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='clients' AND column_name='password') THEN
           ALTER TABLE clients ADD COLUMN password VARCHAR(255);
         END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='services' AND column_name='image_url') THEN
+          ALTER TABLE services ADD COLUMN image_url TEXT;
+        END IF;
       END $$;
     `);
 
