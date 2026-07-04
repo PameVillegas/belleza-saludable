@@ -1,8 +1,14 @@
 /**
  * Script combinado de setup: migración + seed de datos de prueba
- * Se ejecuta en el buildCommand de Render
+ * Se ejecuta en el startCommand de Render antes del server
  */
 require('dotenv').config({ path: require('path').join(__dirname, '..', '..', '.env') });
+
+// Forzar production para SSL
+if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('render.com')) {
+  process.env.NODE_ENV = 'production';
+}
+
 const pool = require('./pool');
 
 async function setup() {
@@ -305,6 +311,7 @@ async function setup() {
   } finally {
     client.release();
     await pool.end();
+    process.exit(0);
   }
 }
 
