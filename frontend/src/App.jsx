@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Welcome from './pages/Welcome';
 import Home from './pages/Home';
 import SelectService from './pages/SelectService';
 import SelectDateTime from './pages/SelectDateTime';
@@ -13,7 +14,8 @@ function App() {
     <BrowserRouter>
       <div className="app-shell">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Welcome />} />
+          <Route path="/inicio" element={<Home />} />
           <Route path="/turnos" element={<SelectService />} />
           <Route path="/fecha-hora" element={<SelectDateTime />} />
           <Route path="/datos" element={<ClientData />} />

@@ -5,15 +5,18 @@ function BottomNav() {
   const navigate = useNavigate();
   const path = location.pathname;
 
+  // No mostrar en la pantalla de login
+  if (path === '/') return null;
+
   const navItems = [
-    { id: 'home', icon: '🏠', label: 'Inicio', path: '/' },
+    { id: 'home', icon: '🏠', label: 'Inicio', path: '/inicio' },
     { id: 'services', icon: '💆', label: 'Tratamientos', path: '/turnos' },
     { id: 'book', icon: '📅', label: 'Reservar', path: '/turnos' },
     { id: 'history', icon: '📋', label: 'Mis turnos', path: '/mis-turnos' },
   ];
 
   const isActive = (itemId) => {
-    if (itemId === 'home' && path === '/') return true;
+    if (itemId === 'home' && path === '/inicio') return true;
     if (itemId === 'history' && path === '/mis-turnos') return true;
     if ((itemId === 'services' || itemId === 'book') && ['/turnos', '/fecha-hora', '/datos', '/confirmacion'].includes(path)) return true;
     return false;

@@ -114,11 +114,6 @@ function Home() {
           </a>
           <a href="#" aria-label="Instagram">📷</a>
         </div>
-        <div style={{ marginTop: '1.5rem' }}>
-          <button className="btn-admin" onClick={() => { window.location.href = '/panel.html'; }}>
-            🔒 Admin
-          </button>
-        </div>
       </footer>
     </div>
   );
