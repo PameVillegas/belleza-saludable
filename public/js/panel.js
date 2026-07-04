@@ -84,6 +84,7 @@ function showSection(name) {
   if (name === 'clientUsers') loadClientUsers();
   if (name === 'income') loadIncome();
   if (name === 'products') loadProducts();
+  if (name === 'reminders') loadReminders();
 
   if (window.innerWidth <= 768) toggleSidebar();
 }
@@ -1003,4 +1004,35 @@ async function deactivateProduct(id) {
   if (!confirm('¿Desactivar este producto?')) return;
   await fetch(`${API}/admin/products/${id}/deactivate`, { method: 'PATCH', headers: authHeaders() });
   loadProducts();
+}
+
+// === Recordatorios ===
+async function loadReminders() {
+  try {
+    const res = await fetch(`${API}/admin/reminders`, { headers: authHeaders() });
+    const reminders = await res.json();
+
+    if (reminders.length === 0) {
+      document.getElementById('remindersTable').innerHTML = '<p style="color:var(--color-text-muted)">No hay turnos para hoy.</p>';
+      return;
+    }
+
+    document.getElementById('remindersTable').innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>Hora</th><th>Cliente</th><th>Teléfono</th><th>Servicio</th><th>Recordatorio</th><th>Acción</th></tr></thead>
+        <tbody>${reminders.map(r => `
+          <tr>
+            <td>${r.start_time.slice(0,5)}</td>
+            <td>${r.client_name}</td>
+            <td>${r.client_phone}</td>
+            <td>${r.service_name}</td>
+            <td>${r.reminder_sent ? '<span class="badge badge-confirmed">Enviado ✓</span>' : '<span class="badge badge-cancelled">Pendiente</span>'}</td>
+            <td><a href="${r.whatsapp_link}" target="_blank" class="btn btn-sm btn-primary" style="font-size:0.72rem;">📱 Enviar WhatsApp</a></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `;
+  } catch {
+    document.getElementById('remindersTable').innerHTML = '<p style="color:var(--color-error)">Error al cargar recordatorios.</p>';
+  }
 }

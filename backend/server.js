@@ -35,6 +35,21 @@ app.use('/api/products', productsRoutes);
 app.use('/api/admin/products', productsRoutes);
 app.use('/api/admin/income', incomeRoutes);
 
+// Sistema de recordatorios automáticos por WhatsApp
+const { startRemindersCron, getPendingReminders } = require('./reminders');
+startRemindersCron();
+
+// Endpoint admin: ver recordatorios del día
+app.get('/api/admin/reminders', require('./middleware/auth'), async (req, res) => {
+  try {
+    const reminders = await getPendingReminders();
+    res.json(reminders);
+  } catch (err) {
+    console.error('Error al obtener recordatorios:', err);
+    res.status(500).json({ error: 'Error interno.' });
+  }
+});
+
 // En producción, servir el build de React para rutas no-API
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
