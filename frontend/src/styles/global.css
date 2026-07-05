@@ -1597,8 +1597,8 @@ body {
 .treatment-card-v2-btn {
   width: 100%;
   padding: 0.55rem;
-  background: #EC4899;
-  color: white;
+  background: #FCE7F3;
+  color: #DB2777;
   border: none;
   border-radius: 14px;
   font-family: var(--font-body);
@@ -1609,9 +1609,9 @@ body {
 }
 
 .treatment-card-v2-btn:hover {
-  background: #DB2777;
+  background: #FBCFE8;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
 }
 
 @media (max-width: 400px) {
