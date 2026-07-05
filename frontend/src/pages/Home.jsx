@@ -33,11 +33,15 @@ function Home() {
         </button>
       </header>
 
-      {/* Saludo */}
-      <div className="home-greeting">
-        <img src="/logobelleza.jpg" alt="Belleza Saludable" className="home-greeting-logo" />
-        {firstName && <h2 className="home-greeting-text">Bienvenida, {firstName} ✨</h2>}
-        <p className="home-greeting-sub">¿Qué querés hacer hoy?</p>
+      {/* Saludo con imagen de fondo */}
+      <div className="home-greeting-hero">
+        <div className="home-greeting-text-side">
+          {firstName && <h2 className="home-greeting-title">Bienvenida, {firstName} ✨</h2>}
+          <p className="home-greeting-subtitle">¿Qué querés hacer hoy?</p>
+        </div>
+        <div className="home-greeting-img-side">
+          <img src="/fotoportada.png" alt="Belleza Saludable" className="home-greeting-photo" />
+        </div>
       </div>
 
       {/* Grid de secciones */}

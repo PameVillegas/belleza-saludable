@@ -1144,6 +1144,75 @@ body {
   background: linear-gradient(180deg, rgba(248, 244, 241, 0.85) 0%, rgba(255, 255, 255, 0.8) 100%);
 }
 
+/* Home Greeting Hero */
+.home-greeting-hero {
+  display: flex;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, rgba(248, 244, 241, 0.9) 0%, rgba(168, 184, 165, 0.15) 100%);
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.home-greeting-text-side {
+  flex: 1;
+  text-align: left;
+}
+
+.home-greeting-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.3rem;
+  line-height: 1.2;
+  text-shadow: 0 0 20px rgba(201, 168, 106, 0.3), 0 0 40px rgba(201, 168, 106, 0.15);
+  background: linear-gradient(135deg, var(--color-text) 0%, var(--color-gold) 50%, var(--color-text) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 200% center; }
+}
+
+.home-greeting-subtitle {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  font-weight: 300;
+}
+
+.home-greeting-img-side {
+  flex-shrink: 0;
+}
+
+.home-greeting-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 3px solid white;
+}
+
+@media (max-width: 400px) {
+  .home-greeting-hero {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+  .home-greeting-text-side {
+    text-align: center;
+  }
+  .home-greeting-photo {
+    width: 100px;
+    height: 100px;
+  }
+}
+
 .home-greeting-logo {
   width: 80px;
   height: 80px;
