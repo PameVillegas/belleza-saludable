@@ -370,26 +370,32 @@ body {
   box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
   z-index: 999;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   border: none;
+  animation: pulseWA 2s infinite;
 }
 
 .whatsapp-float:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+  transform: scale(1.12);
+  box-shadow: 0 6px 28px rgba(37, 211, 102, 0.55);
+}
+
+@keyframes pulseWA {
+  0%, 100% { box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4); }
+  50% { box-shadow: 0 4px 24px rgba(37, 211, 102, 0.6); }
 }
 
 /* Booking Flow Container */
 .booking-container {
   max-width: 550px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   animation: fadeUp 0.4s ease-out;
   background: rgba(255, 255, 255, 0.88);
   border-radius: var(--radius);
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
   backdrop-filter: blur(8px);
 }
 
@@ -467,14 +473,18 @@ body {
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 44px;
   min-width: 44px;
   text-decoration: none;
 }
 
+.btn:hover {
+  transform: translateY(-2px);
+}
+
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
 }
 
 .btn-primary {
@@ -548,7 +558,7 @@ body {
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
@@ -577,12 +587,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .slot-btn:hover {
   border-color: var(--color-sage);
   background: rgba(168, 184, 165, 0.08);
+  transform: translateY(-1px);
 }
 
 .slot-btn.selected {
@@ -1161,7 +1172,7 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
   max-width: 500px;
   margin: 0 auto;
 }
@@ -1217,11 +1228,12 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
-  padding: 1.25rem 1.5rem;
+  padding: 1.5rem 1.5rem;
   background: rgba(248, 244, 241, 0.85);
   font-size: 0.78rem;
   color: var(--color-text-light);
   border-top: 1px solid var(--color-border);
+  margin-top: 1rem;
 }
 
 /* Home Social */
@@ -1229,7 +1241,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 1.5rem;
-  padding: 1rem 1.5rem 2rem;
+  padding: 1.25rem 1.5rem 2.5rem;
   background: rgba(248, 244, 241, 0.85);
 }
 
@@ -1237,14 +1249,26 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.82rem;
-  color: var(--color-text-light);
+  font-size: 0.85rem;
+  color: var(--color-white);
   text-decoration: none;
-  transition: var(--transition);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-full);
+  font-weight: 500;
+}
+
+.home-social a.social-btn.instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.home-social a.social-btn.whatsapp {
+  background: #25D366;
 }
 
 .home-social a:hover {
-  color: var(--color-sage-dark);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* Responsive hero split */

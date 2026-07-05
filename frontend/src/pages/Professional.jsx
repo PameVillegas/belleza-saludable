@@ -9,6 +9,7 @@ function Professional() {
         <img src="/profesional.png" alt="Mariana Farias" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 16px rgba(0,0,0,0.08)', border: '3px solid white', marginBottom: '1rem' }} />
         <h2 className="booking-title">Mariana Farias</h2>
         <p style={{ fontSize: '0.85rem', color: 'var(--color-sage-dark)', fontWeight: 500 }}>Cosmetóloga · Cosmiatra · Dermatocosmiatría</p>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.4rem' }}>MP 1234 · Certificada en Dermapen y Peelings Avanzados</p>
       </div>
 
       <div className="card" style={{ marginBottom: '1rem', background: 'var(--color-beige)' }}>
