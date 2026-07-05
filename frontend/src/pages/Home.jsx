@@ -11,12 +11,12 @@ function Home() {
   };
 
   const sections = [
-    { icon: '💆', label: 'Tratamientos', path: '/turnos' },
-    { icon: '📅', label: 'Reservar Turno', path: '/reservar' },
-    { icon: '🧴', label: 'Productos', path: '/productos' },
-    { icon: '👩‍⚕️', label: 'Profesional', path: '/profesional' },
-    { icon: '⭐', label: 'Reseñas', path: '/resenas' },
-    { icon: '📋', label: 'Mis Turnos', path: '/mis-turnos' },
+    { icon: '/iconotratamiento.jpeg', label: 'Tratamientos', path: '/turnos' },
+    { icon: '/turno.png', label: 'Reservar Turno', path: '/reservar' },
+    { icon: '/iconoproductos.jpeg', label: 'Productos', path: '/productos' },
+    { icon: '/iconoderma.png', label: 'Profesional', path: '/profesional' },
+    { icon: '/iconoreseña.png', label: 'Reseñas', path: '/resenas' },
+    { icon: '/misturnos.png', label: 'Mis Turnos', path: '/mis-turnos' },
     { icon: '📜', label: 'Bases y Condiciones', path: '/bases-condiciones' },
   ];
 
@@ -44,7 +44,13 @@ function Home() {
       <div className="home-grid">
         {sections.map((item) => (
           <button key={item.label} className="home-grid-item" onClick={() => navigate(item.path)}>
-            <span className="home-grid-icon">{item.icon}</span>
+            <span className="home-grid-icon">
+              {item.icon.startsWith('/') ? (
+                <img src={item.icon} alt={item.label} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '8px' }} />
+              ) : (
+                item.icon
+              )}
+            </span>
             <span className="home-grid-label">{item.label}</span>
           </button>
         ))}
