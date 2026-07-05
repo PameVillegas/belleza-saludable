@@ -143,8 +143,8 @@
       gap: 0.75rem;
       padding: 0.85rem 1.5rem;
       text-decoration: none;
-      color: var(--color-text-light);
-      font-size: 0.88rem;
+      color: #6B7280;
+      font-size: 0.85rem;
       font-weight: 400;
       transition: all 0.2s;
       min-height: 44px;
@@ -152,15 +152,57 @@
     }
 
     .sidebar nav a:hover {
-      background: var(--color-sage-light);
-      color: var(--color-sage-dark);
+      background: #FDF2F8;
+      color: #EC4899;
     }
 
     .sidebar nav a.active {
-      background: var(--color-sage-light);
-      color: var(--color-sage-dark);
-      border-left-color: var(--color-sage);
+      background: #FDF2F8;
+      color: #EC4899;
+      border-left-color: #EC4899;
       font-weight: 500;
+    }
+
+    .nav-group-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .nav-group-title:hover {
+      background: #FDF2F8;
+      color: #EC4899;
+    }
+
+    .nav-arrow {
+      font-size: 0.7rem;
+      transition: transform 0.2s;
+    }
+
+    .nav-arrow.open {
+      transform: rotate(90deg);
+    }
+
+    .nav-group {
+      display: none;
+      padding-left: 1rem;
+    }
+
+    .nav-group.open {
+      display: block;
+    }
+
+    .nav-group a {
+      font-size: 0.8rem;
+      padding: 0.65rem 1.5rem;
+      min-height: 38px;
     }
 
     .sidebar nav a.logout-link {
@@ -178,7 +220,7 @@
       margin-left: 260px;
       flex: 1;
       padding: 2rem;
-      background: var(--color-beige);
+      background: #FFFFFF;
       min-height: 100vh;
     }
 
@@ -278,8 +320,8 @@
 
     .btn:active { transform: scale(0.97); }
 
-    .btn-primary { background: var(--color-sage); color: white; }
-    .btn-primary:hover { background: var(--color-sage-dark); }
+    .btn-primary { background: #EC4899; color: white; }
+    .btn-primary:hover { background: #DB2777; }
     .btn-danger { background: var(--color-error); color: white; }
     .btn-danger:hover { background: #dc2626; }
     .btn-sm { padding: 0.4rem 0.75rem; min-height: 36px; font-size: 0.78rem; }
@@ -353,15 +395,15 @@
     }
 
     .stat-card {
-      background: var(--color-white);
-      border-radius: var(--radius-sm);
+      background: #F9FAFB;
+      border-radius: 16px;
       padding: 1.25rem;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--color-border);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+      border: 1px solid #F3F4F6;
     }
 
-    .stat-card h4 { color: var(--color-text-muted); font-size: 0.78rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.3px; }
-    .stat-card .value { font-size: 1.75rem; font-weight: 600; color: var(--color-sage-dark); }
+    .stat-card h4 { color: #9CA3AF; font-size: 0.72rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.3px; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 600; color: #EC4899; }
 
     /* Search */
     .search-bar {
@@ -530,16 +572,21 @@
       </div>
       <nav>
         <a href="#" onclick="showSection('dashboard')" class="active" data-section="dashboard">📊 Dashboard</a>
-        <a href="#" onclick="showSection('calendar')" data-section="calendar">🗓️ Calendario</a>
-        <a href="#" onclick="showSection('appointments')" data-section="appointments">📅 Turnos</a>
+        
+        <div class="nav-group-title" onclick="toggleNavGroup('turnos')">📅 Turnos <span class="nav-arrow" id="arrow-turnos">▸</span></div>
+        <div class="nav-group" id="group-turnos">
+          <a href="#" onclick="showSection('calendar')" data-section="calendar">🗓️ Calendario</a>
+          <a href="#" onclick="showSection('appointments')" data-section="appointments">📋 Gestión de Turnos</a>
+          <a href="#" onclick="showSection('schedules')" data-section="schedules">⏰ Horarios</a>
+          <a href="#" onclick="showSection('reminders')" data-section="reminders">📨 Recordatorios</a>
+        </div>
+
         <a href="#" onclick="showSection('income')" data-section="income">💰 Ingresos</a>
-        <a href="#" onclick="showSection('reminders')" data-section="reminders">📨 Recordatorios</a>
-        <a href="#" onclick="showSection('whatsapp')" data-section="whatsapp">📱 WhatsApp</a>
         <a href="#" onclick="showSection('clients')" data-section="clients">👥 Clientes</a>
         <a href="#" onclick="showSection('services')" data-section="services">💆 Servicios</a>
         <a href="#" onclick="showSection('products')" data-section="products">🧴 Productos</a>
         <a href="#" onclick="showSection('reviews')" data-section="reviews">⭐ Reseñas</a>
-        <a href="#" onclick="showSection('schedules')" data-section="schedules">⏰ Horarios</a>
+        <a href="#" onclick="showSection('whatsapp')" data-section="whatsapp">📱 WhatsApp</a>
         <a href="#" onclick="showSection('users')" data-section="users">👤 Administradores</a>
         <a href="#" onclick="showSection('clientUsers')" data-section="clientUsers">🔑 Usuarios Clientes</a>
         <a href="#" onclick="doLogout()" class="logout-link">🚪 Cerrar sesión</a>

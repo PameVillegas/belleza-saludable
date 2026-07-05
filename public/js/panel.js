@@ -113,22 +113,44 @@ async function loadDashboard() {
   const dateStr = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   try {
+    // Turnos de hoy
     const res = await fetch(`${API}/admin/appointments?date=${today}`, { headers: authHeaders() });
     const appointments = await res.json();
 
     const confirmed = appointments.filter(a => a.status === 'confirmed').length;
     const cancelled = appointments.filter(a => a.status === 'cancelled').length;
     const total = appointments.length;
-    const revenue = appointments
+    const revenueDay = appointments
       .filter(a => a.status === 'confirmed' || a.status === 'completed')
       .reduce((sum, a) => sum + Number(a.service_price || 0), 0);
+
+    // Recaudación de la semana
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+    let weekRevenue = revenueDay;
+    try {
+      const wRes = await fetch(`${API}/admin/income/search?from=${weekStartStr}&to=${today}`, { headers: authHeaders() });
+      const wData = await wRes.json();
+      weekRevenue = wData.total || 0;
+    } catch {}
+
+    // Últimos clientes
+    let recentClients = [];
+    try {
+      const cRes = await fetch(`${API}/admin/clients`, { headers: authHeaders() });
+      const allClients = await cRes.json();
+      recentClients = allClients.slice(0, 4);
+    } catch {}
 
     const upcoming = appointments
       .filter(a => a.status === 'confirmed')
       .sort((a, b) => a.start_time.localeCompare(b.start_time))
       .slice(0, 5);
 
-    // Actividad reciente simulada a partir de los turnos de hoy
+    const pending = appointments.filter(a => a.status === 'confirmed' && !a.notes);
+
+    // Actividad reciente
     const activity = [];
     appointments.forEach(a => {
       if (a.status === 'confirmed') activity.push({ text: `${a.client_name} tiene turno confirmado a las ${a.start_time.slice(0,5)}.`, time: 'Hoy' });
@@ -138,67 +160,86 @@ async function loadDashboard() {
     let html = `
       <!-- Saludo -->
       <div style="margin-bottom:1.5rem;">
-        <h2 style="font-family:var(--font-display); font-size:1.4rem; font-weight:600; color:var(--color-text); margin-bottom:0.2rem;">${greeting}, ${currentAdmin.name.split(' ')[0]} 👋</h2>
-        <p style="font-size:0.82rem; color:var(--color-text-muted); text-transform:capitalize;">${dateStr}</p>
+        <h2 style="font-family:var(--font-display); font-size:1.4rem; font-weight:600; color:#374151; margin-bottom:0.2rem;">${greeting}, ${currentAdmin.name.split(' ')[0]} 👋</h2>
+        <p style="font-size:0.82rem; color:#9CA3AF; text-transform:capitalize;">${dateStr}</p>
       </div>
 
       <!-- Stats Cards - 2x2 -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.5rem;">
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Turnos hoy</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-sage-dark);">${total}</p>
+          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Turnos hoy</p>
+          <p style="font-size:1.4rem; font-weight:700; color:#EC4899;">${total}</p>
         </div>
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Confirmados</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${confirmed}</p>
+          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Confirmados</p>
+          <p style="font-size:1.4rem; font-weight:700; color:#10b981;">${confirmed}</p>
         </div>
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Cancelados</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-error);">${cancelled}</p>
+          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Cancelados</p>
+          <p style="font-size:1.4rem; font-weight:700; color:#ef4444;">${cancelled}</p>
         </div>
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Recaudación</p>
-          <p style="font-size:1.5rem; font-weight:700; color:var(--color-gold);">$${revenue.toLocaleString()}</p>
+          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Recaudación hoy</p>
+          <p style="font-size:1.4rem; font-weight:700; color:#EC4899;">$${revenueDay.toLocaleString()}</p>
         </div>
       </div>
 
+      <!-- Recaudación semana -->
+      <div class="stat-card" style="padding:1rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <p style="font-size:0.72rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px;">Recaudación de la semana</p>
+          <p style="font-size:1.6rem; font-weight:700; color:#EC4899;">$${weekRevenue.toLocaleString()}</p>
+        </div>
+        <span style="font-size:2rem;">💰</span>
+      </div>
+
       <!-- Próximos turnos -->
-      <h3 style="font-family:var(--font-display); font-size:1.1rem; font-weight:600; margin-bottom:0.75rem;">Próximos turnos</h3>
+      <h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">Próximos turnos</h3>
     `;
 
     if (upcoming.length === 0) {
-      html += '<p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">No hay turnos próximos para hoy.</p>';
+      html += '<p style="color:#9CA3AF; font-size:0.85rem; margin-bottom:1.5rem;">No hay turnos próximos para hoy.</p>';
     } else {
       html += '<div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;">';
       upcoming.forEach(a => {
         html += `
-          <div style="background:var(--color-white); border:1px solid var(--color-border); border-radius:12px; padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 4px rgba(0,0,0,0.03);">
+          <div style="background:#F9FAFB; border:1px solid #F3F4F6; border-radius:14px; padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center; gap:0.75rem;">
-              <span style="font-size:0.82rem; font-weight:600; color:var(--color-sage-dark); min-width:45px;">${a.start_time.slice(0,5)}</span>
+              <span style="font-size:0.82rem; font-weight:600; color:#EC4899; min-width:45px;">${a.start_time.slice(0,5)}</span>
               <div>
-                <p style="font-size:0.85rem; font-weight:500; color:var(--color-text);">${a.client_name}</p>
-                <p style="font-size:0.72rem; color:var(--color-text-muted);">${a.service_name}</p>
+                <p style="font-size:0.85rem; font-weight:500; color:#374151;">${a.client_name}</p>
+                <p style="font-size:0.72rem; color:#9CA3AF;">${a.service_name}</p>
               </div>
             </div>
-            <span style="font-size:0.68rem; padding:0.2rem 0.5rem; border-radius:20px; background:rgba(16,185,129,0.1); color:#065f46; font-weight:500;">Confirmado</span>
+            <span style="font-size:0.68rem; padding:0.2rem 0.5rem; border-radius:20px; background:#FDF2F8; color:#EC4899; font-weight:500;">Confirmado</span>
           </div>
         `;
       });
       html += '</div>';
     }
 
+    // Últimos clientes registrados
+    if (recentClients.length > 0) {
+      html += '<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">Últimos clientes</h3>';
+      html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.5rem;">';
+      recentClients.forEach(c => {
+        html += `<span style="font-size:0.78rem; background:#FDF2F8; color:#DB2777; padding:0.35rem 0.75rem; border-radius:20px; border:1px solid #FCE7F3;">${c.name}</span>`;
+      });
+      html += '</div>';
+    }
+
     // Actividad reciente
-    html += '<h3 style="font-family:var(--font-display); font-size:1.1rem; font-weight:600; margin-bottom:0.75rem;">Actividad reciente</h3>';
+    html += '<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">Actividad reciente</h3>';
     if (activity.length === 0) {
-      html += '<p style="color:var(--color-text-muted); font-size:0.85rem;">Sin actividad reciente.</p>';
+      html += '<p style="color:#9CA3AF; font-size:0.85rem;">Sin actividad reciente.</p>';
     } else {
       html += '<div style="display:flex; flex-direction:column; gap:0.4rem;">';
-      activity.slice(0, 5).forEach(a => {
+      activity.slice(0, 6).forEach(a => {
         html += `
-          <div style="display:flex; align-items:center; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid var(--color-border);">
-            <span style="width:6px; height:6px; border-radius:50%; background:var(--color-sage); flex-shrink:0;"></span>
-            <p style="font-size:0.8rem; color:var(--color-text-light); flex:1;">${a.text}</p>
-            <span style="font-size:0.68rem; color:var(--color-text-muted);">${a.time}</span>
+          <div style="display:flex; align-items:center; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid #F3F4F6;">
+            <span style="width:6px; height:6px; border-radius:50%; background:#EC4899; flex-shrink:0;"></span>
+            <p style="font-size:0.8rem; color:#6B7280; flex:1;">${a.text}</p>
+            <span style="font-size:0.68rem; color:#9CA3AF;">${a.time}</span>
           </div>
         `;
       });
@@ -779,6 +820,13 @@ function toggleRegPass() {
   const eye = document.getElementById('regEye');
   if (input.type === 'password') { input.type = 'text'; eye.textContent = '🙈'; }
   else { input.type = 'password'; eye.textContent = '👁️'; }
+}
+
+function toggleNavGroup(name) {
+  const group = document.getElementById(`group-${name}`);
+  const arrow = document.getElementById(`arrow-${name}`);
+  group.classList.toggle('open');
+  arrow.classList.toggle('open');
 }
 
 // === Registro ===
