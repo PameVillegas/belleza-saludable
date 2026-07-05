@@ -108,7 +108,9 @@ function closeModal() {
 // === Dashboard ===
 async function loadDashboard() {
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
+  const dateStr = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   try {
     const res = await fetch(`${API}/admin/appointments?date=${today}`, { headers: authHeaders() });
@@ -116,35 +118,96 @@ async function loadDashboard() {
 
     const confirmed = appointments.filter(a => a.status === 'confirmed').length;
     const cancelled = appointments.filter(a => a.status === 'cancelled').length;
+    const total = appointments.length;
+    const revenue = appointments
+      .filter(a => a.status === 'confirmed' || a.status === 'completed')
+      .reduce((sum, a) => sum + Number(a.service_price || 0), 0);
 
-    document.getElementById('statsCards').innerHTML = `
-      <div class="stat-card"><h4>Turnos hoy</h4><div class="value">${confirmed}</div></div>
-      <div class="stat-card"><h4>Cancelados</h4><div class="value" style="color:var(--color-error)">${cancelled}</div></div>
-      <div class="stat-card"><h4>Total del día</h4><div class="value">${appointments.length}</div></div>
+    const upcoming = appointments
+      .filter(a => a.status === 'confirmed')
+      .sort((a, b) => a.start_time.localeCompare(b.start_time))
+      .slice(0, 5);
+
+    // Actividad reciente simulada a partir de los turnos de hoy
+    const activity = [];
+    appointments.forEach(a => {
+      if (a.status === 'confirmed') activity.push({ text: `${a.client_name} tiene turno confirmado a las ${a.start_time.slice(0,5)}.`, time: 'Hoy' });
+      if (a.status === 'cancelled') activity.push({ text: `Se canceló un turno de las ${a.start_time.slice(0,5)}.`, time: 'Hoy' });
+    });
+
+    let html = `
+      <!-- Saludo -->
+      <div style="margin-bottom:1.5rem;">
+        <h2 style="font-family:var(--font-display); font-size:1.4rem; font-weight:600; color:var(--color-text); margin-bottom:0.2rem;">${greeting}, ${currentAdmin.name.split(' ')[0]} 👋</h2>
+        <p style="font-size:0.82rem; color:var(--color-text-muted); text-transform:capitalize;">${dateStr}</p>
+      </div>
+
+      <!-- Stats Cards - 2x2 -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.5rem;">
+        <div class="stat-card" style="padding:1rem; text-align:center;">
+          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Turnos hoy</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-sage-dark);">${total}</p>
+        </div>
+        <div class="stat-card" style="padding:1rem; text-align:center;">
+          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Confirmados</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-success);">${confirmed}</p>
+        </div>
+        <div class="stat-card" style="padding:1rem; text-align:center;">
+          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Cancelados</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-error);">${cancelled}</p>
+        </div>
+        <div class="stat-card" style="padding:1rem; text-align:center;">
+          <p style="font-size:0.7rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">Recaudación</p>
+          <p style="font-size:1.5rem; font-weight:700; color:var(--color-gold);">$${revenue.toLocaleString()}</p>
+        </div>
+      </div>
+
+      <!-- Próximos turnos -->
+      <h3 style="font-family:var(--font-display); font-size:1.1rem; font-weight:600; margin-bottom:0.75rem;">Próximos turnos</h3>
     `;
 
-    const confirmedAppts = appointments.filter(a => a.status === 'confirmed');
-    if (confirmedAppts.length === 0) {
-      document.getElementById('todayAppointments').innerHTML = '<p style="color:var(--color-text-muted)">No hay turnos para hoy.</p>';
+    if (upcoming.length === 0) {
+      html += '<p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">No hay turnos próximos para hoy.</p>';
     } else {
-      document.getElementById('todayAppointments').innerHTML = `
-        <table class="data-table">
-          <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Duración</th><th>Precio</th><th>Acción</th></tr></thead>
-          <tbody>${confirmedAppts.map(a => `
-            <tr>
-              <td>${a.start_time.slice(0,5)} - ${a.end_time.slice(0,5)}</td>
-              <td>${a.client_name}</td>
-              <td>${a.service_name}</td>
-              <td>${a.duration_minutes} min</td>
-              <td>$${Number(a.service_price).toLocaleString()}</td>
-              <td><button class="btn btn-danger btn-sm" onclick="cancelAppointment('${a.id}')">Cancelar</button></td>
-            </tr>
-          `).join('')}</tbody>
-        </table>
-      `;
+      html += '<div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;">';
+      upcoming.forEach(a => {
+        html += `
+          <div style="background:var(--color-white); border:1px solid var(--color-border); border-radius:12px; padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 4px rgba(0,0,0,0.03);">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <span style="font-size:0.82rem; font-weight:600; color:var(--color-sage-dark); min-width:45px;">${a.start_time.slice(0,5)}</span>
+              <div>
+                <p style="font-size:0.85rem; font-weight:500; color:var(--color-text);">${a.client_name}</p>
+                <p style="font-size:0.72rem; color:var(--color-text-muted);">${a.service_name}</p>
+              </div>
+            </div>
+            <span style="font-size:0.68rem; padding:0.2rem 0.5rem; border-radius:20px; background:rgba(16,185,129,0.1); color:#065f46; font-weight:500;">Confirmado</span>
+          </div>
+        `;
+      });
+      html += '</div>';
     }
+
+    // Actividad reciente
+    html += '<h3 style="font-family:var(--font-display); font-size:1.1rem; font-weight:600; margin-bottom:0.75rem;">Actividad reciente</h3>';
+    if (activity.length === 0) {
+      html += '<p style="color:var(--color-text-muted); font-size:0.85rem;">Sin actividad reciente.</p>';
+    } else {
+      html += '<div style="display:flex; flex-direction:column; gap:0.4rem;">';
+      activity.slice(0, 5).forEach(a => {
+        html += `
+          <div style="display:flex; align-items:center; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid var(--color-border);">
+            <span style="width:6px; height:6px; border-radius:50%; background:var(--color-sage); flex-shrink:0;"></span>
+            <p style="font-size:0.8rem; color:var(--color-text-light); flex:1;">${a.text}</p>
+            <span style="font-size:0.68rem; color:var(--color-text-muted);">${a.time}</span>
+          </div>
+        `;
+      });
+      html += '</div>';
+    }
+
+    document.getElementById('dashboardContent').innerHTML = html;
   } catch {
-    document.getElementById('todayAppointments').innerHTML = '<p style="color:var(--color-error)">Error al cargar datos.</p>';
+    document.getElementById('dashboardContent').innerHTML = '<p style="color:var(--color-error)">Error al cargar datos.</p>';
   }
 }
 
