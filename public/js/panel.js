@@ -704,6 +704,20 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+function toggleLoginPass() {
+  const input = document.getElementById('loginPass');
+  const eye = document.getElementById('loginEye');
+  if (input.type === 'password') { input.type = 'text'; eye.textContent = '🙈'; }
+  else { input.type = 'password'; eye.textContent = '👁️'; }
+}
+
+function toggleRegPass() {
+  const input = document.getElementById('regPass');
+  const eye = document.getElementById('regEye');
+  if (input.type === 'password') { input.type = 'text'; eye.textContent = '🙈'; }
+  else { input.type = 'password'; eye.textContent = '👁️'; }
+}
+
 // === Registro ===
 function showRegister() {
   document.getElementById('loginForm').style.display = 'none';

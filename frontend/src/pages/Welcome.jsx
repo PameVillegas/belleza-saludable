@@ -5,6 +5,7 @@ function Welcome() {
   const [mode, setMode] = useState('login'); // 'login' or 'register'
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -95,7 +96,12 @@ function Welcome() {
             </div>
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
-              <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" />
+              <div style={{ position: 'relative' }}>
+                <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" />
+                <span onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '1.1rem', userSelect: 'none' }}>
+                  {showPassword ? '🙈' : '👁️'}
+                </span>
+              </div>
             </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
               {loading ? 'Ingresando...' : 'Ingresar'}
@@ -127,7 +133,12 @@ function Welcome() {
             </div>
             <div className="form-group">
               <label htmlFor="regPass">Contraseña</label>
-              <input type="password" id="regPass" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 4 caracteres" />
+              <div style={{ position: 'relative' }}>
+                <input type={showPassword ? 'text' : 'password'} id="regPass" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 4 caracteres" />
+                <span onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '1.1rem', userSelect: 'none' }}>
+                  {showPassword ? '🙈' : '👁️'}
+                </span>
+              </div>
             </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}

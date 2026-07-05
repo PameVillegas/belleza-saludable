@@ -482,7 +482,10 @@
         </div>
         <div class="form-group">
           <label for="loginPass">Contraseña</label>
-          <input type="password" id="loginPass" placeholder="••••••">
+          <div style="position:relative;">
+            <input type="password" id="loginPass" placeholder="••••••">
+            <span onclick="toggleLoginPass()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.1rem; user-select:none;" id="loginEye">👁️</span>
+          </div>
         </div>
         <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="doLogin()">Ingresar</button>
         <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--color-text-muted);">
@@ -501,7 +504,10 @@
         </div>
         <div class="form-group">
           <label for="regPass">Contraseña</label>
-          <input type="password" id="regPass" placeholder="Mínimo 4 caracteres">
+          <div style="position:relative;">
+            <input type="password" id="regPass" placeholder="Mínimo 4 caracteres">
+            <span onclick="toggleRegPass()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.1rem; user-select:none;" id="regEye">👁️</span>
+          </div>
         </div>
         <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="doRegister()">Crear cuenta</button>
         <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--color-text-muted);">
