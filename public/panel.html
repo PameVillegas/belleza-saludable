@@ -581,14 +581,22 @@
           <a href="#" onclick="showSection('reminders')" data-section="reminders">📨 Recordatorios</a>
         </div>
 
+        <div class="nav-group-title" onclick="toggleNavGroup('clientes')">👥 Clientes <span class="nav-arrow" id="arrow-clientes">▸</span></div>
+        <div class="nav-group" id="group-clientes">
+          <a href="#" onclick="showSection('clients')" data-section="clients">👥 Gestión de Clientes</a>
+          <a href="#" onclick="showSection('reviews')" data-section="reviews">⭐ Reseñas</a>
+          <a href="#" onclick="showSection('clientUsers')" data-section="clientUsers">🔑 Usuarios Clientes</a>
+        </div>
+
+        <div class="nav-group-title" onclick="toggleNavGroup('servicios')">💆 Servicios <span class="nav-arrow" id="arrow-servicios">▸</span></div>
+        <div class="nav-group" id="group-servicios">
+          <a href="#" onclick="showSection('services')" data-section="services">💆 Tratamientos</a>
+          <a href="#" onclick="showSection('products')" data-section="products">🧴 Productos</a>
+        </div>
+
         <a href="#" onclick="showSection('income')" data-section="income">💰 Ingresos</a>
-        <a href="#" onclick="showSection('clients')" data-section="clients">👥 Clientes</a>
-        <a href="#" onclick="showSection('services')" data-section="services">💆 Servicios</a>
-        <a href="#" onclick="showSection('products')" data-section="products">🧴 Productos</a>
-        <a href="#" onclick="showSection('reviews')" data-section="reviews">⭐ Reseñas</a>
         <a href="#" onclick="showSection('whatsapp')" data-section="whatsapp">📱 WhatsApp</a>
         <a href="#" onclick="showSection('users')" data-section="users">👤 Administradores</a>
-        <a href="#" onclick="showSection('clientUsers')" data-section="clientUsers">🔑 Usuarios Clientes</a>
         <a href="#" onclick="doLogout()" class="logout-link">🚪 Cerrar sesión</a>
       </nav>
     </aside>
