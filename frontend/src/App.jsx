@@ -11,6 +11,7 @@ import Reviews from './pages/Reviews';
 import Professional from './pages/Professional';
 import Terms from './pages/Terms';
 import Products from './pages/Products';
+import BookAppointment from './pages/BookAppointment';
 import BottomNav from './components/BottomNav';
 import WhatsAppButton from './components/WhatsAppButton';
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/profesional" element={<Professional />} />
           <Route path="/bases-condiciones" element={<Terms />} />
           <Route path="/productos" element={<Products />} />
+          <Route path="/reservar" element={<BookAppointment />} />
         </Routes>
         <WhatsAppButton />
         <BottomNav />

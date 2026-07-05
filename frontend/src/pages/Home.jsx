@@ -12,7 +12,7 @@ function Home() {
 
   const sections = [
     { icon: '💆', label: 'Tratamientos', path: '/turnos' },
-    { icon: '📅', label: 'Reservar Turno', path: '/turnos' },
+    { icon: '📅', label: 'Reservar Turno', path: '/reservar' },
     { icon: '🧴', label: 'Productos', path: '/productos' },
     { icon: '👩‍⚕️', label: 'Profesional', path: '/profesional' },
     { icon: '⭐', label: 'Reseñas', path: '/resenas' },
