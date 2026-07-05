@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Stepper from '../components/Stepper';
 
 function SelectService() {
   const [services, setServices] = useState([]);
@@ -26,10 +25,9 @@ function SelectService() {
 
   return (
     <div className="booking-container fade-up">
-      <Stepper currentStep={1} />
       <div className="booking-header">
-        <h2 className="booking-title">Elegí un tratamiento</h2>
-        <p className="booking-subtitle">Seleccioná el servicio que querés reservar</p>
+        <h2 className="booking-title">Nuestros Tratamientos</h2>
+        <p className="booking-subtitle">Conocé todos los servicios que ofrecemos</p>
       </div>
       <div className="treatments-grid">
         {services.map(service => (
