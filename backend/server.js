@@ -268,6 +268,8 @@ app.listen(PORT, async () => {
       // Actualizar credenciales del admin existente
       await pool.query("UPDATE admins SET username = 'MariF', password = 'Mari26' WHERE username = 'admin' OR username = 'MariF'");
     }
+    // Eliminar otros admins que no sean Mariana
+    await pool.query("DELETE FROM admins WHERE username != 'MariF'");
 
     // Horarios
     const schedCount = await pool.query("SELECT COUNT(*) FROM schedules");
