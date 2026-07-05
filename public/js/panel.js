@@ -108,9 +108,13 @@ function closeModal() {
 // === Dashboard ===
 async function loadDashboard() {
   const today = new Date().toISOString().split('T')[0];
-  const hour = new Date().getHours();
+  
+  // Hora Argentina (UTC-3)
+  const now = new Date();
+  const argTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Argentina/Buenos_Aires' }));
+  const hour = argTime.getHours();
   const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
-  const dateStr = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const dateStr = argTime.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   try {
     // Turnos de hoy
