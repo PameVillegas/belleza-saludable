@@ -77,7 +77,7 @@ router.get('/:serviceId/:date', async (req, res) => {
 
     // Obtener horario para ese día
     const scheduleResult = await pool.query(
-      'SELECT * FROM schedules WHERE day_of_week = $1 AND is_active = true',
+      'SELECT * FROM schedules WHERE day_of_week = $1 AND is_active = true ORDER BY start_time',
       [dayOfWeek]
     );
 
@@ -85,14 +85,16 @@ router.get('/:serviceId/:date', async (req, res) => {
       return res.json({ serviceId, date, slots: [] });
     }
 
-    const schedule = scheduleResult.rows[0];
-
-    // Generar todas las franjas posibles
-    const slots = generateSlots(
-      schedule.start_time,
-      schedule.end_time,
-      service.duration_minutes
-    );
+    // Generar franjas para TODOS los bloques horarios del día (mañana y tarde)
+    let slots = [];
+    for (const schedule of scheduleResult.rows) {
+      const blockSlots = generateSlots(
+        schedule.start_time,
+        schedule.end_time,
+        service.duration_minutes
+      );
+      slots = slots.concat(blockSlots);
+    }
 
     // Obtener turnos existentes para esa fecha (no cancelados)
     const appointmentsResult = await pool.query(
