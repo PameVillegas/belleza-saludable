@@ -15,11 +15,11 @@ function BottomNav() {
         <span>Inicio</span>
       </button>
       <button className="nav-item" onClick={() => navigate('/turnos')} aria-label="Tratamientos">
-        <span className="nav-icon">💆</span>
+        <img src="/iconotratamiento.jpeg" alt="Tratamientos" className="nav-icon-img" />
         <span>Tratamientos</span>
       </button>
       <button className="nav-item" onClick={() => navigate('/mis-turnos')} aria-label="Mis turnos">
-        <span className="nav-icon">📋</span>
+        <img src="/misturnos.png" alt="Mis turnos" className="nav-icon-img" />
         <span>Mis turnos</span>
       </button>
     </nav>
