@@ -37,7 +37,7 @@ function Home() {
       <div className="home-greeting-hero">
         <div className="home-greeting-text-side">
           {firstName && <h2 className="home-greeting-title">Bienvenida, {firstName} ✨</h2>}
-          <p className="home-greeting-subtitle">¿Qué querés hacer hoy?</p>
+          <p className="home-greeting-subtitle">Un espacio pensado para vos</p>
         </div>
         <div className="home-greeting-img-side">
           <img src="/fotoportada.png" alt="Belleza Saludable" className="home-greeting-photo" />
