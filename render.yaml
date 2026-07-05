@@ -2,7 +2,7 @@ services:
   - type: web
     name: belleza-saludable
     runtime: node
-    buildCommand: npm install && cd frontend && npm install && npm run build
+    buildCommand: apt-get update && apt-get install -y google-chrome-stable || true && npm install && cd frontend && npm install && npm run build
     startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
@@ -11,6 +11,10 @@ services:
         fromDatabase:
           name: belleza-saludable-db
           property: connectionString
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"
+      - key: PUPPETEER_EXECUTABLE_PATH
+        value: /usr/bin/google-chrome-stable
 
 databases:
   - name: belleza-saludable-db
