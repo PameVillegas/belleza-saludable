@@ -6,6 +6,14 @@ function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const clientSession = JSON.parse(sessionStorage.getItem('clientSession') || 'null');
+
+  const handleBuy = (product) => {
+    const clientName = clientSession?.name || 'Un cliente';
+    const message = `Hola! Soy ${clientName} y me interesa comprar: *${product.name}* ($${Number(product.price).toLocaleString()}). ¿Está disponible?`;
+    const url = `https://wa.me/543388403225?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
 
   useEffect(() => {
     fetch('/api/products')
@@ -58,6 +66,12 @@ function Products() {
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-sage-dark)' }}>
                 ${Number(product.price).toLocaleString()}
               </span>
+              <button
+                onClick={() => handleBuy(product)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: '0.75rem', padding: '0.4rem 0.8rem', background: '#25D366', color: 'white', border: 'none', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}
+              >
+                🛒 Comprar
+              </button>
             </div>
           </div>
         ))}
