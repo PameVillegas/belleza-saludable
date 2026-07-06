@@ -1159,7 +1159,7 @@ body {
   position: absolute;
   top: 50%;
   right: 0;
-  transform: translateY(-50%) scale(0.3);
+  transform: translateY(-50%) scale(0.25);
   transform-origin: right center;
 }
 
@@ -1270,6 +1270,18 @@ body {
   .home-greeting-photo {
     width: 100px;
     height: 100px;
+  }
+  .home-banner {
+    height: 110px;
+  }
+  .home-banner-img {
+    transform: translateY(-50%) scale(0.22);
+  }
+  .home-banner-overlay {
+    padding: 1rem;
+  }
+  .home-greeting-title {
+    font-size: 1.2rem;
   }
 }
 
