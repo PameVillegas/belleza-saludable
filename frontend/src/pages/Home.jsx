@@ -27,21 +27,24 @@ function Home() {
       <header className="home-header">
         <div className="home-header-left" onClick={() => navigate('/inicio')} style={{ cursor: 'pointer' }}>
           <img src="/logobelleza.jpg" alt="Belleza Saludable" className="home-header-logo" />
-          <span className="home-header-name">Belleza Saludable</span>
+          <div>
+            <span className="home-header-name">Belleza Saludable</span>
+            <span className="home-header-tagline">Cosmiatría · Estética · Bienestar</span>
+          </div>
         </div>
         <button className="home-logout-btn" onClick={handleLogout}>
           Cerrar sesión
         </button>
       </header>
 
-      {/* Saludo con imagen de fondo */}
-      <div className="home-greeting-hero">
-        <div className="home-greeting-text-side">
-          {firstName && <h2 className="home-greeting-title">Bienvenida, {firstName} ✨</h2>}
-          <p className="home-greeting-subtitle">Un espacio pensado para vos</p>
-        </div>
-        <div className="home-greeting-img-side">
-          <img src="/fotoportada.png" alt="Belleza Saludable" className="home-greeting-photo" />
+      {/* Banner con saludo */}
+      <div className="home-banner">
+        <img src="/fotoportada.png" alt="Belleza Saludable" className="home-banner-img" />
+        <div className="home-banner-overlay">
+          <div className="home-banner-text">
+            {firstName && <h2 className="home-greeting-title">Bienvenida, {firstName} ✨</h2>}
+            <p className="home-greeting-subtitle">Un espacio pensado para vos</p>
+          </div>
         </div>
       </div>
 

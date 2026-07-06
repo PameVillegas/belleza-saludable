@@ -1115,8 +1115,8 @@ body {
 }
 
 .home-header-logo {
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -1125,6 +1125,7 @@ body {
   font-family: 'Dancing Script', cursive;
   font-size: 1.2rem;
   font-weight: 700;
+  display: block;
   color: #EC4899;
   text-shadow: 0 0 8px rgba(201, 168, 106, 0.4), 0 0 16px rgba(201, 168, 106, 0.2);
   background: linear-gradient(135deg, #EC4899 0%, #C9A86A 50%, #EC4899 100%);
@@ -1133,6 +1134,44 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmer 3s ease-in-out infinite;
+  line-height: 1.2;
+}
+
+.home-header-tagline {
+  font-size: 0.62rem;
+  color: #9CA3AF;
+  display: block;
+  letter-spacing: 0.5px;
+}
+
+/* Home Banner */
+.home-banner {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.home-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(253, 242, 248, 0.85) 0%, rgba(236, 72, 153, 0.15) 100%);
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+.home-banner-text {
+  text-align: left;
 }
 
 .home-logout-btn {
