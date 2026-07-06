@@ -138,9 +138,6 @@ function Products() {
                 )}
 
                 <div className="product-footer">
-                  <span className="product-price">
-                    {Number(product.price) > 0 ? `$${Number(product.price).toLocaleString()}` : 'Consultar precio'}
-                  </span>
                   <button className="product-buy-btn" onClick={() => handleBuy(product)}>
                     Consultar
                   </button>
