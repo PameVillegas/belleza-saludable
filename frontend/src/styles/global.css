@@ -1159,7 +1159,7 @@ body {
   position: absolute;
   top: 50%;
   right: 0;
-  transform: translateY(-50%) scale(0.35);
+  transform: translateY(-50%) scale(0.3);
   transform-origin: right center;
 }
 
