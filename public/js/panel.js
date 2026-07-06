@@ -1109,7 +1109,7 @@ async function loadProducts() {
             <td>${p.is_active ? '<span class="badge badge-confirmed">Activo</span>' : '<span class="badge badge-cancelled">Inactivo</span>'}</td>
             <td>
               <button class="btn btn-sm" onclick="editProduct('${p.id}')">Editar</button>
-              ${p.is_active ? `<button class="btn btn-danger btn-sm" onclick="deactivateProduct('${p.id}')">Desactivar</button>` : ''}
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Eliminar</button>
             </td>
           </tr>
         `).join('')}</tbody>
@@ -1200,6 +1200,12 @@ async function updateProduct(id) {
 async function deactivateProduct(id) {
   if (!confirm('¿Desactivar este producto?')) return;
   await fetch(`${API}/admin/products/${id}/deactivate`, { method: 'PATCH', headers: authHeaders() });
+  loadProducts();
+}
+
+async function deleteProduct(id) {
+  if (!confirm('¿Eliminar este producto definitivamente?')) return;
+  await fetch(`${API}/admin/products/${id}`, { method: 'DELETE', headers: authHeaders() });
   loadProducts();
 }
 
