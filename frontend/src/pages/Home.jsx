@@ -39,7 +39,7 @@ function Home() {
 
       {/* Banner con saludo */}
       <div className="home-banner">
-        <img src="/fotoportada.png" alt="Belleza Saludable" className="home-banner-img" />
+        <img src="/fotoportada2.png" alt="Belleza Saludable" className="home-banner-img" />
         <div className="home-banner-overlay">
           <div className="home-banner-text">
             {firstName && <h2 className="home-greeting-title">Bienvenida, {firstName} ✨</h2>}
