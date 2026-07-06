@@ -6,19 +6,19 @@ const CATEGORIES = [
     id: 'facial',
     label: 'Faciales',
     description: 'Salud y renovación cutánea. Tratamientos diseñados para restaurar la eudermia, mejorar la textura y abordar inesteticismos específicos.',
-    icon: '✨'
+    icon: '🩷'
   },
   {
     id: 'corporal',
     label: 'Corporales',
     description: 'Remodelación y bienestar. Tecnología enfocada en la tonificación, el drenaje y el tratamiento de la adiposidad localizada.',
-    icon: '💪'
+    icon: '🩷'
   },
   {
     id: 'depilacion',
     label: 'Depilación',
     description: 'Tecnología de vanguardia para la eliminación progresiva del vello.',
-    icon: '✂️'
+    icon: '🩷'
   }
 ];
 

@@ -631,17 +631,17 @@ async function loadServices() {
   let html = '';
 
   if (faciales.length > 0) {
-    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">✨ Faciales</h3>`;
+    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">🩷 Faciales</h3>`;
     html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">${renderCards(faciales)}</div>`;
   }
 
   if (corporales.length > 0) {
-    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">💪 Corporales</h3>`;
+    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">🩷 Corporales</h3>`;
     html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">${renderCards(corporales)}</div>`;
   }
 
   if (depilacion.length > 0) {
-    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">✂️ Depilación</h3>`;
+    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">🩷 Depilación</h3>`;
     html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">${renderCards(depilacion)}</div>`;
   }
 
