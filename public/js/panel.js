@@ -165,25 +165,25 @@ async function loadDashboard() {
       <!-- Saludo -->
       <div style="margin-bottom:1.5rem;">
         <h2 style="font-family:var(--font-display); font-size:1.4rem; font-weight:600; color:#374151; margin-bottom:0.2rem;">${greeting}, ${currentAdmin.name.split(' ')[0]} 👋</h2>
-        <p style="font-size:0.82rem; color:#9CA3AF; text-transform:capitalize;">${dateStr}</p>
+        <p style="font-size:0.82rem; color:#4B5563; text-transform:capitalize;">${dateStr}</p>
       </div>
 
       <!-- Stats Cards - 2x2 -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.5rem;">
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Turnos hoy</p>
+          <p style="font-size:0.68rem; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Turnos hoy</p>
           <p style="font-size:1.4rem; font-weight:700; color:#EC4899;">${total}</p>
         </div>
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Confirmados</p>
+          <p style="font-size:0.68rem; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Confirmados</p>
           <p style="font-size:1.4rem; font-weight:700; color:#10b981;">${confirmed}</p>
         </div>
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Cancelados</p>
+          <p style="font-size:0.68rem; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Cancelados</p>
           <p style="font-size:1.4rem; font-weight:700; color:#ef4444;">${cancelled}</p>
         </div>
         <div class="stat-card" style="padding:1rem; text-align:center;">
-          <p style="font-size:0.68rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Recaudación hoy</p>
+          <p style="font-size:0.68rem; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.2rem;">Recaudación hoy</p>
           <p style="font-size:1.4rem; font-weight:700; color:#EC4899;">$${revenueDay.toLocaleString()}</p>
         </div>
       </div>
@@ -191,7 +191,7 @@ async function loadDashboard() {
       <!-- Recaudación semana -->
       <div class="stat-card" style="padding:1rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between;">
         <div>
-          <p style="font-size:0.72rem; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.5px;">Recaudación de la semana</p>
+          <p style="font-size:0.72rem; color:#4B5563; text-transform:uppercase; letter-spacing:0.5px;">Recaudación de la semana</p>
           <p style="font-size:1.6rem; font-weight:700; color:#EC4899;">$${weekRevenue.toLocaleString()}</p>
         </div>
         <span style="font-size:2rem;">💰</span>
@@ -202,7 +202,7 @@ async function loadDashboard() {
     `;
 
     if (upcoming.length === 0) {
-      html += '<p style="color:#9CA3AF; font-size:0.85rem; margin-bottom:1.5rem;">No hay turnos próximos para hoy.</p>';
+      html += '<p style="color:#4B5563; font-size:0.85rem; margin-bottom:1.5rem;">No hay turnos próximos para hoy.</p>';
     } else {
       html += '<div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.5rem;">';
       upcoming.forEach(a => {
@@ -212,7 +212,7 @@ async function loadDashboard() {
               <span style="font-size:0.82rem; font-weight:600; color:#EC4899; min-width:45px;">${a.start_time.slice(0,5)}</span>
               <div>
                 <p style="font-size:0.85rem; font-weight:500; color:#374151;">${a.client_name}</p>
-                <p style="font-size:0.72rem; color:#9CA3AF;">${a.service_name}</p>
+                <p style="font-size:0.72rem; color:#4B5563;">${a.service_name}</p>
               </div>
             </div>
             <span style="font-size:0.68rem; padding:0.2rem 0.5rem; border-radius:20px; background:#FDF2F8; color:#EC4899; font-weight:500;">Confirmado</span>
@@ -235,7 +235,7 @@ async function loadDashboard() {
     // Actividad reciente
     html += '<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">Actividad reciente</h3>';
     if (activity.length === 0) {
-      html += '<p style="color:#9CA3AF; font-size:0.85rem;">Sin actividad reciente.</p>';
+      html += '<p style="color:#4B5563; font-size:0.85rem;">Sin actividad reciente.</p>';
     } else {
       html += '<div style="display:flex; flex-direction:column; gap:0.4rem;">';
       activity.slice(0, 6).forEach(a => {
@@ -243,7 +243,7 @@ async function loadDashboard() {
           <div style="display:flex; align-items:center; gap:0.6rem; padding:0.6rem 0; border-bottom:1px solid #F3F4F6;">
             <span style="width:6px; height:6px; border-radius:50%; background:#EC4899; flex-shrink:0;"></span>
             <p style="font-size:0.8rem; color:#6B7280; flex:1;">${a.text}</p>
-            <span style="font-size:0.68rem; color:#9CA3AF;">${a.time}</span>
+            <span style="font-size:0.68rem; color:#4B5563;">${a.time}</span>
           </div>
         `;
       });
@@ -616,7 +616,7 @@ async function loadServices() {
       <div style="background:#F9FAFB; border:1px solid #F3F4F6; border-radius:16px; padding:1rem; display:flex; flex-direction:column; gap:0.5rem;">
         ${s.image_url ? `<img src="${s.image_url}" style="width:100%; height:80px; object-fit:cover; border-radius:10px;">` : '<div style="width:100%; height:80px; background:#FDF2F8; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">💆</div>'}
         <strong style="font-size:0.82rem; color:#374151;">${s.name}</strong>
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#9CA3AF;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#4B5563;">
           <span>⏱ ${s.duration_minutes} min</span>
           <span style="font-weight:700; color:#EC4899;">${Number(s.price) > 0 ? '$' + Number(s.price).toLocaleString() : 'Consultar'}</span>
         </div>
