@@ -325,18 +325,19 @@ app.listen(PORT, async () => {
       console.log('[Setup] ✓ Reseñas insertadas');
     }
 
-    // Productos
+    // Productos - actualizar con los de Mariana
     const prodCount = await pool.query("SELECT COUNT(*) FROM products");
-    if (parseInt(prodCount.rows[0].count) === 0) {
+    const hasOldProducts = await pool.query("SELECT id FROM products WHERE name LIKE '%Sérum%' OR name LIKE '%Micelar%'");
+    if (parseInt(prodCount.rows[0].count) === 0 || hasOldProducts.rows.length > 0) {
+      await pool.query("DELETE FROM products");
       await pool.query(`
         INSERT INTO products (name, description, price) VALUES
-        ('Crema Hidratante Facial', 'Crema hidratante de uso diario con ácido hialurónico y vitamina E.', 18500),
-        ('Sérum Vitamina C', 'Sérum concentrado con vitamina C pura al 15%. Antioxidante, ilumina.', 22000),
-        ('Protector Solar FPS 50+', 'Protector solar oil-free, apto para pieles sensibles.', 15000),
-        ('Agua Micelar Limpiadora', 'Limpiador facial suave que remueve maquillaje sin enjuague.', 12000),
-        ('Contorno de Ojos Anti-age', 'Reduce ojeras, bolsas y líneas de expresión. Con retinol.', 25000)
+        ('Productos Laboratorio ONCE', 'Cosmecéuticos de alta gama para el cuidado facial profesional. Consultá por el producto ideal para tu piel.', 0),
+        ('Productos Le Lab Beauté', 'Línea profesional de activos concentrados para tratamientos domiciliarios. Consultá disponibilidad.', 0),
+        ('Productos Idraet', 'Dermocosmética profesional con tecnología de avanzada. Consultá por opciones para tu biotipo.', 0),
+        ('Productos Miradror', 'Línea de cosmecéuticos profesionales para potenciar los resultados del gabinete en casa.', 0)
       `);
-      console.log('[Setup] ✓ Productos insertados');
+      console.log('[Setup] ✓ Productos actualizados');
     }
 
     console.log('[Setup] ✓ Base de datos lista');
