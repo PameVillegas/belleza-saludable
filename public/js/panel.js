@@ -1125,9 +1125,17 @@ function openNewProduct() {
     <h3>Nuevo Producto</h3>
     <div class="form-group"><label>Nombre</label><input type="text" id="prodName"></div>
     <div class="form-group"><label>Descripción</label><textarea id="prodDesc" rows="3"></textarea></div>
-    <div class="form-group"><label>Precio</label><input type="number" id="prodPrice" min="0" step="0.01"></div>
-    <div class="form-group"><label>URL de imagen</label><input type="text" id="prodImage" placeholder="https://..."></div>
-    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Podés subir la imagen a <a href="https://imgbb.com" target="_blank">imgbb.com</a> y pegar el link acá.</p>
+    <div class="form-group"><label>Precio (0 = Consultar)</label><input type="number" id="prodPrice" min="0" step="0.01" value="0"></div>
+    <div class="form-group">
+      <label>Foto del producto</label>
+      <div id="imageUploadArea" style="border:2px dashed var(--color-border); border-radius:var(--radius-sm); padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.2s;" onclick="document.getElementById('svcImageFile').click()" ondragover="event.preventDefault(); this.style.borderColor='#EC4899'; this.style.background='#FDF2F8'" ondragleave="this.style.borderColor='var(--color-border)'; this.style.background=''" ondrop="handleImageDrop(event)">
+        <input type="file" id="svcImageFile" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+        <div id="imagePreview" style="display:none;"><img id="imagePreviewImg" style="max-width:100%; max-height:150px; border-radius:8px;"><br><button type="button" class="btn btn-sm" style="margin-top:0.5rem;" onclick="event.stopPropagation(); clearImageUpload()">Quitar foto</button></div>
+        <div id="imagePlaceholder">📷 Tocá acá o arrastrá una foto</div>
+        <div id="imageUploading" style="display:none;">⏳ Subiendo...</div>
+      </div>
+      <input type="hidden" id="svcImage" value="">
+    </div>
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveNewProduct()">Guardar</button>
@@ -1140,7 +1148,7 @@ async function saveNewProduct() {
     name: document.getElementById('prodName').value,
     description: document.getElementById('prodDesc').value,
     price: parseFloat(document.getElementById('prodPrice').value) || 0,
-    image_url: document.getElementById('prodImage').value || null
+    image_url: document.getElementById('svcImage').value || null
   };
   const res = await fetch(`${API}/admin/products`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
@@ -1158,10 +1166,17 @@ async function editProduct(id) {
     <h3>Editar Producto</h3>
     <div class="form-group"><label>Nombre</label><input type="text" id="prodName" value="${p.name}"></div>
     <div class="form-group"><label>Descripción</label><textarea id="prodDesc" rows="3">${p.description || ''}</textarea></div>
-    <div class="form-group"><label>Precio</label><input type="number" id="prodPrice" value="${p.price}" min="0" step="0.01"></div>
-    <div class="form-group"><label>URL de imagen</label><input type="text" id="prodImage" value="${p.image_url || ''}" placeholder="https://..."></div>
-    <p style="font-size:0.72rem; color:var(--color-text-muted); margin-top:-0.5rem;">Podés subir la imagen a <a href="https://imgbb.com" target="_blank">imgbb.com</a> y pegar el link acá.</p>
-    ${p.image_url ? `<img src="${p.image_url}" style="width:100px; height:100px; object-fit:cover; border-radius:8px; margin-top:0.5rem;">` : ''}
+    <div class="form-group"><label>Precio (0 = Consultar)</label><input type="number" id="prodPrice" value="${p.price}" min="0" step="0.01"></div>
+    <div class="form-group">
+      <label>Foto del producto</label>
+      <div id="imageUploadArea" style="border:2px dashed var(--color-border); border-radius:var(--radius-sm); padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.2s;" onclick="document.getElementById('svcImageFile').click()" ondragover="event.preventDefault(); this.style.borderColor='#EC4899'; this.style.background='#FDF2F8'" ondragleave="this.style.borderColor='var(--color-border)'; this.style.background=''" ondrop="handleImageDrop(event)">
+        <input type="file" id="svcImageFile" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+        <div id="imagePreview" style="${p.image_url ? '' : 'display:none;'}"><img id="imagePreviewImg" src="${p.image_url || ''}" style="max-width:100%; max-height:150px; border-radius:8px;"><br><button type="button" class="btn btn-sm" style="margin-top:0.5rem;" onclick="event.stopPropagation(); clearImageUpload()">Quitar foto</button></div>
+        <div id="imagePlaceholder" style="${p.image_url ? 'display:none;' : ''}">📷 Tocá acá o arrastrá una foto</div>
+        <div id="imageUploading" style="display:none;">⏳ Subiendo...</div>
+      </div>
+      <input type="hidden" id="svcImage" value="${p.image_url || ''}">
+    </div>
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="updateProduct('${id}')">Guardar</button>
@@ -1174,7 +1189,7 @@ async function updateProduct(id) {
     name: document.getElementById('prodName').value,
     description: document.getElementById('prodDesc').value,
     price: parseFloat(document.getElementById('prodPrice').value) || 0,
-    image_url: document.getElementById('prodImage').value || null
+    image_url: document.getElementById('svcImage').value || null
   };
   const res = await fetch(`${API}/admin/products/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }

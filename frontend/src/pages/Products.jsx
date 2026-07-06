@@ -59,7 +59,7 @@ function Products() {
 
   const handleBuy = (product) => {
     const clientName = clientSession?.name || 'Un cliente';
-    const message = `Hola! Soy ${clientName} y me interesa comprar: *${product.name}* ($${Number(product.price).toLocaleString()}). ¿Está disponible?`;
+    const message = `Hola! Soy ${clientName} y quiero consultar por el producto: *${product.name}*. ¿Está disponible?`;
     const url = `https://wa.me/543388403225?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };
@@ -138,9 +138,11 @@ function Products() {
                 )}
 
                 <div className="product-footer">
-                  <span className="product-price">${Number(product.price).toLocaleString()}</span>
+                  <span className="product-price">
+                    {Number(product.price) > 0 ? `$${Number(product.price).toLocaleString()}` : 'Consultar precio'}
+                  </span>
                   <button className="product-buy-btn" onClick={() => handleBuy(product)}>
-                    Comprar
+                    Consultar
                   </button>
                 </div>
               </div>
