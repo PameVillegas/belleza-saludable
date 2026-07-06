@@ -29,17 +29,34 @@ router.post('/', async (req, res) => {
     const service = serviceResult.rows[0];
     const end_time = calculateEndTime(start_time, service.duration_minutes);
 
-    // Verificar disponibilidad (prevenir doble reserva)
+    // Determinar gabinete del servicio
+    const serviceGabinete = getGabinete(service.name);
+
+    // Verificar disponibilidad (solo conflictos del MISMO gabinete)
     const conflictResult = await client.query(
-      `SELECT id FROM appointments
-       WHERE date = $1 AND status != 'cancelled'
-       AND start_time < $3 AND end_time > $2`,
+      `SELECT a.id FROM appointments a
+       JOIN services s ON a.service_id = s.id
+       WHERE a.date = $1 AND a.status != 'cancelled'
+       AND a.start_time < $3 AND a.end_time > $2`,
       [date, start_time, end_time]
     );
 
+    // Filtrar solo conflictos del mismo gabinete
+    let hasConflict = false;
     if (conflictResult.rows.length > 0) {
+      const conflictDetails = await client.query(
+        `SELECT a.id, s.name as service_name FROM appointments a
+         JOIN services s ON a.service_id = s.id
+         WHERE a.date = $1 AND a.status != 'cancelled'
+         AND a.start_time < $3 AND a.end_time > $2`,
+        [date, start_time, end_time]
+      );
+      hasConflict = conflictDetails.rows.some(c => getGabinete(c.service_name) === serviceGabinete);
+    }
+
+    if (hasConflict) {
       await client.query('ROLLBACK');
-      return res.status(409).json({ error: 'La franja horaria seleccionada ya no está disponible.' });
+      return res.status(409).json({ error: 'La franja horaria seleccionada ya no está disponible para este gabinete.' });
     }
 
     // Buscar o crear cliente
@@ -338,6 +355,15 @@ function calculateEndTime(startTime, durationMinutes) {
   const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
   const m = (totalMinutes % 60).toString().padStart(2, '0');
   return `${h}:${m}`;
+}
+
+// Determinar gabinete según el nombre del servicio
+function getGabinete(serviceName) {
+  const name = serviceName.toLowerCase();
+  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('depilación') || name.includes('depilacion')) {
+    return 'corporal';
+  }
+  return 'facial';
 }
 
 module.exports = router;

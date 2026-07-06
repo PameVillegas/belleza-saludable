@@ -75,6 +75,9 @@ router.get('/:serviceId/:date', async (req, res) => {
     const requestedDate = new Date(date + 'T00:00:00');
     const dayOfWeek = requestedDate.getDay();
 
+    // Determinar gabinete del servicio solicitado
+    const serviceGabinete = getGabinete(service.name);
+
     // Obtener horario para ese día
     const scheduleResult = await pool.query(
       'SELECT * FROM schedules WHERE day_of_week = $1 AND is_active = true ORDER BY start_time',
@@ -97,9 +100,12 @@ router.get('/:serviceId/:date', async (req, res) => {
     }
 
     // Obtener turnos existentes para esa fecha (no cancelados)
+    // Solo los del MISMO gabinete bloquean el horario
     const appointmentsResult = await pool.query(
-      `SELECT start_time, end_time FROM appointments
-       WHERE date = $1 AND status != 'cancelled'`,
+      `SELECT a.start_time, a.end_time, s.name as service_name
+       FROM appointments a
+       JOIN services s ON a.service_id = s.id
+       WHERE a.date = $1 AND a.status != 'cancelled'`,
       [date]
     );
 
@@ -109,13 +115,15 @@ router.get('/:serviceId/:date', async (req, res) => {
       [date]
     );
 
-    // Filtrar franjas ocupadas
-    const existingAppointments = appointmentsResult.rows;
+    // Filtrar franjas ocupadas — SOLO se bloquea si es del mismo gabinete
+    const sameGabineteAppts = appointmentsResult.rows.filter(appt =>
+      getGabinete(appt.service_name) === serviceGabinete
+    );
     const blockedSlots = blockedResult.rows;
 
     const availableSlots = slots.filter(slot => {
-      // Verificar conflictos con turnos existentes
-      const conflictsWithAppointment = existingAppointments.some(appt =>
+      // Verificar conflictos con turnos del MISMO gabinete
+      const conflictsWithAppointment = sameGabineteAppts.some(appt =>
         timeOverlaps(slot.start, slot.end, appt.start_time, appt.end_time)
       );
 
@@ -173,6 +181,19 @@ function minutesToTime(minutes) {
   const h = Math.floor(minutes / 60).toString().padStart(2, '0');
   const m = (minutes % 60).toString().padStart(2, '0');
   return `${h}:${m}`;
+}
+
+// Determinar gabinete según el nombre del servicio
+// Gabinete FACIAL: tratamientos faciales, mirada y diseño
+// Gabinete CORPORAL: tratamientos corporales, depilación
+function getGabinete(serviceName) {
+  const name = serviceName.toLowerCase();
+  // Corporales
+  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('depilación') || name.includes('depilacion')) {
+    return 'corporal';
+  }
+  // Todo lo demás es facial
+  return 'facial';
 }
 
 module.exports = router;
