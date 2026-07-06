@@ -164,7 +164,7 @@ async function loadDashboard() {
     let html = `
       <!-- Saludo -->
       <div style="margin-bottom:1.5rem;">
-        <h2 style="font-family:var(--font-display); font-size:1.4rem; font-weight:600; color:#374151; margin-bottom:0.2rem;">${greeting}, ${currentAdmin.name.split(' ')[0]} 👋</h2>
+        <h2 style="font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; margin-bottom:0.3rem; line-height:1.2; background:linear-gradient(135deg, #374151 0%, #C9A86A 50%, #374151 100%); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:shimmer 3s ease-in-out infinite;">${greeting}, ${currentAdmin.name.split(' ')[0]} ✨</h2>
         <p style="font-size:0.82rem; color:#4B5563; text-transform:capitalize;">${dateStr}</p>
       </div>
 
