@@ -189,7 +189,7 @@ function minutesToTime(minutes) {
 function getGabinete(serviceName) {
   const name = serviceName.toLowerCase();
   // Corporales
-  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('depilación') || name.includes('depilacion')) {
+  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('lipolá') || name.includes('depilación') || name.includes('depilacion')) {
     return 'corporal';
   }
   // Todo lo demás es facial

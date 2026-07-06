@@ -232,27 +232,34 @@ app.listen(PORT, async () => {
     if (parseInt(svcCount.rows[0].count) < 5) {
       console.log('[Setup] Restaurando servicios...');
       const servicios = [
+        // FACIALES: Salud y Renovación Cutánea
         ['Limpieza Facial Profunda', 'Protocolo de higiene integral que incluye desincrustación de impurezas, extracción de comedones y recuperación del manto hidrolipídico. Ideal para oxigenar los tejidos y devolver la luminosidad natural.', 60, 35000],
         ['Limpieza Facial Profunda + Perfilado de Cejas', 'El cuidado clínico de la piel se combina con el diseño de la mirada, logrando un rostro renovado y armónico en una sola sesión.', 60, 40000],
-        ['Limpieza Premium', 'Una experiencia potenciada con activos de alta gama y máscaras específicas según el biotipo cutáneo, enfocada en una hidratación profunda y efecto revitalizante inmediato. Combinado con cabina LED.', 60, 40000],
+        ['Limpieza Premium', 'Una experiencia potenciada con activos de alta gama y máscaras específicas según el biotipo cutáneo. Enfocada en una hidratación profunda y efecto revitalizante inmediato. Combinado con cabina LED.', 60, 40000],
+        ['Peeling Mecánico - Microdermoabrasión', 'Punta de Diamante. Exfoliación mecánica controlada que utiliza cabezales abrasivos para remover células muertas y pulir la superficie cutánea. Ideal para suavizar poros y líneas finas. Sujeto a evaluación profesional.', 60, 40000],
+        ['Dermaplaning "Glow"', 'Técnica de exfoliación física que utiliza una hoja de bisturí quirúrgico para remover suavemente la capa superior de células muertas y el vello facial fino. Resultado: piel increíblemente luminosa y tersa.', 60, 40000],
         ['Peelings Químicos', 'Exfoliación química controlada mediante el uso de ácidos (AHA/BHA) para tratar hiperpigmentaciones, secuelas de acné y fotoenvejecimiento, estimulando la renovación celular desde las capas más profundas. Precio base.', 60, 40000],
-        ['Peeling Mecánico (Microdermoabrasión/Espátula Ultrasónica/Dermaplaning)', 'Remoción mecánica del estrato córneo para suavizar irregularidades, mejorar la permeabilidad cutánea y lograr una textura de porcelana. Precio base.', 60, 40000],
-        ['Microneedling / Dermapen', 'Terapia de inducción de colágeno mediante microperforaciones que estimulan los mecanismos naturales de reparación de la piel, tratando arrugas finas, poros dilatados y flacidez. Precio base.', 60, 40000],
-        ['Microneedling con Exosomas y Activos', 'Biotecnología avanzada aplicada a la estética. Utilizamos exosomas y principios activos específicos (como PDRN) para una regeneración celular acelerada y una reparación dérmica de última generación. Precio base.', 60, 40000],
-        ['Peeling Químico + Microneedling con Exosomas', 'Protocolo de rejuvenecimiento global y corrección profunda. Peeling químico adaptado seguido de Microneedling con exosomas para potenciar la regeneración celular, síntesis de colágeno y reparación dérmica. Precio base.', 60, 40000],
-        ['Cabina LED Facial', 'Terapia de fotobiomodulación con diferentes longitudes de onda. Roja para rejuvenecimiento, Azul para acné, Verde para manchas. Reduce inflamación, acelera reparación tisular y potencia síntesis de colágeno y elastina.', 30, 30000],
-        ['Lifting de Pestañas', 'Técnica de curvado desde la raíz que acentúa la longitud y dirección de tus pestañas naturales, con un efecto de apertura de mirada que dura semanas.', 60, 25000],
-        ['Lifting de Pestañas + Perfilado de Cejas', 'El combo ideal para definir tu mirada de forma natural y elegante, ajustando la forma de tus cejas a tu morfología facial.', 75, 30000],
-        ['Perfilado de Cejas', 'Diseño personalizado basado en visagismo para resaltar tus facciones y dar marco al rostro.', 20, 8000],
-        ['Laminado de Cejas', 'Procedimiento para direccionar y disciplinar los vellos de las cejas, logrando un aspecto más poblado, definido y prolijo.', 60, 25000],
-        ['Laminado de Cejas + Perfilado', 'Máxima definición y volumen para tus cejas, combinando técnica de fijación y diseño manual.', 75, 30000],
-        ['Ondas Rusas', 'Electroestimulación de alta intensidad que trabaja sobre las fibras musculares para combatir la flacidez, mejorar el tono y favorecer el retorno venoso. Consultar precio por pack.', 30, 0],
-        ['Ondas Rusas + Presoterapia', 'Sinergia perfecta para tonificar y favorecer la eliminación de toxinas y líquidos retenidos mediante el drenaje linfático mecánico. Consultar precio.', 60, 0],
-        ['Lipoláser (por zona)', 'Técnica de láser diodo de baja intensidad que promueve la lipólisis en zonas críticas de forma segura y sin dolor.', 30, 25000],
-        ['Lipoláser + Presoterapia', 'Combina la degradación de lípidos con un drenaje inmediato para acelerar la eliminación de la adiposidad tratada y mejorar la circulación. Consultar precio.', 60, 0],
-        ['Lipoláser + Ondas Rusas', 'Tratamiento de choque que ataca la grasa localizada y refuerza la estructura muscular de la zona al mismo tiempo. Consultar precio.', 60, 0],
-        ['Presoterapia', 'Masaje neumático que estimula el sistema linfático, ideal para piernas cansadas, reducción de edemas y mejora de la celulitis. Consultar precio.', 45, 0],
-        ['Depilación Definitiva', 'Tecnología de vanguardia para la eliminación progresiva del vello, garantizando una piel suave y libre de foliculitis. Consultá por promos en zonas combinadas.', 30, 0],
+        ['Peeling Químico Técnica Layering', 'Protocolo de vanguardia con aplicación estratificada de diferentes agentes químicos en capas sucesivas. Cada activo actúa de forma sinérgica en distintos niveles de la epidermis. Ideal para tratar múltiples inesteticismos en una sola sesión. Sujeto a evaluación profesional.', 60, 40000],
+        ['Cabina LED Facial', 'Terapia de fotobiomodulación que utiliza diferentes longitudes de onda para estimular respuestas celulares (rejuvenecimiento, acné o manchas). Reduce la inflamación y acelera la reparación tisular.', 30, 30000],
+        // BIOREGENERACIÓN AVANZADA
+        ['Microneedling / Dermapen', 'Terapia de inducción de colágeno mediante microperforaciones que estimulan los mecanismos naturales de reparación de la piel, tratando arrugas finas, poros dilatados y flacidez. Sujeto a evaluación profesional.', 60, 40000],
+        ['Microneedling con Exosomas y Activos', 'Biotecnología de última generación (Exosomas y PDRN) para una regeneración acelerada y una reparación dérmica profunda. Sujeto a evaluación profesional.', 60, 40000],
+        ['Peeling Químico + Microneedling con Exosomas', 'Protocolo de corrección profunda. La sinergia del peeling químico y los exosomas potencia exponencialmente la renovación celular y la firmeza, logrando resultados superiores en textura y tono. Sujeto a evaluación profesional.', 60, 40000],
+        // MIRADA Y DISEÑO
+        ['Lifting de Pestañas', 'Curvado desde la raíz que acentúa la longitud natural con efecto de apertura de mirada.', 60, 25000],
+        ['Lifting de Pestañas + Perfilado de Cejas', 'Combo integral para definir la mirada de forma natural y elegante.', 75, 30000],
+        ['Perfilado de Cejas', 'Diseño personalizado basado en visagismo facial.', 20, 8000],
+        ['Laminado de Cejas', 'Técnica para direccionar y disciplinar los vellos, logrando cejas más pobladas y definidas.', 60, 25000],
+        ['Laminado de Cejas + Perfilado', 'Máxima definición y volumen mediante técnica de fijación y diseño manual.', 75, 30000],
+        // CORPORALES
+        ['Ondas Rusas', 'Electroestimulación de alta intensidad para combatir la flacidez, mejorar el tono muscular y favorecer el retorno venoso. Consultar precio.', 30, 0],
+        ['Ondas Rusas + Lipoláser', 'Protocolo intensivo de remodelación. El Lipoláser promueve la liberación de ácidos grasos (lipólisis), mientras que las Ondas Rusas potencian el consumo energético muscular, mejorando la firmeza y reduciendo contornos. Consultar precio.', 60, 0],
+        ['Ondas Rusas + Presoterapia', 'Sinergia para tonificar y favorecer la eliminación de toxinas y líquidos retenidos. Consultar precio.', 60, 0],
+        ['Lipoláser (por zona)', 'Láser diodo de baja intensidad que promueve la eliminación de grasa en zonas críticas de forma no invasiva. Consultar precio.', 30, 0],
+        ['Lipoláser + Presoterapia', 'Degradación de lípidos combinada con drenaje inmediato para acelerar la eliminación de la adiposidad y mejorar la circulación. Consultar precio.', 60, 0],
+        ['Presoterapia', 'Masaje neumático para el sistema linfático. Ideal para edemas, piernas cansadas y mejora de la celulitis. Consultar precio.', 45, 0],
+        // DEPILACIÓN
+        ['Depilación Definitiva', 'Tecnología de vanguardia para la eliminación progresiva del vello. Consultá por nuestras promos en zonas combinadas y combos.', 45, 0],
       ];
       for (const [name, desc, dur, price] of servicios) {
         await pool.query('INSERT INTO services (name, description, duration_minutes, price) VALUES ($1, $2, $3, $4)', [name, desc, dur, price]);

@@ -10,13 +10,14 @@ router.get('/', async (req, res) => {
       `SELECT id, name, description, duration_minutes, price, image_url FROM services WHERE is_active = true 
        ORDER BY 
          CASE 
-           WHEN name ILIKE '%limpieza%' OR name ILIKE '%peeling%' OR name ILIKE '%microneedling%' OR name ILIKE '%cabina led%' THEN 1
-           WHEN name ILIKE '%lifting%' OR name ILIKE '%perfilado%' OR name ILIKE '%laminado%' THEN 2
-           WHEN name ILIKE '%ondas%' OR name ILIKE '%presoterapia%' OR name ILIKE '%lipoláser%' OR name ILIKE '%lipolaser%' THEN 3
-           WHEN name ILIKE '%depilación%' OR name ILIKE '%depilacion%' THEN 4
-           ELSE 2
+           WHEN name ILIKE '%limpieza%' OR name ILIKE '%peeling%' OR name ILIKE '%dermaplaning%' OR name ILIKE '%cabina led%' THEN 1
+           WHEN name ILIKE '%microneedling%' OR name ILIKE '%exosomas%' THEN 2
+           WHEN name ILIKE '%lifting%' OR name ILIKE '%perfilado%' OR name ILIKE '%laminado%' THEN 3
+           WHEN name ILIKE '%ondas%' OR name ILIKE '%presoterapia%' OR name ILIKE '%lipoláser%' OR name ILIKE '%lipolaser%' THEN 4
+           WHEN name ILIKE '%depilación%' OR name ILIKE '%depilacion%' THEN 5
+           ELSE 3
          END,
-         name ASC`
+         price DESC, name ASC`
     );
     res.json(result.rows);
   } catch (err) {
