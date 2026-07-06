@@ -227,12 +227,13 @@ app.listen(PORT, async () => {
 
     console.log('[Setup] ✓ Tablas OK');
 
-    // Restaurar servicios - BORRAR Y RECREAR para actualizar descripciones
-    console.log('[Setup] Actualizando servicios...');
-    // Primero borrar turnos de prueba que referencien servicios
-    await pool.query("DELETE FROM appointments WHERE source = 'manual' AND client_id IN (SELECT id FROM clients WHERE phone LIKE '3388%')").catch(() => {});
-    await pool.query("DELETE FROM services");
-    const servicios = [
+    // Restaurar servicios solo si no hay suficientes
+    const svcCount = await pool.query("SELECT COUNT(*) FROM services");
+    if (parseInt(svcCount.rows[0].count) < 20) {
+      console.log('[Setup] Restaurando servicios...');
+      await pool.query("DELETE FROM appointments WHERE source = 'manual' AND client_id IN (SELECT id FROM clients WHERE phone LIKE '3388%')").catch(() => {});
+      await pool.query("DELETE FROM services");
+      const servicios = [
         // FACIALES: Salud y Renovación Cutánea
         ['Limpieza Facial Profunda', 'Protocolo de higiene integral que incluye desincrustación de impurezas, extracción de comedones y recuperación del manto hidrolipídico. Ideal para oxigenar los tejidos y devolver la luminosidad natural.', 60, 35000],
         ['Limpieza Facial Profunda + Perfilado de Cejas', 'El cuidado clínico de la piel se combina con el diseño de la mirada, logrando un rostro renovado y armónico en una sola sesión.', 60, 40000],
@@ -266,6 +267,9 @@ app.listen(PORT, async () => {
         await pool.query('INSERT INTO services (name, description, duration_minutes, price) VALUES ($1, $2, $3, $4)', [name, desc, dur, price]);
       }
       console.log('[Setup] ✓ Servicios actualizados');
+    } else {
+      console.log('[Setup] Servicios ya existen, no se tocan.');
+    }
 
     // Admin
     const adminCount = await pool.query("SELECT COUNT(*) FROM admins");
