@@ -24,7 +24,7 @@ function Professional() {
     <div className="professional-page fade-up">
       {/* Header con foto */}
       <div className="prof-header">
-        <img src="/mari.png" alt="Mariana Farias" className="prof-photo" />
+        <img src="/Mari2.png" alt="Mariana Farias" className="prof-photo" />
         <h2 className="prof-name">Mariana Farias</h2>
         <p className="prof-specialty">Cosmetóloga · Cosmiatra · Dermatocosmiatría</p>
         <p className="prof-matricula">MP 1234 · Certificada en Dermapen y Peelings Avanzados</p>
