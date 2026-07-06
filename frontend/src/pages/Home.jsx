@@ -18,6 +18,7 @@ function Home() {
     { icon: '/iconoreseña.png', label: 'Reseñas', path: '/resenas' },
     { icon: '/misturnos.png', label: 'Mis Turnos', path: '/mis-turnos' },
     { icon: '📜', label: 'Bases y Condiciones', path: '/bases-condiciones' },
+    { icon: '🎁', label: 'Voucher / Gift Card', path: '/voucher' },
   ];
 
   return (
