@@ -598,24 +598,54 @@ async function saveNewClient() {
 async function loadServices() {
   const res = await fetch(`${API}/admin/services`, { headers: authHeaders() });
   const services = await res.json();
-  document.getElementById('servicesTable').innerHTML = `
-    <table class="data-table">
-      <thead><tr><th>Imagen</th><th>Nombre</th><th>Duración</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
-      <tbody>${services.map(s => `
-        <tr>
-          <td>${s.image_url ? `<img src="${s.image_url}" style="width:50px; height:50px; object-fit:cover; border-radius:8px;">` : '<span style="color:var(--color-text-muted); font-size:0.75rem;">Sin foto</span>'}</td>
-          <td>${s.name}</td>
-          <td>${s.duration_minutes} min</td>
-          <td>$${Number(s.price).toLocaleString()}</td>
-          <td>${s.is_active ? '<span class="badge badge-confirmed">Activo</span>' : '<span class="badge badge-cancelled">Inactivo</span>'}</td>
-          <td>
-            <button class="btn btn-sm" onclick="editService('${s.id}')">Editar</button>
-            ${s.is_active ? `<button class="btn btn-danger btn-sm" onclick="deactivateService('${s.id}')">Desactivar</button>` : ''}
-          </td>
-        </tr>
-      `).join('')}</tbody>
-    </table>
-  `;
+
+  // Categorizar
+  function getGabinete(name) {
+    const n = name.toLowerCase();
+    if (n.includes('ondas rusas') || n.includes('presoterapia') || n.includes('lipoláser') || n.includes('lipolaser') || n.includes('lipolá')) return 'corporal';
+    if (n.includes('depilación') || n.includes('depilacion')) return 'depilacion';
+    return 'facial';
+  }
+
+  const faciales = services.filter(s => getGabinete(s.name) === 'facial');
+  const corporales = services.filter(s => getGabinete(s.name) === 'corporal');
+  const depilacion = services.filter(s => getGabinete(s.name) === 'depilacion');
+
+  function renderCards(list) {
+    return list.map(s => `
+      <div style="background:#F9FAFB; border:1px solid #F3F4F6; border-radius:16px; padding:1rem; display:flex; flex-direction:column; gap:0.5rem;">
+        ${s.image_url ? `<img src="${s.image_url}" style="width:100%; height:80px; object-fit:cover; border-radius:10px;">` : '<div style="width:100%; height:80px; background:#FDF2F8; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">💆</div>'}
+        <strong style="font-size:0.82rem; color:#374151;">${s.name}</strong>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#9CA3AF;">
+          <span>⏱ ${s.duration_minutes} min</span>
+          <span style="font-weight:700; color:#EC4899;">${Number(s.price) > 0 ? '$' + Number(s.price).toLocaleString() : 'Consultar'}</span>
+        </div>
+        <div style="display:flex; gap:0.4rem; margin-top:0.25rem;">
+          <button class="btn btn-sm btn-primary" style="flex:1; font-size:0.7rem;" onclick="editService('${s.id}')">Editar</button>
+          ${s.is_active ? `<button class="btn btn-sm btn-danger" style="font-size:0.7rem;" onclick="deactivateService('${s.id}')">✗</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  let html = '';
+
+  if (faciales.length > 0) {
+    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">✨ Faciales</h3>`;
+    html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">${renderCards(faciales)}</div>`;
+  }
+
+  if (corporales.length > 0) {
+    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">💪 Corporales</h3>`;
+    html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">${renderCards(corporales)}</div>`;
+  }
+
+  if (depilacion.length > 0) {
+    html += `<h3 style="font-family:var(--font-display); font-size:1.05rem; font-weight:600; margin-bottom:0.75rem; color:#374151;">✂️ Depilación</h3>`;
+    html += `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:0.75rem; margin-bottom:1.5rem;">${renderCards(depilacion)}</div>`;
+  }
+
+  document.getElementById('servicesTable').innerHTML = html;
 }
 
 function openNewService() {
