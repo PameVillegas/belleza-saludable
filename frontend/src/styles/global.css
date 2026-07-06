@@ -1161,6 +1161,8 @@ body {
   right: 0;
   transform: translateY(-50%) scale(0.25);
   transform-origin: right center;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, transparent 10%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.7) 40%, black 60%);
+  mask-image: linear-gradient(90deg, transparent 0%, transparent 10%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.7) 40%, black 60%);
 }
 
 .home-banner-overlay {
