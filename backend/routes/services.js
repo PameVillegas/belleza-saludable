@@ -7,7 +7,7 @@ const authMiddleware = require('../middleware/auth');
 router.get('/', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, description, duration_minutes, price, image_url FROM services WHERE is_active = true ORDER BY name'
+      'SELECT id, name, description, duration_minutes, price, image_url FROM services WHERE is_active = true ORDER BY created_at ASC'
     );
     res.json(result.rows);
   } catch (err) {
