@@ -1,28 +1,31 @@
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&family=Dancing+Script:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Dancing+Script:wght@500;600;700&display=swap');
 
-/* Variables - Paleta Elegante */
+/* Variables - Paleta Crema con Rosa Empolvado */
 :root {
   --color-white: #ffffff;
-  --color-beige: #F8F4F1;
-  --color-sage: #A8B8A5;
-  --color-sage-dark: #8FA38C;
+  --color-cream: #FDF8F4;
+  --color-cream-dark: #F5EDE8;
+  --color-rose: #D4A0A0;
+  --color-rose-dark: #C08080;
+  --color-rose-light: rgba(212, 160, 160, 0.12);
   --color-gold: #C9A86A;
   --color-gold-light: rgba(201, 168, 106, 0.15);
-  --color-text: #2d2d2d;
-  --color-text-light: #6b6b6b;
-  --color-text-muted: #999999;
-  --color-border: #eee8e3;
-  --color-success: #10b981;
-  --color-error: #ef4444;
+  --color-text: #3D3535;
+  --color-text-light: #6B5E5E;
+  --color-text-muted: #9B8E8E;
+  --color-border: #EDE5E0;
+  --color-success: #7BAF7B;
+  --color-error: #C97070;
   --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Poppins', -apple-system, sans-serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-cursive: 'Dancing Script', cursive;
   --radius: 16px;
   --radius-sm: 10px;
   --radius-full: 50px;
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 8px rgba(61, 53, 53, 0.04);
+  --shadow-md: 0 4px 16px rgba(61, 53, 53, 0.06);
+  --shadow-lg: 0 8px 32px rgba(61, 53, 53, 0.08);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -39,11 +42,12 @@ html {
 
 body {
   font-family: var(--font-body);
-  background-color: var(--color-white);
+  background-color: var(--color-cream);
   color: var(--color-text);
   line-height: 1.6;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
 
 /* App Shell */
@@ -365,32 +369,32 @@ body {
   position: fixed;
   bottom: 80px;
   right: 1rem;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: #25D366;
+  background: #7BAF7B;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.5rem;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+  font-size: 1.4rem;
+  box-shadow: 0 4px 14px rgba(123, 175, 123, 0.35);
   z-index: 999;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   border: none;
-  animation: pulseWA 2s infinite;
+  animation: pulseWA 2.5s infinite;
 }
 
 .whatsapp-float:hover {
-  transform: scale(1.12);
-  box-shadow: 0 6px 28px rgba(37, 211, 102, 0.55);
+  transform: scale(1.1);
+  box-shadow: 0 6px 22px rgba(123, 175, 123, 0.45);
 }
 
 @keyframes pulseWA {
-  0%, 100% { box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4); }
-  50% { box-shadow: 0 4px 24px rgba(37, 211, 102, 0.6); }
+  0%, 100% { box-shadow: 0 4px 14px rgba(123, 175, 123, 0.35); }
+  50% { box-shadow: 0 4px 20px rgba(123, 175, 123, 0.5); }
 }
 
 /* Booking Flow Container */
@@ -399,7 +403,7 @@ body {
   margin: 0 auto;
   padding: 2rem 1.5rem;
   animation: fadeUp 0.4s ease-out;
-  background: linear-gradient(180deg, #FDF2F8 0%, #FFF9F4 100%);
+  background: linear-gradient(180deg, #FFFFFF 0%, var(--color-cream) 100%);
   border-radius: var(--radius);
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -415,12 +419,12 @@ body {
   font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .booking-subtitle {
   font-size: 0.85rem;
-  color: #9CA3AF;
+  color: var(--color-text-muted);
 }
 
 /* Stepper */
@@ -495,27 +499,27 @@ body {
 }
 
 .btn-primary {
-  background: #EC4899;
+  background: var(--color-rose);
   color: white;
-  box-shadow: 0 3px 12px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 3px 12px rgba(212, 160, 160, 0.3);
 }
 
 .btn-primary:hover {
-  background: #DB2777;
-  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
+  background: var(--color-rose-dark);
+  box-shadow: 0 4px 16px rgba(212, 160, 160, 0.4);
   transform: translateY(-2px);
 }
 
 .btn-secondary {
   background: #FFFFFF;
-  color: #374151;
-  border: 1.5px solid rgba(236, 72, 153, 0.2);
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
 }
 
 .btn-secondary:hover {
-  background: #FDF2F8;
-  border-color: #EC4899;
-  color: #EC4899;
+  background: var(--color-cream);
+  border-color: var(--color-rose);
+  color: var(--color-rose-dark);
 }
 
 .btn:disabled {
@@ -556,22 +560,23 @@ body {
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #EC4899;
-  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+  border-color: var(--color-rose);
+  box-shadow: 0 0 0 3px var(--color-rose-light);
 }
 
 /* Cards */
 .card {
   background: #FFFFFF;
-  border: 1px solid rgba(236, 72, 153, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
   padding: 1.25rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 10px rgba(61, 53, 53, 0.04);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
 }
 
 .card:hover {
-  box-shadow: 0 8px 24px rgba(236, 72, 153, 0.08);
+  box-shadow: 0 6px 20px rgba(212, 160, 160, 0.1);
   transform: translateY(-2px);
 }
 
@@ -600,16 +605,16 @@ body {
 }
 
 .slot-btn:hover {
-  border-color: #EC4899;
-  background: rgba(236, 72, 153, 0.06);
+  border-color: var(--color-rose);
+  background: var(--color-rose-light);
   transform: translateY(-1px);
 }
 
 .slot-btn.selected {
-  background: #EC4899;
+  background: var(--color-rose);
   color: white;
-  border-color: #EC4899;
-  box-shadow: 0 3px 10px rgba(236, 72, 153, 0.3);
+  border-color: var(--color-rose);
+  box-shadow: 0 3px 10px rgba(212, 160, 160, 0.3);
 }
 
 /* Messages */
@@ -1122,13 +1127,13 @@ body {
 }
 
 .home-header-name {
-  font-family: 'Dancing Script', cursive;
+  font-family: var(--font-cursive);
   font-size: 1.2rem;
   font-weight: 700;
   display: block;
-  color: #EC4899;
-  text-shadow: 0 0 8px rgba(201, 168, 106, 0.4), 0 0 16px rgba(201, 168, 106, 0.2);
-  background: linear-gradient(135deg, #EC4899 0%, #C9A86A 50%, #EC4899 100%);
+  color: var(--color-rose);
+  text-shadow: 0 0 8px rgba(201, 168, 106, 0.3);
+  background: linear-gradient(135deg, var(--color-rose-dark) 0%, var(--color-gold) 50%, var(--color-rose-dark) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1328,24 +1333,24 @@ body {
   gap: 0.6rem;
   padding: 1.5rem 1rem;
   background: #FFFFFF;
-  border: 1px solid rgba(236, 72, 153, 0.08);
+  border: 1px solid var(--color-border);
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 10px rgba(61, 53, 53, 0.04);
   min-height: 110px;
+  text-align: center;
 }
 
 .home-grid-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(236, 72, 153, 0.1);
-  border-color: rgba(236, 72, 153, 0.2);
-  background: #FDF2F8;
+  box-shadow: 0 6px 20px rgba(212, 160, 160, 0.12);
+  border-color: var(--color-rose);
+  background: var(--color-cream);
 }
 
 .home-grid-item:active {
   transform: scale(0.95);
-  background: #FCE7F3;
 }
 
 .home-grid-icon {
@@ -1356,7 +1361,7 @@ body {
   font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text);
 }
 
 /* Si hay número impar, el último ocupa toda la fila */
