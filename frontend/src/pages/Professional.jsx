@@ -5,7 +5,7 @@ function Professional() {
 
   const stats = [
     { icon: '📅', value: 'Desde 2013', label: 'Trayectoria' },
-    { icon: '🎓', value: 'M.P. 6495', label: 'Matrícula' },
+    { icon: '👥', value: '+100', label: 'Clientes' },
     { icon: '💎', value: '100%', label: 'Personalizado' },
   ];
 
