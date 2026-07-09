@@ -11,16 +11,9 @@ function Professional() {
 
   const formations = [
     { title: 'Tecnicatura en Cosmetología Facial y Corporal', detail: 'Universidad del Gran Rosario (UGR) – Cursando actualmente' },
-    { title: 'Formación Avanzada en Dermatocosmiatría', detail: 'Academia Iberoamericana de Dermatocosmiatría Aplicada (2026-2028)' },
-    { title: 'Cosmiatría', detail: 'Escuela Latinoamericana de Dermatología (2024-2026). Pasantía clínica en Hospital Houssay, Vicente López, Bs. As.' },
-    { title: 'Cosmetología & Cosmiatría', detail: 'Instituto ISCI, Buenos Aires (2013)' },
-  ];
-
-  const specializations = [
-    'Exosomas y biotecnología avanzada',
-    'Master en Peelings Químicos',
-    'Protocolos de última generación',
-    'Activos cosmecéuticos de alta gama',
+    { title: 'Formación Avanzada en Dermatocosmiatría', detail: 'Academia Iberoamericana de Dermatocosmiatría Aplicada (Ciclo 2026-2028)' },
+    { title: 'Cosmiatría', detail: 'Graduada de la Escuela Latinoamericana de Dermatología (2024-2026). Pasantía clínica en Hospital Houssay, Vicente López, Buenos Aires.' },
+    { title: 'Cosmetología & Cosmiatría', detail: 'Certificación profesional emitida por el Instituto ISCI (Buenos Aires, 2013)' },
   ];
 
   return (
@@ -51,7 +44,7 @@ function Professional() {
           <h3 className="prof-section-title">Sobre mí</h3>
         </div>
         <p className="prof-section-text">
-          Con una trayectoria sólida desde el año 2013, mi enfoque profesional integra la salud cutánea con la biotecnología aplicada. Soy propietaria de Belleza Saludable, un espacio dedicado a la estética de alta precisión.
+          Con una trayectoria sólida desde el año 2013, mi enfoque profesional integra la salud cutánea con la biotecnología aplicada. Soy propietaria de Belleza Saludable, un espacio dedicado a la estética de alta precisión bajo la M.P. N° 6495 (Prov. de Buenos Aires).
         </p>
       </div>
 
@@ -59,7 +52,7 @@ function Professional() {
       <div className="prof-section">
         <div className="prof-section-header">
           <span className="prof-section-icon">🎓</span>
-          <h3 className="prof-section-title">Formación Académica</h3>
+          <h3 className="prof-section-title">Formación Académica y Clínica</h3>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {formations.map((f, i) => (
@@ -71,20 +64,18 @@ function Professional() {
         </div>
       </div>
 
-      {/* Especialización */}
+      {/* Especialización y Práctica */}
       <div className="prof-section">
         <div className="prof-section-header">
           <span className="prof-section-icon">🏆</span>
-          <h3 className="prof-section-title">Especialización</h3>
+          <h3 className="prof-section-title">Especialización y Práctica</h3>
         </div>
         <p className="prof-section-text" style={{ marginBottom: '0.75rem' }}>
-          Mi práctica profesional se distingue por la actualización constante en protocolos y el uso de activos de última generación, garantizando tratamientos avalados por el rigor académico y la vasta experiencia en gabinete.
+          Mi práctica profesional se caracteriza por la actualización permanente en cosmetología y cosmiatría clínica, incorporando protocolos basados en evidencia científica y activos biotecnológicos de última generación, como exosomas y otros bioactivos avanzados. Como Master en Peelings Químicos, desarrollo tratamientos personalizados orientados a mejorar la salud y la calidad de la piel con un enfoque seguro, ético y profesional.
         </p>
-        <div className="prof-formation-list">
-          {specializations.map((s, i) => (
-            <span key={i} className="prof-formation-tag">{s}</span>
-          ))}
-        </div>
+        <p className="prof-section-text">
+          La atención comienza con una evaluación integral de cada paciente, permitiendo diseñar un plan de tratamiento acorde a sus necesidades y dentro de mi ámbito de competencia. Cuando durante la evaluación se identifican alteraciones o patologías cutáneas que requieren diagnóstico o tratamiento médico, se realiza la derivación correspondiente al especialista, promoviendo un abordaje interdisciplinario que prioriza la seguridad y el bienestar del paciente.
+        </p>
       </div>
 
       {/* Consultorio */}
