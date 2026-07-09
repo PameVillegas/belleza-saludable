@@ -184,15 +184,15 @@ function minutesToTime(minutes) {
 }
 
 // Determinar gabinete según el nombre del servicio
-// Gabinete FACIAL: tratamientos faciales, mirada y diseño
-// Gabinete CORPORAL: tratamientos corporales, depilación
+// Gabinete 1 (FACIAL): tratamientos faciales, mirada, diseño Y depilación definitiva
+// Gabinete 2 (CORPORAL): ondas rusas, lipoláser, presoterapia y combos corporales
 function getGabinete(serviceName) {
   const name = serviceName.toLowerCase();
-  // Corporales
-  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('lipolá') || name.includes('depilación') || name.includes('depilacion')) {
+  // Solo corporales van al gabinete 2
+  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('lipolá')) {
     return 'corporal';
   }
-  // Todo lo demás es facial
+  // Todo lo demás (faciales + depilación) va al gabinete 1
   return 'facial';
 }
 

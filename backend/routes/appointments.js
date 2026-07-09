@@ -360,7 +360,7 @@ function calculateEndTime(startTime, durationMinutes) {
 // Determinar gabinete según el nombre del servicio
 function getGabinete(serviceName) {
   const name = serviceName.toLowerCase();
-  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('depilación') || name.includes('depilacion')) {
+  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser')) {
     return 'corporal';
   }
   return 'facial';
