@@ -5,24 +5,19 @@ function Terms() {
 
   const rules = [
     {
-      icon: '❌',
-      title: 'Cancelación de turnos',
-      text: 'Si no podés asistir a tu turno, recordá cancelarlo con antelación avisando por WhatsApp al 3388-403225. Esto nos permite reorganizar la agenda y darle lugar a otra persona interesada.'
-    },
-    {
       icon: '⏰',
-      title: 'Puntualidad',
-      text: 'Te pedimos que asistas 10 minutos antes del horario de tu turno para poder comenzar a tiempo y aprovechar al máximo la sesión.'
+      title: 'Puntualidad y Compromiso',
+      text: 'Te recomendamos llegar a la hora acordada. Tu turno es un espacio reservado exclusivamente para vos, y la puntualidad nos permite cumplir con el protocolo completo de tu tratamiento.'
     },
     {
       icon: '⚠️',
-      title: 'Tolerancia de espera',
-      text: 'Se espera un máximo de 10 minutos de tolerancia. Pasado ese tiempo, el turno se dará por perdido y no podrá ser reprogramado automáticamente.'
+      title: 'Tolerancia de Espera',
+      text: 'Contamos con una tolerancia de 10-15 minutos. Pasado ese lapso, el turno podrá verse reducido en su duración o deberá ser reprogramado para no afectar el horario de la siguiente paciente.'
     },
     {
-      icon: '🤝',
-      title: 'Compromiso mutuo',
-      text: 'Estas condiciones nos ayudan a brindar un mejor servicio a todas nuestras clientas. Agradecemos tu comprensión y colaboración.'
+      icon: '❌',
+      title: 'Cancelaciones y Reprogramaciones',
+      text: 'El compromiso es mutuo. Si necesitás cancelar o modificar tu cita, te pedimos que lo hagas con al menos 24 horas de anticipación. Esto nos permite reasignar el espacio a otra persona que lo necesite.'
     },
   ];
 
