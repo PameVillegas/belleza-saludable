@@ -12,7 +12,7 @@ function Home() {
 
   const sections = [
     { icon: '/iconotratamiento.jpeg', label: 'Tratamientos', path: '/turnos' },
-    { icon: '/turno.png', label: 'Reservar Turno', path: '/reservar' },
+    { icon: '/turno.png', label: 'Reservar Turno', path: '/reservar', highlighted: true },
     { icon: '/iconoproductos.jpeg', label: 'Productos', path: '/productos' },
     { icon: '/iconoderma.png', label: 'Profesional', path: '/profesional' },
     { icon: '/iconoreseña.png', label: 'Reseñas', path: '/resenas' },
@@ -51,10 +51,10 @@ function Home() {
       {/* Grid de secciones */}
       <div className="home-grid">
         {sections.map((item) => (
-          <button key={item.label} className="home-grid-item" onClick={() => navigate(item.path)}>
+          <button key={item.label} className={`home-grid-item ${item.highlighted ? 'highlighted' : ''}`} onClick={() => navigate(item.path)}>
             <span className="home-grid-icon">
               {item.icon.startsWith('/') ? (
-                <img src={item.icon} alt={item.label} style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '8px' }} />
+                <img src={item.icon} alt={item.label} style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px', opacity: item.highlighted ? 1 : 0.8 }} />
               ) : (
                 item.icon
               )}
