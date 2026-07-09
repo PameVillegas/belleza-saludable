@@ -10,17 +10,30 @@ router.get('/', async (req, res) => {
       `SELECT id, name, description, duration_minutes, price, image_url FROM services WHERE is_active = true 
        ORDER BY 
          CASE 
-           WHEN name ILIKE '%perfilado%' OR name ILIKE '%laminado%' OR name ILIKE '%cejas%' THEN 1
-           WHEN name ILIKE '%lifting%' OR name ILIKE '%pestañas%' THEN 2
-           WHEN name ILIKE '%limpieza%' THEN 3
-           WHEN name ILIKE '%peeling%' OR name ILIKE '%dermaplaning%' THEN 4
-           WHEN name ILIKE '%cabina led%' THEN 5
-           WHEN name ILIKE '%microneedling%' OR name ILIKE '%exosomas%' THEN 6
-           WHEN name ILIKE '%ondas%' OR name ILIKE '%presoterapia%' OR name ILIKE '%lipoláser%' OR name ILIKE '%lipolaser%' THEN 7
-           WHEN name ILIKE '%depilación%' OR name ILIKE '%depilacion%' THEN 8
-           ELSE 6
-         END,
-         price DESC, name ASC`
+           WHEN name ILIKE '%limpieza facial profunda' AND name NOT ILIKE '%perfilado%' AND name NOT ILIKE '%premium%' THEN 1
+           WHEN name ILIKE '%limpieza premium%' THEN 2
+           WHEN name ILIKE '%limpieza%' AND name ILIKE '%perfilado%' THEN 3
+           WHEN name ILIKE '%peeling mecánico%' OR name ILIKE '%microdermoabrasión%' THEN 4
+           WHEN name ILIKE '%dermaplaning%' THEN 5
+           WHEN name ILIKE '%peelings químicos' AND name NOT ILIKE '%microneedling%' AND name NOT ILIKE '%dermapen%' THEN 6
+           WHEN name ILIKE '%peeling químico técnica%' OR name ILIKE '%layering%' THEN 7
+           WHEN name ILIKE '%cabina led%' THEN 8
+           WHEN name ILIKE '%microneedling%' AND name NOT ILIKE '%exosomas%' AND name NOT ILIKE '%peeling%' THEN 9
+           WHEN name ILIKE '%microneedling con exosomas%' AND name NOT ILIKE '%peeling%' THEN 10
+           WHEN name ILIKE '%peeling%' AND name ILIKE '%microneedling%' AND name ILIKE '%exosomas%' THEN 11
+           WHEN name ILIKE 'perfilado de cejas' THEN 12
+           WHEN name ILIKE 'lifting de pestañas' AND name NOT ILIKE '%perfilado%' THEN 13
+           WHEN name ILIKE '%lifting%' AND name ILIKE '%perfilado%' THEN 14
+           WHEN name ILIKE 'laminado de cejas' AND name NOT ILIKE '%perfilado%' THEN 15
+           WHEN name ILIKE '%laminado%' AND name ILIKE '%perfilado%' THEN 16
+           WHEN name ILIKE 'ondas rusas' AND name NOT ILIKE '%preso%' AND name NOT ILIKE '%lipo%' THEN 17
+           WHEN name ILIKE 'lipoláser%' AND name NOT ILIKE '%preso%' AND name NOT ILIKE '%ondas%' THEN 18
+           WHEN name ILIKE 'presoterapia' AND name NOT ILIKE '%lipo%' AND name NOT ILIKE '%ondas%' THEN 19
+           WHEN name ILIKE '%ondas%' AND (name ILIKE '%preso%' OR name ILIKE '%lipo%') THEN 20
+           WHEN name ILIKE '%lipoláser%' AND name ILIKE '%preso%' THEN 21
+           WHEN name ILIKE '%depilación%' OR name ILIKE '%depilacion%' THEN 22
+           ELSE 11
+         END`
     );
     res.json(result.rows);
   } catch (err) {
