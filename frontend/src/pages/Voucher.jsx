@@ -25,7 +25,7 @@ function Voucher() {
           <h3 className="prof-section-title">La opción perfecta para sorprender</h3>
         </div>
         <p className="prof-section-text">
-          Sorprendé a alguien especial con una experiencia de cuidado y belleza. Nuestros vouchers son personalizables y se pueden usar en cualquier tratamiento o producto.
+          Sorprendé a alguien especial con una experiencia de cuidado y belleza. Nuestros vouchers son personalizables, disponibles en formato digital y físico, y se pueden usar en cualquier tratamiento o producto.
         </p>
       </div>
 
@@ -37,17 +37,20 @@ function Voucher() {
         <div className="prof-info-list">
           <div className="prof-info-item">
             <span>1️⃣</span>
-            <span>Elegís el monto o tratamiento que querés regalar</span>
+            <span>Elegís el monto o el tratamiento que querés regalar.</span>
           </div>
           <div className="prof-info-item">
             <span>2️⃣</span>
-            <span>Te enviamos el voucher digital personalizado</span>
+            <span>Te enviamos el voucher personalizado, en formato digital o físico, según prefieras.</span>
           </div>
           <div className="prof-info-item">
             <span>3️⃣</span>
-            <span>La persona lo presenta al momento de su turno</span>
+            <span>La persona lo presenta el día de su turno y disfruta de su regalo.</span>
           </div>
         </div>
+        <p className="prof-section-text" style={{ marginTop: '1rem', fontSize: '0.8rem', fontStyle: 'italic' }}>
+          🎁 Disponible en formato digital (envío por WhatsApp) o físico (para entregar como regalo).
+        </p>
       </div>
 
       <button
