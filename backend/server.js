@@ -274,6 +274,7 @@ app.listen(PORT, async () => {
         ['Dermaplaning "Glow"', 'Técnica de exfoliación física que utiliza una hoja de bisturí quirúrgico para remover suavemente la capa superior de células muertas y el vello facial fino (vello de durazno). Resultado: piel increíblemente luminosa y tersa.', 60, 40000],
         ['Peeling Químico Técnica Layering', 'Protocolo de vanguardia con aplicación estratificada de diferentes agentes químicos en capas sucesivas. Cada activo actúa de forma sinérgica en distintos niveles de la epidermis. Ideal para tratar múltiples inesteticismos en una sola sesión. Sujeto a evaluación profesional.', 60, 40000],
         ['Ondas Rusas + Lipoláser', 'Protocolo intensivo de remodelación. El Lipoláser promueve la liberación de ácidos grasos (lipólisis), mientras que las Ondas Rusas potencian el consumo energético muscular, mejorando la firmeza y reduciendo contornos. Consultar precio.', 60, 0],
+        ['Cabina LED Facial', 'Terapia de fotobiomodulación que utiliza diferentes longitudes de onda para estimular respuestas celulares (rejuvenecimiento, acné o manchas). Reduce la inflamación y acelera la reparación tisular.', 30, 30000],
       ];
       for (const [name, desc, dur, price] of missing) {
         const exists = await pool.query("SELECT id FROM services WHERE name = $1", [name]);
