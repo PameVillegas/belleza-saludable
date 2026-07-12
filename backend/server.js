@@ -269,7 +269,7 @@ app.listen(PORT, async () => {
       console.log('[Setup] ✓ Servicios actualizados');
     } else {
       console.log('[Setup] Servicios ya existen, verificando faltantes...');
-      // Agregar servicios que falten
+      // Agregar servicios que falten - FORZAR inserción
       const missing = [
         ['Dermaplaning "Glow"', 'Técnica de exfoliación física que utiliza una hoja de bisturí quirúrgico para remover suavemente la capa superior de células muertas y el vello facial fino (vello de durazno). Resultado: piel increíblemente luminosa y tersa.', 60, 40000],
         ['Peeling Químico Técnica Layering', 'Protocolo de vanguardia con aplicación estratificada de diferentes agentes químicos en capas sucesivas. Cada activo actúa de forma sinérgica en distintos niveles de la epidermis. Ideal para tratar múltiples inesteticismos en una sola sesión. Sujeto a evaluación profesional.', 60, 40000],
@@ -279,8 +279,13 @@ app.listen(PORT, async () => {
       for (const [name, desc, dur, price] of missing) {
         const exists = await pool.query("SELECT id FROM services WHERE name = $1", [name]);
         if (exists.rows.length === 0) {
-          await pool.query('INSERT INTO services (name, description, duration_minutes, price) VALUES ($1, $2, $3, $4)', [name, desc, dur, price]);
-          console.log(`[Setup] ✓ Servicio agregado: ${name}`);
+          // Intentar insertar
+          try {
+            await pool.query('INSERT INTO services (name, description, duration_minutes, price) VALUES ($1, $2, $3, $4)', [name, desc, dur, price]);
+            console.log(`[Setup] ✓ Servicio agregado: ${name}`);
+          } catch (e) {
+            console.log(`[Setup] No se pudo agregar ${name}: ${e.message}`);
+          }
         }
       }
     }
