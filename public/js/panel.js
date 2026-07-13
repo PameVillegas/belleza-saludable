@@ -650,7 +650,7 @@ async function loadServices() {
         </div>
         <div style="display:flex; gap:0.4rem; margin-top:0.25rem;">
           <button class="btn btn-sm btn-primary" style="flex:1; font-size:0.7rem;" onclick="editService('${s.id}')">Editar</button>
-          ${s.is_active ? `<button class="btn btn-sm btn-danger" style="font-size:0.7rem;" onclick="deactivateService('${s.id}')">✗</button>` : ''}
+          <button class="btn btn-sm btn-danger" style="font-size:0.7rem;" onclick="deleteService('${s.id}')">Eliminar</button>
         </div>
       </div>
     `).join('');
@@ -749,6 +749,13 @@ async function updateService(id) {
 async function deactivateService(id) {
   if (!confirm('¿Desactivar este servicio?')) return;
   await fetch(`${API}/admin/services/${id}/deactivate`, { method: 'PATCH', headers: authHeaders() });
+  loadServices();
+}
+
+async function deleteService(id) {
+  if (!confirm('¿Eliminar este servicio definitivamente? Los turnos asociados también se eliminarán.')) return;
+  const res = await fetch(`${API}/admin/services/${id}`, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   loadServices();
 }
 
