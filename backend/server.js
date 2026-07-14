@@ -44,11 +44,12 @@ let whatsapp = null;
 try {
   whatsapp = require('./whatsapp');
   whatsapp.initWhatsApp().catch(err => {
-    console.error('[WhatsApp] No se pudo inicializar (Chromium no disponible?):', err.message);
-    whatsapp = null;
+    console.error('[WhatsApp] Error al inicializar:', err.message);
+    // No poner null — el módulo sigue disponible para reintentar
   });
+  console.log('[WhatsApp] Módulo cargado');
 } catch (err) {
-  console.error('[WhatsApp] Módulo no disponible:', err.message);
+  console.error('[WhatsApp] No se pudo cargar:', err.message);
   whatsapp = null;
 }
 startRemindersCron();

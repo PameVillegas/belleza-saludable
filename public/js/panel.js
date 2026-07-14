@@ -1348,7 +1348,13 @@ async function connectWhatsApp() {
   document.getElementById('whatsappContent').innerHTML = '<div class="loading">Iniciando WhatsApp... Esperá unos segundos...</div>';
   try {
     await fetch(`${API}/admin/whatsapp/restart`, { method: 'POST', headers: authHeaders() });
-    setTimeout(loadWhatsAppStatus, 5000);
+    // Polling cada 2s hasta que aparezca el QR
+    let attempts = 0;
+    const pollQR = setInterval(async () => {
+      attempts++;
+      await loadWhatsAppStatus();
+      if (waPollingInterval || attempts > 15) clearInterval(pollQR);
+    }, 2000);
   } catch {
     document.getElementById('whatsappContent').innerHTML = '<p style="color:var(--color-error)">Error al iniciar WhatsApp.</p>';
   }
