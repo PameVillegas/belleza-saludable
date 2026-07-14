@@ -43,11 +43,8 @@ const { startRemindersCron, getPendingReminders } = require('./reminders');
 let whatsapp = null;
 try {
   whatsapp = require('./whatsapp');
-  whatsapp.initWhatsApp().catch(err => {
-    console.error('[WhatsApp] Error al inicializar:', err.message);
-    // No poner null — el módulo sigue disponible para reintentar
-  });
-  console.log('[WhatsApp] Módulo cargado');
+  // NO inicializar automáticamente - solo cuando admin lo pida
+  console.log('[WhatsApp] Módulo cargado (esperando conexión manual)');
 } catch (err) {
   console.error('[WhatsApp] No se pudo cargar:', err.message);
   whatsapp = null;
@@ -82,8 +79,20 @@ app.post('/api/admin/whatsapp/logout', require('./middleware/auth'), async (req,
 // Endpoint admin: reiniciar WhatsApp (genera nuevo QR)
 app.post('/api/admin/whatsapp/restart', require('./middleware/auth'), async (req, res) => {
   if (!whatsapp) return res.json({ message: 'WhatsApp no disponible en este servidor.' });
-  await whatsapp.restart();
-  res.json({ message: 'Reiniciando WhatsApp... Esperá unos segundos y refrescá para ver el QR.' });
+  try {
+    const status = whatsapp.getStatus();
+    if (status.status === 'disconnected') {
+      // Primera conexión o reconexión
+      await whatsapp.initWhatsApp();
+      res.json({ message: 'Iniciando WhatsApp... El QR aparecerá en unos segundos.' });
+    } else {
+      await whatsapp.restart();
+      res.json({ message: 'Reiniciando WhatsApp... El QR aparecerá en unos segundos.' });
+    }
+  } catch (err) {
+    console.error('[WhatsApp restart error]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Endpoint admin: enviar mensaje manual por WhatsApp
