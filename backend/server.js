@@ -43,8 +43,13 @@ const { startRemindersCron, getPendingReminders } = require('./reminders');
 let whatsapp = null;
 try {
   whatsapp = require('./whatsapp');
-  // NO inicializar automáticamente - solo cuando admin lo pida
-  console.log('[WhatsApp] Módulo cargado (esperando conexión manual)');
+  // Iniciar automáticamente al arrancar
+  whatsapp.initWhatsApp().then((r) => {
+    console.log('[WhatsApp] Init result:', r);
+  }).catch(err => {
+    console.error('[WhatsApp] Init error:', err.message);
+  });
+  console.log('[WhatsApp] Módulo cargado, inicializando...');
 } catch (err) {
   console.error('[WhatsApp] No se pudo cargar:', err.message);
   whatsapp = null;
