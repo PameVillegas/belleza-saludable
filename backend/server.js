@@ -64,9 +64,19 @@ app.get('/api/admin/reminders', require('./middleware/auth'), async (req, res) =
 
 // Endpoint admin: estado de WhatsApp (QR, conectado, etc.)
 app.get('/api/admin/whatsapp/status', require('./middleware/auth'), (req, res) => {
-  if (!whatsapp) return res.json({ status: 'unavailable' });
+  if (!whatsapp) return res.json({ status: 'unavailable', error: 'module not loaded' });
   const status = whatsapp.getStatus();
   res.json(status);
+});
+
+// Endpoint público para debug (temporal)
+app.get('/api/whatsapp-test', async (req, res) => {
+  try {
+    const baileys = require('@whiskeysockets/baileys');
+    res.json({ ok: true, keys: Object.keys(baileys).slice(0, 10), moduleLoaded: !!whatsapp, status: whatsapp ? whatsapp.getStatus() : 'null' });
+  } catch (err) {
+    res.json({ ok: false, error: err.message });
+  }
 });
 
 // Endpoint admin: desconectar WhatsApp
