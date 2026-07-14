@@ -1,12 +1,11 @@
-const { makeWASocket, useMultiFileAuthState, DisconnectReason, delay } = require('@whiskeysockets/baileys');
-const { Boom } = require('@hapi/boom');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const QRCodeLib = require('qrcode');
 const pino = require('pino');
-const QRCode = require('qrcode-terminal');
 const path = require('path');
 const fs = require('fs');
 
 let sock = null;
-let waStatus = 'disconnected'; // disconnected, qr_pending, connected
+let waStatus = 'disconnected';
 let currentQR = null;
 let qrDataUrl = null;
 
@@ -17,7 +16,6 @@ const AUTH_DIR = path.join(__dirname, '..', '.wwebjs_auth', 'baileys');
  */
 async function initWhatsApp() {
   try {
-    // Crear directorio de auth si no existe
     if (!fs.existsSync(AUTH_DIR)) {
       fs.mkdirSync(AUTH_DIR, { recursive: true });
     }
@@ -26,50 +24,45 @@ async function initWhatsApp() {
 
     sock = makeWASocket({
       auth: state,
-      printQRInTerminal: true,
+      printQRInTerminal: false,
       logger: pino({ level: 'silent' }),
-      browser: ['Belleza Saludable', 'Chrome', '1.0.0'],
+      browser: ['Belleza Saludable', 'Chrome', '4.0.0'],
     });
 
-    // Guardar credenciales
     sock.ev.on('creds.update', saveCreds);
 
-    // Manejar conexión
     sock.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
         waStatus = 'qr_pending';
         currentQR = qr;
-        // Generar QR como data URL para el panel admin
-        const QRCodeLib = require('qrcode');
         try {
-          qrDataUrl = await QRCodeLib.toDataURL(qr, { width: 300 });
+          qrDataUrl = await QRCodeLib.toDataURL(qr, { width: 300, margin: 2 });
         } catch (err) {
           console.error('[WhatsApp] Error generando QR:', err.message);
         }
         console.log('[WhatsApp] QR generado - Esperando escaneo...');
-        QRCode.generate(qr, { small: true });
       }
 
       if (connection === 'close') {
-        const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
-        console.log('[WhatsApp] Desconectado. Razón:', reason);
+        const statusCode = lastDisconnect?.error?.output?.statusCode;
+        console.log('[WhatsApp] Desconectado. Código:', statusCode);
 
-        if (reason === DisconnectReason.loggedOut) {
-          // Sesión cerrada, borrar auth y no reconectar
+        if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
           waStatus = 'disconnected';
           currentQR = null;
           qrDataUrl = null;
-          if (fs.existsSync(AUTH_DIR)) {
-            fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-          }
-          console.log('[WhatsApp] Sesión cerrada. Necesita escanear QR de nuevo.');
+          try {
+            if (fs.existsSync(AUTH_DIR)) {
+              fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+            }
+          } catch {}
+          console.log('[WhatsApp] Sesión cerrada.');
         } else {
-          // Reconectar
           waStatus = 'disconnected';
-          console.log('[WhatsApp] Reconectando...');
-          setTimeout(() => initWhatsApp(), 3000);
+          console.log('[WhatsApp] Reconectando en 5s...');
+          setTimeout(() => initWhatsApp(), 5000);
         }
       }
 
@@ -77,7 +70,7 @@ async function initWhatsApp() {
         waStatus = 'connected';
         currentQR = null;
         qrDataUrl = null;
-        console.log('[WhatsApp] ✓ Conectado y listo para enviar mensajes');
+        console.log('[WhatsApp] ✓ Conectado exitosamente');
       }
     });
 
@@ -88,7 +81,7 @@ async function initWhatsApp() {
 }
 
 /**
- * Enviar mensaje por WhatsApp
+ * Enviar mensaje
  */
 async function sendMessage(phone, message) {
   if (waStatus !== 'connected' || !sock) {
@@ -104,16 +97,16 @@ async function sendMessage(phone, message) {
 
     const jid = cleanPhone + '@s.whatsapp.net';
     await sock.sendMessage(jid, { text: message });
-    console.log(`[WhatsApp] ✓ Mensaje enviado a ${cleanPhone}`);
+    console.log(`[WhatsApp] ✓ Enviado a ${cleanPhone}`);
     return true;
   } catch (err) {
-    console.error(`[WhatsApp] ✗ Error enviando:`, err.message);
+    console.error(`[WhatsApp] ✗ Error:`, err.message);
     return false;
   }
 }
 
 /**
- * Obtener estado actual
+ * Estado actual
  */
 function getStatus() {
   return {
@@ -123,40 +116,41 @@ function getStatus() {
 }
 
 /**
- * Desconectar / cerrar sesión
+ * Cerrar sesión
  */
 async function logout() {
   if (sock) {
-    try {
-      await sock.logout();
-    } catch {}
+    try { await sock.logout(); } catch {}
+    try { sock.end(); } catch {}
     sock = null;
   }
   waStatus = 'disconnected';
   currentQR = null;
   qrDataUrl = null;
-  if (fs.existsSync(AUTH_DIR)) {
-    fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-  }
+  try {
+    if (fs.existsSync(AUTH_DIR)) {
+      fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+    }
+  } catch {}
   console.log('[WhatsApp] Sesión cerrada');
 }
 
 /**
- * Reiniciar (generar nuevo QR)
+ * Reiniciar (nuevo QR)
  */
 async function restart() {
   if (sock) {
-    try {
-      sock.end();
-    } catch {}
+    try { sock.end(); } catch {}
     sock = null;
   }
   waStatus = 'disconnected';
   currentQR = null;
   qrDataUrl = null;
-  if (fs.existsSync(AUTH_DIR)) {
-    fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-  }
+  try {
+    if (fs.existsSync(AUTH_DIR)) {
+      fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+    }
+  } catch {}
   setTimeout(() => initWhatsApp(), 2000);
 }
 
