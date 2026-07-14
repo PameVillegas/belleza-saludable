@@ -91,17 +91,17 @@ app.post('/api/admin/whatsapp/restart', require('./middleware/auth'), async (req
   if (!whatsapp) return res.json({ message: 'WhatsApp no disponible en este servidor.' });
   try {
     const status = whatsapp.getStatus();
-    if (status.status === 'disconnected') {
-      // Primera conexión o reconexión
-      await whatsapp.initWhatsApp();
-      res.json({ message: 'Iniciando WhatsApp... El QR aparecerá en unos segundos.' });
+    let result;
+    if (status.status === 'disconnected' || status.status === 'error') {
+      result = await whatsapp.initWhatsApp();
     } else {
       await whatsapp.restart();
-      res.json({ message: 'Reiniciando WhatsApp... El QR aparecerá en unos segundos.' });
+      result = 'restarted';
     }
+    res.json({ message: 'WhatsApp iniciado.', result });
   } catch (err) {
     console.error('[WhatsApp restart error]', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 
