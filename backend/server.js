@@ -257,13 +257,13 @@ app.listen(PORT, async () => {
     // Admin
     const adminCount = await pool.query("SELECT COUNT(*) FROM admins");
     if (parseInt(adminCount.rows[0].count) === 0) {
-      await pool.query("INSERT INTO admins (username, password, name) VALUES ('MariF', 'Mari26', 'Mariana Farias')");
+      await pool.query("INSERT INTO admins (username, password, name) VALUES ('Bsaludable', 'Marif26', 'Mariana Farias')");
     } else {
       // Actualizar credenciales del admin existente
-      await pool.query("UPDATE admins SET username = 'MariF', password = 'Mari26' WHERE username = 'admin' OR username = 'MariF'");
+      await pool.query("UPDATE admins SET username = 'Bsaludable', password = 'Marif26' WHERE username = 'admin' OR username = 'MariF' OR username = 'Bsaludable'");
     }
     // Eliminar otros admins que no sean Mariana
-    await pool.query("DELETE FROM admins WHERE username != 'MariF'");
+    await pool.query("DELETE FROM admins WHERE username != 'Bsaludable'");
 
     // Horarios
     const schedCount = await pool.query("SELECT COUNT(*) FROM schedules");
