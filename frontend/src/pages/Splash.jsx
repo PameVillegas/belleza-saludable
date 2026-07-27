@@ -13,7 +13,11 @@ function Splash() {
 
   return (
     <div className="splash-screen">
-      <img src="/screenbelleza.png" alt="Belleza Saludable" className="splash-img" />
+      <div className="splash-content">
+        <p className="splash-welcome">Bienvenidos a</p>
+        <img src="/logobelleza.jpg" alt="Belleza Saludable" className="splash-logo" />
+        <h1 className="splash-name">Belleza Saludable</h1>
+      </div>
     </div>
   );
 }
