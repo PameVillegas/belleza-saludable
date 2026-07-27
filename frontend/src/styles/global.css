@@ -2148,9 +2148,11 @@ body {
 }
 
 .splash-img {
-  width: 100%;
-  height: 100vh;
-  object-fit: cover;
+  width: 75%;
+  max-width: 320px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 16px;
   animation: splashZoom 3s ease-in-out;
 }
 
