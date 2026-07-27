@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom';
 function WhatsAppButton() {
   const location = useLocation();
 
-  // No mostrar en la pantalla de login
-  if (location.pathname === '/') return null;
+  // No mostrar en la pantalla de splash ni login
+  if (location.pathname === '/' || location.pathname === '/login') return null;
 
   return (
     <a

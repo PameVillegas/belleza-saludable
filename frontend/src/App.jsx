@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Splash from './pages/Splash';
 import Welcome from './pages/Welcome';
 import Home from './pages/Home';
 import SelectService from './pages/SelectService';
@@ -21,7 +22,8 @@ function App() {
     <BrowserRouter>
       <div className="app-shell">
         <Routes>
-          <Route path="/" element={<Welcome />} />
+          <Route path="/" element={<Splash />} />
+          <Route path="/login" element={<Welcome />} />
           <Route path="/inicio" element={<Home />} />
           <Route path="/turnos" element={<SelectService />} />
           <Route path="/servicio/:id" element={<ServiceDetail />} />

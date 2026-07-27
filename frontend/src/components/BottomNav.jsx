@@ -6,7 +6,7 @@ function BottomNav() {
   const path = location.pathname;
 
   // No mostrar en login ni en inicio (inicio tiene su propio nav)
-  if (path === '/' || path === '/inicio') return null;
+  if (path === '/' || path === '/login' || path === '/inicio') return null;
 
   return (
     <nav className="bottom-nav" aria-label="Navegación principal">

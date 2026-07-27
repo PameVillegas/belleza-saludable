@@ -7,7 +7,7 @@ function Home() {
 
   const handleLogout = () => {
     sessionStorage.clear();
-    navigate('/');
+    navigate('/login');
   };
 
   const sections = [
