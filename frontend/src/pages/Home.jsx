@@ -11,14 +11,14 @@ function Home() {
   };
 
   const sections = [
-    { icon: '/iconotratamiento.jpeg', label: 'Tratamientos', path: '/turnos' },
-    { icon: '/turno.png', label: 'Reservar Turno', path: '/reservar', highlighted: true },
-    { icon: '/iconoproductos.jpeg', label: 'Productos', path: '/productos' },
-    { icon: '/iconoderma.png', label: 'Profesional', path: '/profesional' },
-    { icon: '/iconoreseña.png', label: 'Reseñas', path: '/resenas' },
-    { icon: '/misturnos.png', label: 'Mis Turnos', path: '/mis-turnos' },
-    { icon: '📜', label: 'Bases y Condiciones', path: '/bases-condiciones' },
-    { icon: '🎁', label: 'Voucher / Gift Card', path: '/voucher' },
+    { bg: '/portadatratam.png', label: 'Tratamientos', path: '/turnos' },
+    { bg: '/portadaturno.png', label: 'Reservar Turno', path: '/reservar', highlighted: true },
+    { bg: '/portadaproduc.png', label: 'Productos', path: '/productos' },
+    { bg: '/portadaprofes.png', label: 'Profesional', path: '/profesional' },
+    { bg: '/portadareseñas.png', label: 'Reseñas', path: '/resenas' },
+    { bg: '/portadamisturnos.png', label: 'Mis Turnos', path: '/mis-turnos' },
+    { bg: null, label: 'Bases y Condiciones', path: '/bases-condiciones' },
+    { bg: '/portadagift.png', label: 'Voucher / Gift Card', path: '/voucher' },
   ];
 
   return (
@@ -51,14 +51,13 @@ function Home() {
       {/* Grid de secciones */}
       <div className="home-grid">
         {sections.map((item) => (
-          <button key={item.label} className={`home-grid-item ${item.highlighted ? 'highlighted' : ''}`} onClick={() => navigate(item.path)}>
-            <span className="home-grid-icon">
-              {item.icon.startsWith('/') ? (
-                <img src={item.icon} alt={item.label} style={{ width: '36px', height: '36px', objectFit: 'contain', borderRadius: '6px', opacity: item.highlighted ? 1 : 0.8 }} />
-              ) : (
-                item.icon
-              )}
-            </span>
+          <button
+            key={item.label}
+            className={`home-grid-item ${item.highlighted ? 'highlighted' : ''}`}
+            onClick={() => navigate(item.path)}
+            style={item.bg ? { backgroundImage: `url(${item.bg})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+          >
+            <div className="home-grid-overlay"></div>
             <span className="home-grid-label">{item.label}</span>
           </button>
         ))}
