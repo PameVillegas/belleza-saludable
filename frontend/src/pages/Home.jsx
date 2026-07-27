@@ -17,7 +17,7 @@ function Home() {
     { bg: '/portadaprofes.png', label: 'Profesional', path: '/profesional' },
     { bg: '/portadareseñas.png', label: 'Reseñas', path: '/resenas' },
     { bg: '/portadamisturnos.png', label: 'Mis Turnos', path: '/mis-turnos' },
-    { bg: null, label: 'Bases y Condiciones', path: '/bases-condiciones' },
+    { bg: '/portadabases.png', label: 'Bases y Condiciones', path: '/bases-condiciones' },
     { bg: '/portadagift.png', label: 'Voucher / Gift Card', path: '/voucher' },
   ];
 
