@@ -82,9 +82,8 @@ function SelectService() {
               key={cat.id}
               className="treatment-category-card"
               onClick={() => setActiveCategory(cat.id)}
-              style={{ backgroundImage: `url(${cat.image})`, backgroundSize: '40%', backgroundPosition: 'left center', backgroundRepeat: 'no-repeat' }}
             >
-              <div className="treatment-category-overlay"></div>
+              <img src={cat.image} alt={cat.label} className="treatment-category-img" />
               <div className="treatment-category-info">
                 <h3 className="treatment-category-name">{cat.label}</h3>
                 <p className="treatment-category-desc">{cat.description}</p>
