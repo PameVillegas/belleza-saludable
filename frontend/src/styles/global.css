@@ -2083,59 +2083,63 @@ body {
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
+  padding-left: 1.5rem;
   background: #FFFFFF;
-  border: 1px solid rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(158, 119, 119, 0.08);
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
 }
 
 .treatment-category-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(236, 72, 153, 0.1);
-  border-color: rgba(236, 72, 153, 0.2);
-  background: #FDF2F8;
+  box-shadow: 0 8px 24px rgba(158, 119, 119, 0.12);
 }
 
 .treatment-category-card:active {
   transform: scale(0.98);
 }
 
-.treatment-category-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #FDF2F8;
-  border-radius: 14px;
+.treatment-category-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.7) 30%, rgba(255,255,255,0.95) 50%, #FFFFFF 70%);
+  z-index: 1;
 }
 
 .treatment-category-info {
   flex: 1;
+  position: relative;
+  z-index: 2;
 }
 
 .treatment-category-name {
   font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text);
   margin-bottom: 0.25rem;
 }
 
 .treatment-category-desc {
-  font-size: 0.78rem;
-  color: #9CA3AF;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
   line-height: 1.4;
 }
 
 .treatment-category-arrow {
   font-size: 1.5rem;
-  color: #EC4899;
+  color: var(--color-rose);
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 /* Splash Screen */
