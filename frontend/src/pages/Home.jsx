@@ -11,7 +11,7 @@ function Home() {
   };
 
   const sections = [
-    { bg: '/portadatratam.png', label: 'Tratamientos', path: '/turnos' },
+    { bg: '/portadatrata.png', label: 'Tratamientos', path: '/turnos' },
     { bg: '/portadaturno.png', label: 'Reservar Turno', path: '/reservar', highlighted: true },
     { bg: '/portadaproduc.png', label: 'Productos', path: '/productos' },
     { bg: '/portadaprofes.png', label: 'Profesional', path: '/profesional' },
