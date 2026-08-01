@@ -58,11 +58,8 @@ Te recordamos tu turno de hoy:
 👩‍⚕️ *Profesional:* ${PROFESSIONAL_NAME}
 📍 *Dirección:* ${ADDRESS}
 
-Para *confirmar* respondé ✅
-Para *cancelar* respondé ❌
-
-Te esperamos! 💕
-Recordá asistir 10 minutos antes.`;
+¡Comenzamos en 30 minutos! 💕
+Recordá llegar unos minutos antes.`;
 }
 
 /**
@@ -92,14 +89,9 @@ async function checkAndSendReminders() {
     const currentHour = argentinaTime.getHours();
     const currentMinute = argentinaTime.getMinutes();
 
-    // Buscar turnos que empiezan en 55-65 minutos (ventana de 10 min)
-    const targetMinutes = (currentHour * 60 + currentMinute) + 60; // 1 hora desde ahora
-    const targetHour = Math.floor(targetMinutes / 60);
-    const targetMin = targetMinutes % 60;
-    
-    // Rango: desde 55 min hasta 65 min en el futuro
-    const fromMinutes = (currentHour * 60 + currentMinute) + 55;
-    const toMinutes = (currentHour * 60 + currentMinute) + 65;
+    // Buscar turnos que empiezan en 25-35 minutos (ventana de 10 min centrada en 30 min)
+    const fromMinutes = (currentHour * 60 + currentMinute) + 25;
+    const toMinutes = (currentHour * 60 + currentMinute) + 35;
     
     const fromH = Math.floor(fromMinutes / 60).toString().padStart(2, '0');
     const fromM = (fromMinutes % 60).toString().padStart(2, '0');
