@@ -47,19 +47,7 @@ async function ensureReminderTable() {
  */
 function buildReminderMessage(appointment) {
   const timeStr = appointment.start_time.slice(0, 5);
-  return `✨ *${BUSINESS_NAME}* ✨
-
-Hola ${appointment.client_name.split(' ')[0]}! 👋
-
-Te recordamos tu turno de hoy:
-
-📅 *Hoy a las ${timeStr} hs*
-💆 *Servicio:* ${appointment.service_name}
-👩‍⚕️ *Profesional:* ${PROFESSIONAL_NAME}
-📍 *Dirección:* ${ADDRESS}
-
-¡Comenzamos en 30 minutos! 💕
-Recordá llegar unos minutos antes.`;
+  return `¡Hola ${appointment.client_name.split(' ')[0]}! 🌸\n\nRecordá tu turno de hoy a las *${timeStr} hs* — ${appointment.service_name}.\n\n📍 ${ADDRESS}\n\n¡Te esperamos!\n*${BUSINESS_NAME}*`;
 }
 
 /**
