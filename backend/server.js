@@ -274,39 +274,9 @@ app.listen(PORT, async () => {
       }
     }
 
-    // Clientes de prueba
-    const clientCount = await pool.query("SELECT COUNT(*) FROM clients");
-    if (parseInt(clientCount.rows[0].count) < 3) {
-      const clientes = [
-        ['María López', '3388111111', 'maria.lopez@email.com'],
-        ['Carolina Pérez', '3388222222', 'carolina.perez@email.com'],
-        ['Luciana Martínez', '3388333333', 'luciana.martinez@email.com'],
-        ['Valentina Rodríguez', '3388444444', 'valentina.rodriguez@email.com'],
-        ['Sofía García', '3388555555', 'sofia.garcia@email.com'],
-        ['Florencia Díaz', '3388666666', 'florencia.diaz@email.com'],
-        ['Andrea Morales', '3388777777', 'andrea.morales@email.com'],
-        ['Camila Torres', '3388888888', 'camila.torres@email.com'],
-      ];
-      for (const [name, phone, email] of clientes) {
-        await pool.query('INSERT INTO clients (name, phone, email) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING', [name, phone, email]);
-      }
-      console.log('[Setup] ✓ Clientes de prueba insertados');
-    }
+    // Clientes: se gestionan SOLO desde el panel admin (no se tocan al reiniciar)
 
-    // Reseñas
-    const revCount = await pool.query("SELECT COUNT(*) FROM reviews");
-    if (parseInt(revCount.rows[0].count) === 0) {
-      await pool.query(`
-        INSERT INTO reviews (client_name, service_name, stars, text, is_approved) VALUES
-        ('María L.', 'Limpieza Facial Profunda', 5, 'Excelente atención, mi piel cambió muchísimo. Se nota la dedicación y el profesionalismo en cada sesión.', true),
-        ('Carolina P.', 'Peelings Químicos', 5, 'Los tratamientos faciales son increíbles. Mariana te explica todo y te hace sentir muy cómoda.', true),
-        ('Luciana M.', 'Ondas Rusas + Presoterapia', 5, 'Llevo 6 meses con las ondas rusas y presoterapia, los resultados son notorios. Super recomendable.', true),
-        ('Valentina R.', 'Microneedling / Dermapen', 5, 'El microneedling me cambió la piel por completo. Las marcas de acné se redujeron muchísimo.', true),
-        ('Sofía G.', 'Lifting de Pestañas', 5, 'Me hice el lifting de pestañas y quedé encantada. La mirada se abre totalmente, muy natural.', true),
-        ('Florencia D.', 'Limpieza Premium', 4, 'Muy buena la limpieza premium, sentí la piel súper hidratada y luminosa por días.', true)
-      `);
-      console.log('[Setup] ✓ Reseñas insertadas');
-    }
+    // Reseñas: se gestionan SOLO desde el panel admin (no se tocan al reiniciar)
 
     // Productos: se gestionan SOLO desde el panel admin (no se tocan al reiniciar)
 
