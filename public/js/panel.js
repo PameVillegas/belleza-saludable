@@ -536,7 +536,7 @@ function renderClientsTable(clients) {
           <td>${c.name}</td>
           <td>${c.phone}</td>
           <td>${c.email}</td>
-          <td><button class="btn btn-sm" onclick="viewClient('${c.id}')">Ver historial</button> <button class="btn btn-sm" onclick="editClient('${c.id}', '${c.name}', '${c.phone}', '${c.email}')">Editar</button> <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Eliminar</button></td>
+          <td><button class="btn btn-sm" onclick="viewClient('${c.id}')">Ver historial</button> <button class="btn btn-sm" onclick="editClient('${c.id}', '${c.name}', '${c.phone}', '${c.email}')">Editar</button> <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Eliminar</button> ${c.username ? `<button class="btn btn-sm" onclick="sendCredentials('${c.name}','${c.phone}','${c.username}','${c.password || ''}')">📱 Credenciales</button>` : ''}</td>
         </tr>
       `).join('')}</tbody>
     </table>
@@ -576,9 +576,10 @@ async function viewClient(id) {
 function openNewClient() {
   openModal(`
     <h3>Nuevo Cliente</h3>
-    <div class="form-group"><label>Nombre</label><input type="text" id="ncName"></div>
-    <div class="form-group"><label>Teléfono</label><input type="text" id="ncPhone"></div>
-    <div class="form-group"><label>Email</label><input type="email" id="ncEmail"></div>
+    <div class="form-group"><label>Nombre y apellido</label><input type="text" id="ncName"></div>
+    <div class="form-group"><label>Teléfono / WhatsApp</label><input type="tel" id="ncPhone"></div>
+    <div class="form-group"><label>Usuario (para ingresar a la app)</label><input type="text" id="ncUser" placeholder="Ej: nombre123"></div>
+    <div class="form-group"><label>Contraseña (se genera automáticamente)</label><input type="text" id="ncPass" value="${generateCode()}" readonly style="background:#f9f9f9;"></div>
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveNewClient()">Guardar</button>
@@ -586,12 +587,56 @@ function openNewClient() {
   `);
 }
 
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
 async function saveNewClient() {
-  const body = { name: document.getElementById('ncName').value, phone: document.getElementById('ncPhone').value, email: document.getElementById('ncEmail').value };
-  const res = await fetch(`${API}/admin/clients`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
-  if (!res.ok) { const d = await res.json(); alert(d.error); return; }
+  const name = document.getElementById('ncName').value.trim();
+  const phone = document.getElementById('ncPhone').value.trim();
+  const username = document.getElementById('ncUser').value.trim();
+  const password = document.getElementById('ncPass').value.trim();
+
+  if (!name || !phone || !username) {
+    alert('Completá nombre, teléfono y usuario.');
+    return;
+  }
+
+  const email = `${username}@bellezasaludable.com.ar`;
+  const body = { name, phone, email, username, password };
+
+  // Usar la ruta de registro de clientes
+  const res = await fetch('/api/auth/client/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    // Si ya existe, crear igualmente con ruta de admin
+    const res2 = await fetch('/api/admin/clients', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ name, phone, email })
+    });
+    if (!res2.ok) { const d = await res2.json(); alert(d.error); return; }
+  }
+
   closeModal();
   loadClients();
+
+  // Ofrecer enviar credenciales por WhatsApp
+  const msg = `Hola ${name.split(' ')[0]}! 🌸\n\nTe registramos en *Belleza Saludable*.\n\nTus datos de acceso a la app:\n👤 *Usuario:* ${username}\n🔑 *Contraseña:* ${password}\n\n🔗 Ingresá desde: https://bellezasaludable.com.ar\n\n¡Te esperamos!`;
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const fullPhone = cleanPhone.startsWith('54') ? cleanPhone : '54' + cleanPhone;
+  const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`;
+
+  if (confirm(`✅ Cliente registrado!\n\n¿Querés enviarle las credenciales por WhatsApp ahora?`)) {
+    window.open(waUrl, '_blank');
+  }
 }
 
 function editClient(id, name, phone, email) {
@@ -620,6 +665,13 @@ async function deleteClient(id) {
   const res = await fetch(`${API}/admin/clients/${id}`, { method: 'DELETE', headers: authHeaders() });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   loadClients();
+}
+
+function sendCredentials(name, phone, username, password) {
+  const msg = `Hola ${name.split(' ')[0]}! 🌸\n\nTus datos de acceso a *Belleza Saludable*:\n\n👤 *Usuario:* ${username}\n🔑 *Contraseña:* ${password || '(la que te asignamos)'}\n\n🔗 Ingresá desde: https://bellezasaludable.com.ar\n\n¡Te esperamos!`;
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const fullPhone = cleanPhone.startsWith('54') ? cleanPhone : '54' + cleanPhone;
+  window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 // === Servicios ===
