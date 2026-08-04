@@ -1363,6 +1363,7 @@ async function loadWhatsAppStatus() {
           <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.5rem;">Abrí WhatsApp en tu celular → Dispositivos vinculados → Vincular un dispositivo</p>
           <img src="${data.qrDataUrl}" alt="QR WhatsApp" style="width:280px; height:280px; border-radius:12px; border:2px solid var(--color-border);">
           <p style="color:var(--color-text-muted); font-size:0.75rem; margin-top:1rem;">El QR se actualiza automáticamente...</p>
+          <button class="btn btn-danger btn-sm" style="margin-top:1rem;" onclick="loadWhatsAppStatus()">🔄 Refrescar</button>
         </div>
       `;
       startWAPolling();
