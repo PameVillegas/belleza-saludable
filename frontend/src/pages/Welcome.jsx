@@ -46,7 +46,7 @@ function Welcome() {
     e.preventDefault();
     setError('');
     setSuccess('');
-    if (!name.trim() || !username.trim() || !password.trim()) {
+    if (!name.trim() || !phone.trim() || !username.trim() || !password.trim()) {
       setError('Completá todos los campos.');
       return;
     }
@@ -57,8 +57,8 @@ function Welcome() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(),
-          phone: '0000000000', // valor placeholder requerido por DB
-          email: `${username.trim()}@bellezasaludable.com.ar`, // email generado
+          phone: phone.trim(),
+          email: `${username.trim()}@bellezasaludable.com.ar`,
           username: username.trim(),
           password: password.trim()
         })
@@ -118,6 +118,10 @@ function Welcome() {
             <div className="form-group">
               <label htmlFor="regName">Nombre y apellido</label>
               <input type="text" id="regName" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre completo" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="regPhone">Teléfono / WhatsApp</label>
+              <input type="tel" id="regPhone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Ej: 3388-123456" />
             </div>
             <div className="form-group">
               <label htmlFor="regUser">Usuario</label>
