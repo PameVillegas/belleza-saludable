@@ -1348,6 +1348,106 @@ async function loadReminders() {
 // === WhatsApp ===
 let waPollingInterval = null;
 
+// Construye la sección de envío manual de recordatorios
+function buildManualReminderSection() {
+  return `
+    <div class="stat-card" style="margin-top:1rem; padding:1.5rem; text-align:left;">
+      <h3 style="font-family:var(--font-display); font-size:1rem; font-weight:600; margin-bottom:0.5rem;">📨 Enviar recordatorios del día</h3>
+      <p style="font-size:0.82rem; color:var(--color-text-muted); margin-bottom:1rem;">
+        Presioná el botón para enviar un recordatorio por WhatsApp a todas las clientas con turno hoy.
+        Podés hacerlo desde el celular por la mañana.
+      </p>
+      <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="sendAllRemindersToday()">
+          📤 Enviar a todos los turnos de hoy
+        </button>
+        <button class="btn btn-secondary" onclick="loadTodayRemindersPreview()">
+          👁 Ver turnos de hoy
+        </button>
+      </div>
+      <div id="remindersPreview" style="margin-top:1rem;"></div>
+    </div>
+  `;
+}
+
+async function loadTodayRemindersPreview() {
+  const preview = document.getElementById('remindersPreview');
+  if (!preview) return;
+  preview.innerHTML = '<p style="font-size:0.82rem; color:var(--color-text-muted);">Cargando...</p>';
+  try {
+    const res = await fetch(`${API}/admin/reminders`, { headers: authHeaders() });
+    const reminders = await res.json();
+    if (!Array.isArray(reminders) || reminders.length === 0) {
+      preview.innerHTML = '<p style="font-size:0.82rem; color:var(--color-text-muted);">No hay turnos para hoy.</p>';
+      return;
+    }
+    preview.innerHTML = `
+      <table class="data-table" style="margin-top:0.5rem;">
+        <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Estado</th></tr></thead>
+        <tbody>${reminders.map(r => `
+          <tr>
+            <td>${r.start_time.slice(0,5)}</td>
+            <td>${r.client_name}</td>
+            <td>${r.service_name}</td>
+            <td>${r.reminder_sent ? '<span class="badge badge-confirmed">✓ Enviado</span>' : '<span style="color:var(--color-text-muted); font-size:0.75rem;">Pendiente</span>'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    `;
+  } catch {
+    preview.innerHTML = '<p style="color:var(--color-error); font-size:0.82rem;">Error al cargar turnos.</p>';
+  }
+}
+
+async function sendAllRemindersToday() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+  try {
+    const res = await fetch(`${API}/admin/reminders`, { headers: authHeaders() });
+    const reminders = await res.json();
+    if (!Array.isArray(reminders) || reminders.length === 0) {
+      alert('No hay turnos para hoy.');
+      btn.disabled = false;
+      btn.textContent = '📤 Enviar a todos los turnos de hoy';
+      return;
+    }
+
+    const pending = reminders.filter(r => !r.reminder_sent);
+    if (pending.length === 0) {
+      alert('✅ Todos los recordatorios de hoy ya fueron enviados.');
+      btn.disabled = false;
+      btn.textContent = '📤 Enviar a todos los turnos de hoy';
+      return;
+    }
+
+    let sent = 0;
+    let failed = 0;
+    for (const r of pending) {
+      try {
+        const sendRes = await fetch(`${API}/admin/whatsapp/send`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ phone: r.client_phone, message: r.reminder_message || buildReminderText(r) })
+        });
+        if (sendRes.ok) { sent++; } else { failed++; }
+      } catch { failed++; }
+    }
+
+    alert(`✅ Recordatorios enviados: ${sent}\n${failed > 0 ? `⚠️ No enviados: ${failed}` : ''}`);
+    loadTodayRemindersPreview();
+  } catch {
+    alert('Error al cargar los turnos.');
+  }
+  btn.disabled = false;
+  btn.textContent = '📤 Enviar a todos los turnos de hoy';
+}
+
+function buildReminderText(r) {
+  const timeStr = r.start_time.slice(0, 5);
+  return `¡Hola ${r.client_name.split(' ')[0]}! 🌸\n\nRecordá tu turno de hoy a las *${timeStr} hs* — ${r.service_name}.\n\n📍 Calle 30 N°416, entre calle 9 y 11\n\n¡Te esperamos!\n*Belleza Saludable*`;
+}
+
 async function loadWhatsAppStatus() {
   try {
     const res = await fetch(`${API}/admin/whatsapp/status`, { headers: authHeaders() });
@@ -1369,10 +1469,12 @@ async function loadWhatsAppStatus() {
         <div class="stat-card" style="text-align:center; padding:2rem;">
           <div style="font-size:3rem; margin-bottom:1rem;">✅</div>
           <h3 style="font-family:var(--font-display); margin-bottom:0.5rem;">WhatsApp Conectado</h3>
-          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Los recordatorios se envían automáticamente 1 hora antes de cada turno.</p>
+          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Los recordatorios se envían automáticamente 30 minutos antes de cada turno.</p>
           <button class="btn btn-danger" onclick="disconnectWhatsApp()">Desconectar</button>
         </div>
       `;
+      // Mostrar sección de envío masivo
+      html += buildManualReminderSection();
       stopWAPolling();
     } else if (data.status === 'qr_pending' && data.qrDataUrl) {
       html = `
