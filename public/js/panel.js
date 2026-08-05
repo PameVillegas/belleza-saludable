@@ -842,13 +842,19 @@ async function loadSchedules() {
   } else {
     document.getElementById('blockedTable').innerHTML = `
       <table class="data-table">
-        <thead><tr><th>Fecha</th><th>Horario</th><th>Motivo</th><th>Acción</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Horario</th><th>Motivo</th><th>Estado</th><th>Acción</th></tr></thead>
         <tbody>${blocked.map(b => `
-          <tr>
+          <tr${b.is_active ? '' : ' style="opacity:0.6;"'}>
             <td>${b.date.split('T')[0]}</td>
             <td>${b.start_time ? b.start_time.slice(0,5) + ' - ' + b.end_time.slice(0,5) : 'Día completo'}</td>
             <td>${b.reason || '-'}</td>
-            <td><button class="btn btn-danger btn-sm" onclick="deleteBlock('${b.id}')">Eliminar</button></td>
+            <td>${b.is_active ? '<span style="color:var(--color-error); font-weight:600;">Bloqueado</span>' : '<span style="color:var(--color-success); font-weight:600;">Desbloqueado</span>'}</td>
+            <td>
+              ${b.is_active
+                ? `<button class="btn btn-sm" onclick="toggleBlock('${b.id}', false)">🔓 Desbloquear</button>`
+                : `<button class="btn btn-sm" onclick="toggleBlock('${b.id}', true)">🔒 Bloquear</button>`}
+              <button class="btn btn-danger btn-sm" onclick="deleteBlock('${b.id}')">Eliminar</button>
+            </td>
           </tr>
         `).join('')}</tbody>
       </table>
@@ -918,6 +924,18 @@ async function saveBlock() {
 async function deleteBlock(id) {
   if (!confirm('¿Eliminar este bloqueo?')) return;
   await fetch(`${API}/admin/schedules/blocked/${id}`, { method: 'DELETE', headers: authHeaders() });
+  loadSchedules();
+}
+
+async function toggleBlock(id, isActive) {
+  const action = isActive ? 'Bloquear' : 'Desbloquear';
+  if (!confirm(`¿${action} este bloqueo?`)) return;
+  const res = await fetch(`${API}/admin/schedules/blocked/${id}`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify({ is_active: isActive })
+  });
+  if (!res.ok) { alert('Error al actualizar el bloqueo.'); return; }
   loadSchedules();
 }
 

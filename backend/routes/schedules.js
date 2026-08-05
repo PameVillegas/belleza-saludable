@@ -64,7 +64,7 @@ router.put('/', authMiddleware, async (req, res) => {
 router.get('/blocked', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM blocked_slots ORDER BY date, start_time'
+      'SELECT * FROM blocked_slots ORDER BY is_active DESC, date, start_time'
     );
     res.json(result.rows);
   } catch (err) {
@@ -91,6 +91,32 @@ router.post('/blocked', authMiddleware, async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error al crear bloqueo:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// PATCH /api/admin/schedules/blocked/:id - Bloquear/desbloquear franja
+router.patch('/blocked/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { is_active } = req.body;
+
+    if (typeof is_active !== 'boolean') {
+      return res.status(400).json({ error: 'Se esperaba el campo is_active (booleano).' });
+    }
+
+    const result = await pool.query(
+      'UPDATE blocked_slots SET is_active = $1 WHERE id = $2 RETURNING *',
+      [is_active, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Bloqueo no encontrado.' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error al actualizar bloqueo:', err);
     res.status(500).json({ error: 'Error interno del servidor.' });
   }
 });

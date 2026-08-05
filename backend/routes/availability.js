@@ -41,7 +41,7 @@ router.get('/:serviceId', async (req, res) => {
       const dateStr = date.toISOString().split('T')[0];
       const blockResult = await pool.query(
         `SELECT id FROM blocked_slots
-         WHERE date = $1 AND start_time IS NULL AND end_time IS NULL`,
+         WHERE date = $1 AND start_time IS NULL AND end_time IS NULL AND is_active = true`,
         [dateStr]
       );
 
@@ -112,7 +112,7 @@ router.get('/:serviceId/:date', async (req, res) => {
 
     // Obtener bloqueos para esa fecha
     const blockedResult = await pool.query(
-      'SELECT start_time, end_time FROM blocked_slots WHERE date = $1',
+      'SELECT start_time, end_time FROM blocked_slots WHERE date = $1 AND is_active = true',
       [date]
     );
 

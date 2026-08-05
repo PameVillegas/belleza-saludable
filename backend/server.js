@@ -198,6 +198,7 @@ app.listen(PORT, async () => {
         start_time TIME,
         end_time TIME,
         reason VARCHAR(255),
+        is_active BOOLEAN NOT NULL DEFAULT true,
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
       CREATE TABLE IF NOT EXISTS appointments (
@@ -246,6 +247,9 @@ app.listen(PORT, async () => {
       DO $$ BEGIN
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='services' AND column_name='image_url') THEN
           ALTER TABLE services ADD COLUMN image_url TEXT;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='blocked_slots' AND column_name='is_active') THEN
+          ALTER TABLE blocked_slots ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT true;
         END IF;
       END $$;
     `);

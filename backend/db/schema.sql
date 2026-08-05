@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS blocked_slots (
   start_time TIME,
   end_time TIME,
   reason VARCHAR(255),
+  is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
