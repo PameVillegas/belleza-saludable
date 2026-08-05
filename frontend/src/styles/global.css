@@ -2182,3 +2182,89 @@ body {
   80% { opacity: 1; }
   100% { opacity: 0.8; }
 }
+
+/* =============================================
+   ACCESSIBILITY UTILITIES
+   ============================================= */
+
+/* Visually hidden — accessible but not visible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--color-rose);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 var(--radius-sm) 0;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  z-index: 9999;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+/* Focus-visible indicators — override outline: none where needed */
+:focus-visible {
+  outline: 3px solid var(--color-rose);
+  outline-offset: 2px;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--color-rose-dark);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(158, 119, 119, 0.2);
+}
+
+.slot-btn:focus-visible {
+  outline: 3px solid var(--color-rose);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(158, 119, 119, 0.2);
+}
+
+.home-grid-item:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--color-rose);
+}
+
+.whatsapp-float:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(158, 119, 119, 0.35);
+}
+
+a:focus-visible {
+  outline: 3px solid var(--color-rose);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ⚠️ Color contrast notes (informational — brand colors not changed):
+   - var(--color-text-muted) #9B8E8E on white (#ffffff): ratio ~2.9:1 — below WCAG AA for normal text (4.5:1).
+     Consider using var(--color-text-light) #6B5E5E (~4.6:1) for body text where possible.
+   - var(--color-rose) #9E7777 on white: ratio ~3.0:1 — adequate for large text (3:1) but not normal text.
+     Buttons use white text on rose background: white on #9E7777 ~3.0:1 — below AA for normal text;
+     acceptable for large/bold button text (>=18px or >=14px bold) per WCAG 1.4.3.
+   - panel.html: #EC4899 (pink) on white ~3.2:1 — acceptable for large bold UI labels, not body text.
+   These are existing brand colors; flagging for awareness only.
+*/

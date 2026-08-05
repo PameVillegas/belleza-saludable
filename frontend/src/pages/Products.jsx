@@ -76,29 +76,34 @@ function Products() {
   return (
     <div className="products-page fade-up">
       {/* Header */}
-      <div className="products-header">
-        <h2 className="products-title">Productos</h2>
+      <header className="products-header">
+        <h1 className="products-title">Productos</h1>
         <p className="products-subtitle">Productos recomendados para tu cuidado facial</p>
-      </div>
+      </header>
 
       {/* Buscador */}
       <div className="products-search">
+        <label htmlFor="product-search" className="sr-only">Buscar productos</label>
         <input
-          type="text"
+          id="product-search"
+          type="search"
           placeholder="Buscar productos..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="products-search-input"
+          aria-label="Buscar productos"
         />
       </div>
 
       {/* Filtros */}
-      <div className="products-filters">
+      <div className="products-filters" role="group" aria-label="Filtrar por categoría">
         {CATEGORIES.map(cat => (
           <button
             key={cat}
             className={`products-filter-btn ${activeFilter === cat ? 'active' : ''}`}
             onClick={() => setActiveFilter(cat)}
+            aria-pressed={activeFilter === cat}
+            aria-label={`Filtrar por ${cat}`}
           >
             {cat}
           </button>
@@ -107,43 +112,47 @@ function Products() {
 
       {/* Lista */}
       {filtered.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+        <div style={{ textAlign: 'center', padding: '2rem 0' }} role="status">
           <p style={{ color: '#9CA3AF' }}>No se encontraron productos.</p>
         </div>
       )}
 
-      <div className="products-grid">
+      <div className="products-grid" role="list" aria-label="Lista de productos">
         {filtered.map(product => {
           const category = getCategory(product.name, product.description);
           const badge = getBadge(product.name);
           const benefits = getBenefits(product.name, product.description);
 
           return (
-            <div key={product.id} className="product-card">
-              {badge && <span className="product-badge">{badge}</span>}
-              <div className="product-card-top"></div>
+            <article key={product.id} className="product-card" role="listitem">
+              {badge && <span className="product-badge" aria-label={badge}>{badge}</span>}
+              <div className="product-card-top" aria-hidden="true"></div>
               {product.image_url && (
                 <img src={product.image_url} alt={product.name} className="product-card-img" />
               )}
               <div className="product-card-body">
-                <span className="product-category">{category}</span>
-                <h3 className="product-name">{product.name}</h3>
+                <span className="product-category" aria-label={`Categoría: ${category}`}>{category}</span>
+                <h2 className="product-name">{product.name}</h2>
 
                 {benefits.length > 0 && (
-                  <div className="product-benefits">
+                  <ul className="product-benefits" aria-label="Beneficios" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {benefits.map((b, i) => (
-                      <span key={i} className="product-benefit">{b}</span>
+                      <li key={i} className="product-benefit">{b}</li>
                     ))}
-                  </div>
+                  </ul>
                 )}
 
                 <div className="product-footer">
-                  <button className="product-buy-btn" onClick={() => handleBuy(product)}>
+                  <button
+                    className="product-buy-btn"
+                    onClick={() => handleBuy(product)}
+                    aria-label={`Consultar por ${product.name} vía WhatsApp`}
+                  >
                     Consultar
                   </button>
                 </div>
               </div>
-            </div>
+            </article>
           );
         })}
       </div>

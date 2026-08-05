@@ -81,29 +81,35 @@ function Welcome() {
   return (
     <div className="welcome-screen">
       <div className="welcome-card">
-        <img src="/logobelleza.jpg" alt="Belleza Saludable" className="welcome-logo" />
+        <img src="/logobelleza.jpg" alt="Logo Belleza Saludable" className="welcome-logo" />
         <h1 className="welcome-title">Belleza Saludable</h1>
         <p className="welcome-subtitle">Cosmetología · Cosmiatría · Dermatocosmiatría</p>
 
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {error && <div className="error-message" role="alert">{error}</div>}
+        {success && <div className="success-message" role="status" aria-live="polite">{success}</div>}
 
         {mode === 'login' ? (
-          <form onSubmit={handleLogin} className="welcome-form">
+          <form onSubmit={handleLogin} className="welcome-form" noValidate aria-label="Formulario de inicio de sesión">
             <div className="form-group">
               <label htmlFor="username">Usuario</label>
-              <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Tu usuario" />
+              <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Tu usuario" autoComplete="username" />
             </div>
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
               <div style={{ position: 'relative' }}>
-                <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" />
-                <span onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '1.1rem', userSelect: 'none' }}>
-                  {showPassword ? '🙈' : '👁️'}
-                </span>
+                <input type={showPassword ? 'text' : 'password'} id="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••" autoComplete="current-password" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-pressed={showPassword}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '1.1rem', userSelect: 'none', background: 'none', border: 'none', padding: '0.25rem', minWidth: '36px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <span aria-hidden="true">{showPassword ? '🙈' : '👁️'}</span>
+                </button>
               </div>
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading} aria-busy={loading}>
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
             <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
@@ -114,29 +120,35 @@ function Welcome() {
             </p>
           </form>
         ) : (
-          <form onSubmit={handleRegister} className="welcome-form">
+          <form onSubmit={handleRegister} className="welcome-form" noValidate aria-label="Formulario de registro">
             <div className="form-group">
               <label htmlFor="regName">Nombre y apellido</label>
-              <input type="text" id="regName" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre completo" />
+              <input type="text" id="regName" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre completo" autoComplete="name" />
             </div>
             <div className="form-group">
               <label htmlFor="regPhone">Teléfono / WhatsApp</label>
-              <input type="tel" id="regPhone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Ej: 3388-123456" />
+              <input type="tel" id="regPhone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Ej: 3388-123456" autoComplete="tel" />
             </div>
             <div className="form-group">
               <label htmlFor="regUser">Usuario</label>
-              <input type="text" id="regUser" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Mínimo 3 caracteres" />
+              <input type="text" id="regUser" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Mínimo 3 caracteres" autoComplete="username" />
             </div>
             <div className="form-group">
               <label htmlFor="regPass">Contraseña</label>
               <div style={{ position: 'relative' }}>
-                <input type={showPassword ? 'text' : 'password'} id="regPass" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 4 caracteres" />
-                <span onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '1.1rem', userSelect: 'none' }}>
-                  {showPassword ? '🙈' : '👁️'}
-                </span>
+                <input type={showPassword ? 'text' : 'password'} id="regPass" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo 4 caracteres" autoComplete="new-password" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  aria-pressed={showPassword}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', fontSize: '1.1rem', userSelect: 'none', background: 'none', border: 'none', padding: '0.25rem', minWidth: '36px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <span aria-hidden="true">{showPassword ? '🙈' : '👁️'}</span>
+                </button>
               </div>
             </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading}>
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }} disabled={loading} aria-busy={loading}>
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
             <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
@@ -149,8 +161,8 @@ function Welcome() {
         )}
 
         <div className="welcome-footer">
-          <button className="btn-admin" onClick={() => { window.location.href = '/panel.html'; }}>
-            🔒 Admin
+          <button className="btn-admin" onClick={() => { window.location.href = '/panel.html'; }} aria-label="Acceso al panel de administración">
+            <span aria-hidden="true">🔒</span> Admin
           </button>
         </div>
       </div>

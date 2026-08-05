@@ -128,17 +128,17 @@ function BookAppointment() {
 
   return (
     <div className="booking-container fade-up">
-      <div className="booking-header">
-        <h2 className="booking-title">📅 Reservar Turno</h2>
+      <header className="booking-header">
+        <h1 className="booking-title"><span aria-hidden="true">📅</span> Reservar Turno</h1>
         <p className="booking-subtitle">Elegí tu tratamiento, fecha y horario</p>
-      </div>
+      </header>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message" role="alert">{error}</div>}
 
       {/* Seleccionar tratamiento */}
       <div className="form-group">
-        <label>Tratamiento</label>
-        <select onChange={handleServiceChange} value={selectedService?.id || ''}>
+        <label htmlFor="service-select">Tratamiento</label>
+        <select id="service-select" onChange={handleServiceChange} value={selectedService?.id || ''} aria-required="true">
           <option value="">— Seleccioná un tratamiento —</option>
           {services.map(s => (
             <option key={s.id} value={s.id}>{s.name}</option>
@@ -148,12 +148,12 @@ function BookAppointment() {
 
       {/* Mostrar precio */}
       {selectedService && (
-        <div className="card" style={{ marginBottom: '1.25rem', padding: '1rem', background: 'var(--color-beige)' }}>
+        <div className="card" style={{ marginBottom: '1.25rem', padding: '1rem', background: 'var(--color-beige)' }} aria-live="polite">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <strong style={{ fontSize: '0.9rem' }}>{selectedService.name}</strong>
               <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>
-                ⏱ {selectedService.duration_minutes} min
+                <span aria-hidden="true">⏱</span> {selectedService.duration_minutes} min
               </p>
             </div>
             <span style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-sage-dark)' }}>
@@ -167,72 +167,81 @@ function BookAppointment() {
 
       {/* Seleccionar fecha */}
       {selectedService && (
-        <div className="form-group">
-          <label>Fecha disponible</label>
+        <fieldset className="form-group" style={{ border: 'none', padding: 0, margin: 0, marginBottom: '1.25rem' }}>
+          <legend style={{ fontWeight: '500', display: 'block', marginBottom: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
+            Fecha disponible
+          </legend>
           {loadingDates ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>Cargando fechas...</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }} role="status">Cargando fechas...</p>
           ) : dates.length === 0 ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>No hay fechas disponibles.</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }} role="status">No hay fechas disponibles.</p>
           ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }} role="group" aria-label="Fechas disponibles">
               {dates.slice(0, 14).map(date => (
                 <button
                   key={date}
                   type="button"
                   className={`slot-btn ${selectedDate === date ? 'selected' : ''}`}
                   onClick={() => handleDateChange({ target: { value: date } })}
+                  aria-pressed={selectedDate === date}
+                  aria-label={`Seleccionar fecha: ${formatDateShort(date)}`}
                 >
                   {formatDateShort(date)}
                 </button>
               ))}
             </div>
           )}
-        </div>
+        </fieldset>
       )}
 
       {/* Seleccionar horario */}
       {selectedDate && (
-        <div className="form-group fade-in">
-          <label>Horario disponible</label>
+        <fieldset className="form-group fade-in" style={{ border: 'none', padding: 0, margin: 0, marginBottom: '1.25rem' }}>
+          <legend style={{ fontWeight: '500', display: 'block', marginBottom: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
+            Horario disponible
+          </legend>
           {loadingSlots ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>Cargando horarios...</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }} role="status">Cargando horarios...</p>
           ) : slots.length === 0 ? (
-            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>No hay horarios disponibles para esta fecha.</p>
+            <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }} role="status">No hay horarios disponibles para esta fecha.</p>
           ) : (
-            <div className="slots-grid">
+            <div className="slots-grid" role="group" aria-label="Horarios disponibles">
               {slots.map(slot => (
                 <button
                   key={slot.start}
                   type="button"
                   className={`slot-btn ${selectedSlot?.start === slot.start ? 'selected' : ''}`}
                   onClick={() => setSelectedSlot(slot)}
+                  aria-pressed={selectedSlot?.start === slot.start}
+                  aria-label={`Horario ${slot.start} a ${slot.end}`}
                 >
                   {slot.start}
                 </button>
               ))}
             </div>
           )}
-        </div>
+        </fieldset>
       )}
 
       {/* Resumen y botón */}
       {selectedSlot && (
         <div className="fade-in" style={{ marginTop: '1.5rem' }}>
-          <div className="card" style={{ padding: '1rem', marginBottom: '1rem', background: 'var(--color-beige)' }}>
-            <h4 style={{ fontFamily: 'var(--font-display)', fontSize: '0.95rem', marginBottom: '0.5rem' }}>Resumen</h4>
+          <section aria-label="Resumen de la reserva" className="card" style={{ padding: '1rem', marginBottom: '1rem', background: 'var(--color-beige)' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '0.95rem', marginBottom: '0.5rem' }}>Resumen</h2>
             <p style={{ fontSize: '0.82rem', color: 'var(--color-text-light)' }}>
-              💆 {selectedService.name}<br />
-              📅 {formatDate(selectedDate)}<br />
-              ⏰ {selectedSlot.start} - {selectedSlot.end} hs<br />
-              👤 {clientSession?.name}
+              <span aria-hidden="true">💆</span> {selectedService.name}<br />
+              <span aria-hidden="true">📅</span> {formatDate(selectedDate)}<br />
+              <span aria-hidden="true">⏰</span> {selectedSlot.start} - {selectedSlot.end} hs<br />
+              <span aria-hidden="true">👤</span> {clientSession?.name}
             </p>
-          </div>
+          </section>
 
           <button
             className="btn btn-primary"
             style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
             onClick={handleSubmit}
             disabled={submitting}
+            aria-busy={submitting}
           >
             {submitting ? 'Reservando...' : '✓ Solicitar turno'}
           </button>

@@ -45,15 +45,15 @@ function MyAppointments() {
 
   return (
     <div className="booking-container fade-up">
-      <div className="booking-header">
-        <h2 className="booking-title">Mis turnos</h2>
+      <header className="booking-header">
+        <h1 className="booking-title">Mis turnos</h1>
         <p className="booking-subtitle">Hola {clientSession?.name?.split(' ')[0]}, acá está tu historial</p>
-      </div>
+      </header>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message" role="alert">{error}</div>}
 
       {appointments.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+        <div style={{ textAlign: 'center', padding: '2rem 0' }} role="status">
           <p style={{ color: 'var(--color-text-muted)', marginBottom: '1rem' }}>Todavía no tenés turnos reservados.</p>
           <button className="btn btn-primary" onClick={() => navigate('/turnos')}>
             Reservar mi primer turno
@@ -62,26 +62,29 @@ function MyAppointments() {
       )}
 
       {appointments.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <ol style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', listStyle: 'none', padding: 0, margin: 0 }} aria-label="Historial de turnos">
           {appointments.map((appt, i) => {
             const status = getStatusLabel(appt.status);
             return (
-              <div key={i} className="card" style={{ padding: '1rem' }}>
+              <li key={i} className="card" style={{ padding: '1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                   <strong style={{ fontSize: '0.9rem' }}>{appt.service_name}</strong>
-                  <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: '20px', background: status.color + '1a', color: status.color, fontWeight: 500 }}>
+                  <span
+                    style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', borderRadius: '20px', background: status.color + '1a', color: status.color, fontWeight: 500 }}
+                    aria-label={`Estado: ${status.text}`}
+                  >
                     {status.text}
                   </span>
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                  <span>📅 {formatDate(appt.date)}</span>
-                  <span>⏰ {appt.start_time.slice(0,5)} - {appt.end_time.slice(0,5)} ({appt.duration_minutes} min)</span>
-                  {Number(appt.service_price) > 0 && <span>💰 ${Number(appt.service_price).toLocaleString()}</span>}
+                  <span><span aria-hidden="true">📅</span> {formatDate(appt.date)}</span>
+                  <span><span aria-hidden="true">⏰</span> {appt.start_time.slice(0,5)} - {appt.end_time.slice(0,5)} ({appt.duration_minutes} min)</span>
+                  {Number(appt.service_price) > 0 && <span><span aria-hidden="true">💰</span> ${Number(appt.service_price).toLocaleString()}</span>}
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ol>
       )}
     </div>
   );

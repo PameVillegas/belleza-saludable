@@ -86,10 +86,10 @@ function Reviews() {
 
   return (
     <div className="booking-container fade-up">
-      <div className="booking-header">
-        <h2 className="booking-title">⭐ Reseñas</h2>
+      <header className="booking-header">
+        <h1 className="booking-title"><span aria-hidden="true">⭐</span> Reseñas</h1>
         <p className="booking-subtitle">Lo que dicen nuestras clientas</p>
-      </div>
+      </header>
 
       {/* Botón para escribir reseña */}
       {clientSession && !showForm && (
@@ -97,14 +97,15 @@ function Reviews() {
           className="btn btn-primary"
           onClick={() => setShowForm(true)}
           style={{ width: '100%', marginBottom: '1.5rem' }}
+          aria-expanded={showForm}
         >
-          ✍️ Escribir mi reseña
+          <span aria-hidden="true">✍️</span> Escribir mi reseña
         </button>
       )}
 
       {/* Mensaje de éxito */}
       {success && (
-        <div className="success-message" style={{ marginBottom: '1rem' }}>
+        <div className="success-message" style={{ marginBottom: '1rem' }} role="status" aria-live="polite">
           ✓ ¡Gracias por tu reseña! Ya está publicada.
         </div>
       )}
@@ -112,32 +113,49 @@ function Reviews() {
       {/* Formulario de reseña */}
       {showForm && (
         <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', marginBottom: '1rem' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', marginBottom: '1rem' }}>
             Tu experiencia
-          </h3>
-          <form onSubmit={handleSubmit}>
+          </h2>
+          <form onSubmit={handleSubmit} noValidate>
             {/* Estrellas */}
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 500, color: 'var(--color-text-light)', marginBottom: '0.4rem' }}>
+            <fieldset style={{ border: 'none', padding: 0, margin: 0, marginBottom: '1rem' }}>
+              <legend style={{ display: 'block', fontSize: '0.82rem', fontWeight: 500, color: 'var(--color-text-light)', marginBottom: '0.4rem' }}>
                 Puntuación
-              </label>
-              <div style={{ display: 'flex', gap: '0.25rem', fontSize: '1.5rem' }}>
+              </legend>
+              <div style={{ display: 'flex', gap: '0.25rem', fontSize: '1.5rem' }} role="group" aria-label="Seleccionar puntuación">
                 {[1, 2, 3, 4, 5].map(star => (
-                  <span
+                  <button
                     key={star}
+                    type="button"
                     onClick={() => setFormData({ ...formData, stars: star })}
-                    style={{ cursor: 'pointer', color: star <= formData.stars ? 'var(--color-gold)' : '#ddd' }}
+                    aria-label={`${star} estrella${star !== 1 ? 's' : ''}`}
+                    aria-pressed={formData.stars === star}
+                    style={{
+                      cursor: 'pointer',
+                      color: star <= formData.stars ? 'var(--color-gold)' : '#ddd',
+                      background: 'none',
+                      border: 'none',
+                      padding: '0.25rem',
+                      fontSize: '1.5rem',
+                      lineHeight: 1,
+                      minWidth: '44px',
+                      minHeight: '44px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
                   >
                     ★
-                  </span>
+                  </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
 
             {/* Servicio */}
             <div className="form-group">
-              <label>Servicio (opcional)</label>
+              <label htmlFor="review-service">Servicio (opcional)</label>
               <input
+                id="review-service"
                 type="text"
                 value={formData.service_name}
                 onChange={(e) => setFormData({ ...formData, service_name: e.target.value })}
@@ -147,13 +165,15 @@ function Reviews() {
 
             {/* Texto */}
             <div className="form-group">
-              <label>Tu comentario</label>
+              <label htmlFor="review-text">Tu comentario</label>
               <textarea
+                id="review-text"
                 value={formData.text}
                 onChange={(e) => setFormData({ ...formData, text: e.target.value })}
                 placeholder="Contanos tu experiencia..."
                 rows="3"
                 required
+                aria-required="true"
                 minLength="10"
                 style={{ width: '100%', padding: '0.85rem 1rem', border: '1.5px solid var(--color-border)', borderRadius: '10px', fontFamily: 'var(--font-body)', fontSize: '0.9rem', resize: 'vertical' }}
               />
@@ -163,7 +183,7 @@ function Reviews() {
               <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
                 Cancelar
               </button>
-              <button type="submit" className="btn btn-primary" disabled={submitting}>
+              <button type="submit" className="btn btn-primary" disabled={submitting} aria-busy={submitting}>
                 {submitting ? 'Enviando...' : 'Publicar reseña'}
               </button>
             </div>
@@ -172,25 +192,25 @@ function Reviews() {
       )}
 
       {/* Lista de reseñas */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }} aria-label="Reseñas de clientes">
         {reviews.length === 0 && (
-          <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }}>
+          <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', padding: '2rem 0' }} role="status">
             Todavía no hay reseñas. ¡Sé la primera en dejar la tuya!
           </p>
         )}
         {reviews.map((review) => (
-          <div key={review.id} className="card" style={{ padding: '1rem' }}>
-            <div style={{ color: 'var(--color-gold)', fontSize: '0.9rem', marginBottom: '0.4rem' }}>
+          <article key={review.id} className="card" style={{ padding: '1rem' }}>
+            <div style={{ color: 'var(--color-gold)', fontSize: '0.9rem', marginBottom: '0.4rem' }} aria-label={`${review.stars} de 5 estrellas`}>
               {'★'.repeat(review.stars)}{'☆'.repeat(5 - review.stars)}
             </div>
-            <p style={{ fontSize: '0.88rem', fontStyle: 'italic', lineHeight: '1.5', marginBottom: '0.5rem', color: 'var(--color-text)' }}>
+            <blockquote style={{ fontSize: '0.88rem', fontStyle: 'italic', lineHeight: '1.5', marginBottom: '0.5rem', color: 'var(--color-text)', margin: 0 }}>
               "{review.text}"
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-              <span>— {review.client_name}</span>
+            </blockquote>
+            <footer style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+              <cite>— {review.client_name}</cite>
               <span>{review.service_name || ''}{review.created_at ? ` · ${formatDate(review.created_at)}` : ''}</span>
-            </div>
-          </div>
+            </footer>
+          </article>
         ))}
       </div>
 

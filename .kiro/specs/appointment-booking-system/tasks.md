@@ -49,7 +49,7 @@
 - [x] 6.4 Crear endpoint PUT /api/admin/appointments/:id (modificar turno con verificación de disponibilidad)
 - [x] 6.5 Crear endpoint PATCH /api/admin/appointments/:id/cancel (cancelar y liberar franja)
 - [x] 6.6 Crear endpoint GET /api/admin/appointments con filtros (fecha, estado, cliente)
-- [ ] 6.7 Implementar envío de confirmación por email al crear turno
+- [x] 6.7 Implementar envío de confirmación por email al crear turno
 
 ## Fase 7: Frontend React (SPA) - Formulario de reserva pública
 
@@ -87,14 +87,14 @@
 - [x] 10.1 Implementar breakpoints (móvil <768px, tablet 768-1024px, desktop >1024px)
 - [x] 10.2 Asegurar menú hamburguesa en móvil para panel.html
 - [x] 10.3 Verificar touch targets mínimos de 44x44px en dispositivos táctiles
-- [ ] 10.4 Verificar accesibilidad (roles ARIA, contraste, navegación por teclado)
+- [x] 10.4 Verificar accesibilidad (roles ARIA, contraste, navegación por teclado)
 
 ## Fase 11: Testing y calidad
 
-- [ ] 11.1 Escribir tests unitarios para la lógica de cálculo de disponibilidad
+- [x] 11.1 Escribir tests unitarios para la lógica de cálculo de disponibilidad
 - [ ] 11.2 Escribir tests para la detección de conflictos de horarios
-- [ ] 11.3 Escribir tests de integración para los endpoints de la API
-- [ ] 11.4 Verificar flujo completo de reserva online (frontend)
+- [~] 11.3 Escribir tests de integración para los endpoints de la API
+- [~] 11.4 Verificar flujo completo de reserva online (frontend)
 
 ## Fase 12: Despliegue en Render
 
@@ -105,4 +105,4 @@
 - [x] 12.5 Configurar SSL para conexión a PostgreSQL en producción
 - [x] 12.6 Crear script de seed para primer administrador en producción
 - [x] 12.7 Mantener vercel.json como configuración alternativa
-- [ ] 12.8 Crear documentación de despliegue y configuración inicial
+- [~] 12.8 Crear documentación de despliegue y configuración inicial

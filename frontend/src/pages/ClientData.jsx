@@ -76,47 +76,47 @@ function ClientData() {
   return (
     <div className="booking-container fade-up">
       <Stepper currentStep={3} />
-      <div className="booking-header">
-        <h2 className="booking-title">Confirmar datos</h2>
+      <header className="booking-header">
+        <h1 className="booking-title">Confirmar datos</h1>
         <p className="booking-subtitle">Verificá tus datos para confirmar el turno</p>
-      </div>
+      </header>
 
       {/* Resumen del turno */}
-      <div className="card" style={{ marginBottom: '1.5rem', background: 'var(--color-beige)' }}>
-        <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}>💆 {service.name}</p>
+      <section aria-label="Resumen del turno" className="card" style={{ marginBottom: '1.5rem', background: 'var(--color-beige)' }}>
+        <p style={{ fontWeight: '500', marginBottom: '0.25rem' }}><span aria-hidden="true">💆</span> {service.name}</p>
         <p style={{ fontSize: '0.82rem', color: 'var(--color-text-light)' }}>
-          📅 {formatDate(date)} &nbsp; ⏰ {slot.start} - {slot.end} hs &nbsp; ⏱ {service.duration_minutes} min
+          <span aria-hidden="true">📅</span> {formatDate(date)} &nbsp; <span aria-hidden="true">⏰</span> {slot.start} - {slot.end} hs &nbsp; <span aria-hidden="true">⏱</span> {service.duration_minutes} min
         </p>
         {Number(service.price) > 0 && (
           <p style={{ fontSize: '0.82rem', color: 'var(--color-text-light)', marginTop: '0.25rem' }}>
-            💰 ${Number(service.price).toLocaleString()}
+            <span aria-hidden="true">💰</span> ${Number(service.price).toLocaleString()}
           </p>
         )}
-      </div>
+      </section>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message" role="alert">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="form-group">
           <label htmlFor="name">Nombre completo</label>
-          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Tu nombre completo" required />
+          <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} placeholder="Tu nombre completo" required aria-required="true" autoComplete="name" />
         </div>
 
         <div className="form-group">
           <label htmlFor="phone">Teléfono / WhatsApp</label>
-          <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Ej: 3388-123456" required />
+          <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} placeholder="Ej: 3388-123456" required aria-required="true" autoComplete="tel" />
         </div>
 
         <div className="form-group">
           <label htmlFor="email">Email</label>
-          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="tu@email.com" required />
+          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} placeholder="tu@email.com" required aria-required="true" autoComplete="email" />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem' }}>
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/fecha-hora')}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/fecha-hora')} aria-label="Volver a selección de fecha y hora">
             ← Atrás
           </button>
-          <button type="submit" className="btn btn-primary" disabled={submitting}>
+          <button type="submit" className="btn btn-primary" disabled={submitting} aria-busy={submitting}>
             {submitting ? 'Reservando...' : 'Confirmar turno ✓'}
           </button>
         </div>

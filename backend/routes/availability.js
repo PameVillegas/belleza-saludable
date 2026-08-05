@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
+const { generateSlots, timeOverlaps, getGabinete } = require('../utils/availabilityHelpers');
 
 // GET /api/availability/:serviceId - Fechas disponibles para un servicio (próximos 30 días)
 router.get('/:serviceId', async (req, res) => {
@@ -142,58 +143,5 @@ router.get('/:serviceId/:date', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor.' });
   }
 });
-
-// Generar franjas de tiempo
-function generateSlots(startTime, endTime, durationMinutes) {
-  const slots = [];
-  let current = timeToMinutes(startTime);
-  const end = timeToMinutes(endTime);
-
-  while (current + durationMinutes <= end) {
-    slots.push({
-      start: minutesToTime(current),
-      end: minutesToTime(current + durationMinutes)
-    });
-    current += durationMinutes;
-  }
-
-  return slots;
-}
-
-// Detectar solapamiento de rangos horarios
-function timeOverlaps(start1, end1, start2, end2) {
-  const s1 = timeToMinutes(start1);
-  const e1 = timeToMinutes(end1);
-  const s2 = timeToMinutes(start2);
-  const e2 = timeToMinutes(end2);
-  return s1 < e2 && e1 > s2;
-}
-
-// Convertir TIME string a minutos
-function timeToMinutes(timeStr) {
-  const str = typeof timeStr === 'string' ? timeStr : timeStr.toString();
-  const parts = str.split(':');
-  return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-}
-
-// Convertir minutos a TIME string
-function minutesToTime(minutes) {
-  const h = Math.floor(minutes / 60).toString().padStart(2, '0');
-  const m = (minutes % 60).toString().padStart(2, '0');
-  return `${h}:${m}`;
-}
-
-// Determinar gabinete según el nombre del servicio
-// Gabinete 1 (FACIAL): tratamientos faciales, mirada, diseño Y depilación definitiva
-// Gabinete 2 (CORPORAL): ondas rusas, lipoláser, presoterapia y combos corporales
-function getGabinete(serviceName) {
-  const name = serviceName.toLowerCase();
-  // Solo corporales van al gabinete 2
-  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser') || name.includes('lipolá')) {
-    return 'corporal';
-  }
-  // Todo lo demás (faciales + depilación) va al gabinete 1
-  return 'facial';
-}
 
 module.exports = router;

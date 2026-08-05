@@ -66,9 +66,9 @@ function SelectService() {
   // Vista de categorías (sin categoría seleccionada)
   if (!activeCategory) {
     return (
-      <div className="treatments-page fade-up">
+      <main className="treatments-page fade-up" id="main-content">
         <div className="treatments-header">
-          <h2 className="treatments-title">Nuestros Tratamientos</h2>
+          <h1 className="treatments-title">Nuestros Tratamientos</h1>
           <p className="treatments-subtitle">Profesionalismo y biotecnología al servicio de tu piel</p>
         </div>
 
@@ -76,20 +76,23 @@ function SelectService() {
           Todos los tratamientos están sujetos a una evaluación previa para determinar el protocolo más adecuado según el biotipo cutáneo.
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div role="list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {CATEGORIES.map(cat => (
-            <div
+            <button
               key={cat.id}
+              role="listitem"
               className="treatment-category-card"
               onClick={() => setActiveCategory(cat.id)}
+              aria-label={`Ver tratamientos: ${cat.label} — ${cat.description}`}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', width: '100%' }}
             >
-              <img src={cat.image} alt={cat.label} className="treatment-category-img" />
+              <img src={cat.image} alt="" role="presentation" className="treatment-category-img" />
               <div className="treatment-category-info">
-                <h3 className="treatment-category-name">{cat.label}</h3>
+                <h2 className="treatment-category-name">{cat.label}</h2>
                 <p className="treatment-category-desc">{cat.description}</p>
               </div>
-              <span className="treatment-category-arrow">›</span>
-            </div>
+              <span className="treatment-category-arrow" aria-hidden="true">›</span>
+            </button>
           ))}
         </div>
 
@@ -98,7 +101,7 @@ function SelectService() {
             ← Volver al inicio
           </button>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -106,36 +109,39 @@ function SelectService() {
   const currentCat = CATEGORIES.find(c => c.id === activeCategory);
 
   return (
-    <div className="treatments-page fade-up">
+    <main className="treatments-page fade-up" id="main-content">
       <div className="treatments-header">
-        <h2 className="treatments-title">{currentCat.icon} {currentCat.label}</h2>
+        <h1 className="treatments-title"><span aria-hidden="true">{currentCat.icon}</span> {currentCat.label}</h1>
         <p className="treatments-subtitle">{currentCat.description}</p>
       </div>
 
       <div className="treatments-search">
+        <label htmlFor="treatment-search" className="sr-only">Buscar tratamiento</label>
         <input
-          type="text"
+          id="treatment-search"
+          type="search"
           placeholder="Buscar tratamiento..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="treatments-search-input"
+          aria-label="Buscar tratamiento"
         />
       </div>
 
-      <div className="treatments-grid">
+      <div className="treatments-grid" role="list" aria-label={`Tratamientos de ${currentCat.label}`}>
         {filtered.map(service => (
-          <div key={service.id} className="treatment-card-v2">
+          <div key={service.id} className="treatment-card-v2" role="listitem">
             <div className="treatment-card-v2-img-wrap">
               {service.image_url ? (
                 <img src={service.image_url} alt={service.name} className="treatment-card-v2-img" />
               ) : (
-                <div className="treatment-card-v2-placeholder">{currentCat.icon}</div>
+                <div className="treatment-card-v2-placeholder" aria-hidden="true">{currentCat.icon}</div>
               )}
             </div>
             <div className="treatment-card-v2-body">
-              <h3 className="treatment-card-v2-name">{service.name}</h3>
+              <h2 className="treatment-card-v2-name">{service.name}</h2>
               <div className="treatment-card-v2-info">
-                <span className="treatment-card-v2-duration">⏱ {service.duration_minutes} min</span>
+                <span className="treatment-card-v2-duration"><span aria-hidden="true">⏱</span> {service.duration_minutes} min</span>
                 <span className="treatment-card-v2-price">
                   {Number(service.price) > 0
                     ? `$${Number(service.price).toLocaleString()}`
@@ -145,6 +151,7 @@ function SelectService() {
               <button
                 className="treatment-card-v2-btn"
                 onClick={() => navigate(`/servicio/${service.id}`)}
+                aria-label={`Ver detalles de ${service.name}`}
               >
                 Ver detalles
               </button>
@@ -154,15 +161,15 @@ function SelectService() {
       </div>
 
       {filtered.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#9CA3AF', padding: '2rem 0' }}>No se encontraron tratamientos.</p>
+        <p style={{ textAlign: 'center', color: '#9CA3AF', padding: '2rem 0' }} role="status">No se encontraron tratamientos.</p>
       )}
 
       <div style={{ textAlign: 'center', marginTop: '2rem', paddingBottom: '1rem' }}>
-        <button className="btn btn-secondary" onClick={() => setActiveCategory(null)}>
+        <button className="btn btn-secondary" onClick={() => setActiveCategory(null)} aria-label="Volver a categorías de tratamientos">
           ← Volver a categorías
         </button>
       </div>
-    </div>
+    </main>
   );
 }
 

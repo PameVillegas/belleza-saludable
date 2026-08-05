@@ -23,57 +23,74 @@ function Home() {
 
   return (
     <div className="home-page fade-in">
+      {/* Skip to main content */}
+      <a href="#main-content" className="skip-link">Ir al contenido principal</a>
+
       {/* Header */}
-      <header className="home-header">
-        <div className="home-header-left" onClick={() => navigate('/inicio')} style={{ cursor: 'pointer' }}>
-          <img src="/logobelleza.jpg" alt="Belleza Saludable" className="home-header-logo" />
+      <header className="home-header" role="banner">
+        <button
+          className="home-header-left"
+          onClick={() => navigate('/inicio')}
+          aria-label="Ir a inicio - Belleza Saludable"
+          style={{ cursor: 'pointer', background: 'none', border: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: 0 }}
+        >
+          <img src="/logobelleza.jpg" alt="" role="presentation" className="home-header-logo" />
           <div>
             <span className="home-header-name">Belleza Saludable</span>
             <span className="home-header-tagline">Cosmiatría · Estética · Bienestar</span>
           </div>
-        </div>
-        <button className="home-logout-btn" onClick={handleLogout}>
+        </button>
+        <button className="home-logout-btn" onClick={handleLogout} aria-label="Cerrar sesión">
           Cerrar sesión
         </button>
       </header>
 
       {/* Banner con saludo */}
-      <div className="home-banner">
-        <img src="/fotoportada2.png" alt="Belleza Saludable" className="home-banner-img" />
+      <div className="home-banner" role="img" aria-label={`Bienvenida${firstName ? `, ${firstName}` : ''} a Belleza Saludable`}>
+        <img src="/fotoportada2.png" alt="" role="presentation" className="home-banner-img" />
         <div className="home-banner-overlay">
           <div className="home-banner-text">
-            <h2 className="home-greeting-title">Bienvenida{firstName ? `, ${firstName}` : ''} ✨</h2>
+            <h1 className="home-greeting-title">Bienvenida{firstName ? `, ${firstName}` : ''} ✨</h1>
             <p className="home-greeting-subtitle">Un espacio pensado para vos</p>
           </div>
         </div>
       </div>
 
       {/* Grid de secciones */}
-      <div className="home-grid">
-        {sections.map((item) => (
-          <button
-            key={item.label}
-            className={`home-grid-item ${item.highlighted ? 'highlighted' : ''}`}
-            onClick={() => navigate(item.path)}
-            style={item.bg ? { backgroundImage: `url(${item.bg})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
-          >
-            <div className="home-grid-overlay"></div>
-            <span className="home-grid-label">{item.label}</span>
-          </button>
-        ))}
-      </div>
+      <main id="main-content">
+        <nav aria-label="Secciones principales">
+          <div className="home-grid">
+            {sections.map((item) => (
+              <button
+                key={item.label}
+                className={`home-grid-item ${item.highlighted ? 'highlighted' : ''}`}
+                onClick={() => navigate(item.path)}
+                aria-label={item.label}
+                style={item.bg ? { backgroundImage: `url(${item.bg})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+              >
+                <div className="home-grid-overlay" aria-hidden="true"></div>
+                <span className="home-grid-label" aria-hidden="true">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
 
-      {/* Info rápida */}
-      <div className="home-info-bar">
-        <span>📍 Calle 30 N°416</span>
-        <span>🕐 Lun a Vie: 9-12 y 14-19hs</span>
-      </div>
+        {/* Info rápida */}
+        <div className="home-info-bar" aria-label="Información de contacto">
+          <span><span aria-hidden="true">📍</span> Calle 30 N°416</span>
+          <span><span aria-hidden="true">🕐</span> Lun a Vie: 9-12 y 14-19hs</span>
+        </div>
 
-      {/* Redes */}
-      <div className="home-social">
-        <a href="https://www.instagram.com/bellezasaludableameghino?igsh=MTduOHVqNGRoNjRuZw==" target="_blank" rel="noopener noreferrer" className="social-btn instagram">📷 Instagram</a>
-        <a href="https://wa.me/543388403225" target="_blank" rel="noopener noreferrer" className="social-btn whatsapp">💬 WhatsApp</a>
-      </div>
+        {/* Redes */}
+        <div className="home-social">
+          <a href="https://www.instagram.com/bellezasaludableameghino?igsh=MTduOHVqNGRoNjRuZw==" target="_blank" rel="noopener noreferrer" className="social-btn instagram" aria-label="Seguinos en Instagram (abre en nueva pestaña)">
+            <span aria-hidden="true">📷</span> Instagram
+          </a>
+          <a href="https://wa.me/543388403225" target="_blank" rel="noopener noreferrer" className="social-btn whatsapp" aria-label="Contactar por WhatsApp (abre en nueva pestaña)">
+            <span aria-hidden="true">💬</span> WhatsApp
+          </a>
+        </div>
+      </main>
     </div>
   );
 }

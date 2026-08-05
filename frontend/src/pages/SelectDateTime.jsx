@@ -66,71 +66,77 @@ function SelectDateTime() {
   return (
     <div className="booking-container fade-up">
       <Stepper currentStep={2} />
-      <div className="booking-header">
-        <h2 className="booking-title">Elegí día y horario</h2>
+      <header className="booking-header">
+        <h1 className="booking-title">Elegí día y horario</h1>
         <p className="booking-subtitle">{service.name} · {service.duration_minutes} min</p>
-      </div>
+      </header>
 
       {/* Fechas */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
-          Fecha disponible:
-        </label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-          {dates.slice(0, 14).map(date => (
-            <button
-              key={date}
-              className={`slot-btn ${selectedDate === date ? 'selected' : ''}`}
-              onClick={() => handleDateSelect(date)}
-              aria-pressed={selectedDate === date}
-            >
-              {formatDate(date)}
-            </button>
-          ))}
-        </div>
-        {dates.length === 0 && (
-          <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
-            No hay fechas disponibles en los próximos días.
-          </p>
-        )}
+        <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+          <legend style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
+            Fecha disponible:
+          </legend>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }} role="group" aria-label="Fechas disponibles">
+            {dates.slice(0, 14).map(date => (
+              <button
+                key={date}
+                className={`slot-btn ${selectedDate === date ? 'selected' : ''}`}
+                onClick={() => handleDateSelect(date)}
+                aria-pressed={selectedDate === date}
+                aria-label={`Seleccionar fecha: ${formatDate(date)}`}
+              >
+                {formatDate(date)}
+              </button>
+            ))}
+          </div>
+          {dates.length === 0 && (
+            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginTop: '0.5rem' }} role="status">
+              No hay fechas disponibles en los próximos días.
+            </p>
+          )}
+        </fieldset>
       </div>
 
       {/* Horarios */}
       {selectedDate && (
         <div className="fade-in">
-          <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
-            Horario disponible:
-          </label>
-          {loadingSlots ? (
-            <div className="loading">Cargando horarios...</div>
-          ) : (
-            <div className="slots-grid">
-              {slots.map(slot => (
-                <button
-                  key={slot.start}
-                  className={`slot-btn ${selectedSlot?.start === slot.start ? 'selected' : ''}`}
-                  onClick={() => setSelectedSlot(slot)}
-                  aria-pressed={selectedSlot?.start === slot.start}
-                >
-                  {slot.start}
-                </button>
-              ))}
-            </div>
-          )}
-          {!loadingSlots && slots.length === 0 && (
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
-              No hay horarios disponibles para esta fecha.
-            </p>
-          )}
+          <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+            <legend style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
+              Horario disponible:
+            </legend>
+            {loadingSlots ? (
+              <div className="loading" role="status" aria-live="polite">Cargando horarios...</div>
+            ) : (
+              <div className="slots-grid" role="group" aria-label="Horarios disponibles">
+                {slots.map(slot => (
+                  <button
+                    key={slot.start}
+                    className={`slot-btn ${selectedSlot?.start === slot.start ? 'selected' : ''}`}
+                    onClick={() => setSelectedSlot(slot)}
+                    aria-pressed={selectedSlot?.start === slot.start}
+                    aria-label={`Horario ${slot.start} a ${slot.end}`}
+                  >
+                    {slot.start}
+                  </button>
+                ))}
+              </div>
+            )}
+            {!loadingSlots && slots.length === 0 && (
+              <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }} role="status">
+                No hay horarios disponibles para esta fecha.
+              </p>
+            )}
+          </fieldset>
         </div>
       )}
 
       {/* Navegación */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
-        <button className="btn btn-secondary" onClick={() => navigate('/turnos')}>
+        <button className="btn btn-secondary" onClick={() => navigate('/turnos')} aria-label="Volver a selección de servicio">
           ← Atrás
         </button>
-        <button className="btn btn-primary" disabled={!selectedSlot} onClick={handleContinue}>
+        <button className="btn btn-primary" disabled={!selectedSlot} onClick={handleContinue} aria-label={selectedSlot ? `Continuar con horario ${selectedSlot.start}` : 'Continuar (seleccioná un horario primero)'}>
           Continuar →
         </button>
       </div>

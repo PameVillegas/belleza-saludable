@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool');
 const authMiddleware = require('../middleware/auth');
+const { sendBookingConfirmation } = require('../email');
+const { calculateEndTime, getGabinete } = require('../utils/availabilityHelpers');
 
 // POST /api/appointments - Público: reserva online
 router.post('/', async (req, res) => {
@@ -85,6 +87,15 @@ router.post('/', async (req, res) => {
     );
 
     await client.query('COMMIT');
+
+    // Enviar confirmación por email (no bloquea la respuesta al cliente)
+    sendBookingConfirmation({
+      to: client_email,
+      clientName: client_name,
+      serviceName: service.name,
+      date: appointmentResult.rows[0].date,
+      startTime: appointmentResult.rows[0].start_time,
+    }).catch(() => {}); // ya se loguea internamente
 
     res.status(201).json({
       message: 'Turno reservado exitosamente.',
@@ -253,6 +264,22 @@ router.post('/manual', authMiddleware, async (req, res) => {
 
     await dbClient.query('COMMIT');
 
+    // Obtener datos del cliente para enviar email de confirmación
+    const clientData = await pool.query(
+      'SELECT name, email FROM clients WHERE id = $1',
+      [resolvedClientId]
+    );
+
+    if (clientData.rows.length > 0 && clientData.rows[0].email) {
+      sendBookingConfirmation({
+        to: clientData.rows[0].email,
+        clientName: clientData.rows[0].name,
+        serviceName: service.name,
+        date: appointmentResult.rows[0].date,
+        startTime: appointmentResult.rows[0].start_time,
+      }).catch(() => {}); // ya se loguea internamente
+    }
+
     res.status(201).json({
       message: 'Turno creado manualmente.',
       appointment: appointmentResult.rows[0]
@@ -347,23 +374,5 @@ router.patch('/:id/cancel', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor.' });
   }
 });
-
-// Calcular hora de fin a partir de hora inicio + duración
-function calculateEndTime(startTime, durationMinutes) {
-  const parts = startTime.split(':');
-  const totalMinutes = parseInt(parts[0]) * 60 + parseInt(parts[1]) + durationMinutes;
-  const h = Math.floor(totalMinutes / 60).toString().padStart(2, '0');
-  const m = (totalMinutes % 60).toString().padStart(2, '0');
-  return `${h}:${m}`;
-}
-
-// Determinar gabinete según el nombre del servicio
-function getGabinete(serviceName) {
-  const name = serviceName.toLowerCase();
-  if (name.includes('ondas rusas') || name.includes('presoterapia') || name.includes('lipoláser') || name.includes('lipolaser')) {
-    return 'corporal';
-  }
-  return 'facial';
-}
 
 module.exports = router;

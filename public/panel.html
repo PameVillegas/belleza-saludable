@@ -458,12 +458,63 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Skip link */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 0;
+      background: var(--color-sage);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 0 0 var(--radius-sm) 0;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      z-index: 9999;
+      transition: top 0.2s;
+    }
+    .skip-link:focus {
+      top: 0;
+      outline: 3px solid white;
+      outline-offset: 2px;
+    }
+
+    /* Focus indicators */
+    :focus-visible {
+      outline: 3px solid var(--color-sage);
+      outline-offset: 2px;
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid var(--color-sage-dark);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 5px rgba(168, 184, 165, 0.25);
+    }
+
+    .sidebar nav a:focus-visible {
+      outline: 3px solid #EC4899;
+      outline-offset: -2px;
+    }
+
+    /* Visually hidden utility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+
     @keyframes shimmer {
       0%, 100% { background-position: 0% center; }
       50% { background-position: 200% center; }
     }
-
-    /* Calendar */
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -521,52 +572,63 @@
   </style>
 </head>
 <body>
+  <!-- Skip to main content -->
+  <a href="#main-content" class="skip-link">Ir al contenido principal</a>
+
   <!-- Login -->
-  <div class="login-container" id="loginSection">
-    <div class="login-box">
-      <img src="/logobelleza.jpg" alt="Belleza Saludable" class="login-logo">
+  <div class="login-container" id="loginSection" role="main">
+    <div class="login-box" role="dialog" aria-labelledby="loginTitle" aria-describedby="loginSub">
+      <img src="/logobelleza.jpg" alt="Logo Belleza Saludable" class="login-logo">
       <h1 id="loginTitle">Panel de Administración</h1>
       <p class="login-sub" id="loginSub">Ingresá tus credenciales para acceder</p>
-      <div id="loginError" style="display:none; background:rgba(239,68,68,0.08); color:#991b1b; padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.82rem; border:1px solid rgba(239,68,68,0.2);"></div>
-      <div id="loginSuccess" style="display:none; background:rgba(16,185,129,0.08); color:#065f46; padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.82rem; border:1px solid rgba(16,185,129,0.2);"></div>
+      <div id="loginError" style="display:none; background:rgba(239,68,68,0.08); color:#991b1b; padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.82rem; border:1px solid rgba(239,68,68,0.2);" role="alert" aria-live="assertive"></div>
+      <div id="loginSuccess" style="display:none; background:rgba(16,185,129,0.08); color:#065f46; padding:0.75rem; border-radius:var(--radius-sm); margin-bottom:1rem; font-size:0.82rem; border:1px solid rgba(16,185,129,0.2);" role="status" aria-live="polite"></div>
       <!-- Login form -->
       <div id="loginForm">
-        <div class="form-group">
-          <label for="loginUser">Usuario</label>
-          <input type="text" id="loginUser" placeholder="admin">
-        </div>
-        <div class="form-group">
-          <label for="loginPass">Contraseña</label>
-          <div style="position:relative;">
-            <input type="password" id="loginPass" placeholder="••••••">
-            <span onclick="toggleLoginPass()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.1rem; user-select:none;" id="loginEye">👁️</span>
+        <form onsubmit="doLogin(); return false;" novalidate aria-label="Formulario de inicio de sesión">
+          <div class="form-group">
+            <label for="loginUser">Usuario</label>
+            <input type="text" id="loginUser" placeholder="admin" autocomplete="username" aria-required="true">
           </div>
-        </div>
-        <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="doLogin()">Ingresar</button>
+          <div class="form-group">
+            <label for="loginPass">Contraseña</label>
+            <div style="position:relative;">
+              <input type="password" id="loginPass" placeholder="••••••" autocomplete="current-password" aria-required="true">
+              <button type="button" onclick="toggleLoginPass()" aria-label="Mostrar u ocultar contraseña" id="loginEye" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.1rem; user-select:none; background:none; border:none; padding:0.25rem; min-width:36px; min-height:36px; display:flex; align-items:center; justify-content:center;">
+                <span aria-hidden="true">👁️</span>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Ingresar</button>
+        </form>
         <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--color-text-muted);">
-          ¿No tenés cuenta? <a href="#" onclick="showRegister()" style="color:var(--color-sage-dark); font-weight:500;">Registrarse</a>
+          ¿No tenés cuenta? <a href="#" onclick="showRegister(); return false;" style="color:var(--color-sage-dark); font-weight:500;">Registrarse</a>
         </p>
       </div>
       <!-- Register form -->
       <div id="registerForm" style="display:none;">
-        <div class="form-group">
-          <label for="regName">Nombre completo</label>
-          <input type="text" id="regName" placeholder="Tu nombre">
-        </div>
-        <div class="form-group">
-          <label for="regUser">Usuario</label>
-          <input type="text" id="regUser" placeholder="Mínimo 3 caracteres">
-        </div>
-        <div class="form-group">
-          <label for="regPass">Contraseña</label>
-          <div style="position:relative;">
-            <input type="password" id="regPass" placeholder="Mínimo 4 caracteres">
-            <span onclick="toggleRegPass()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.1rem; user-select:none;" id="regEye">👁️</span>
+        <form onsubmit="doRegister(); return false;" novalidate aria-label="Formulario de registro">
+          <div class="form-group">
+            <label for="regName">Nombre completo</label>
+            <input type="text" id="regName" placeholder="Tu nombre" autocomplete="name" aria-required="true">
           </div>
-        </div>
-        <button class="btn btn-primary" style="width:100%; margin-top:0.5rem;" onclick="doRegister()">Crear cuenta</button>
+          <div class="form-group">
+            <label for="regUser">Usuario</label>
+            <input type="text" id="regUser" placeholder="Mínimo 3 caracteres" autocomplete="username" aria-required="true">
+          </div>
+          <div class="form-group">
+            <label for="regPass">Contraseña</label>
+            <div style="position:relative;">
+              <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" autocomplete="new-password" aria-required="true">
+              <button type="button" onclick="toggleRegPass()" aria-label="Mostrar u ocultar contraseña" id="regEye" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:1.1rem; user-select:none; background:none; border:none; padding:0.25rem; min-width:36px; min-height:36px; display:flex; align-items:center; justify-content:center;">
+                <span aria-hidden="true">👁️</span>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Crear cuenta</button>
+        </form>
         <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--color-text-muted);">
-          ¿Ya tenés cuenta? <a href="#" onclick="showLogin()" style="color:var(--color-sage-dark); font-weight:500;">Iniciar sesión</a>
+          ¿Ya tenés cuenta? <a href="#" onclick="showLogin(); return false;" style="color:var(--color-sage-dark); font-weight:500;">Iniciar sesión</a>
         </p>
       </div>
     </div>
@@ -574,47 +636,55 @@
 
   <!-- App -->
   <div class="app-layout" id="appLayout">
-    <button class="hamburger" onclick="toggleSidebar()">☰</button>
-    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <button class="hamburger" onclick="toggleSidebar()" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="sidebar" id="hamburgerBtn">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()" aria-hidden="true"></div>
 
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación del panel">
       <div class="sidebar-header">
-        <img src="/logobelleza.jpg" alt="Belleza Saludable" class="sidebar-logo">
+        <img src="/logobelleza.jpg" alt="Logo Belleza Saludable" class="sidebar-logo">
         <h2>Belleza Saludable</h2>
         <small id="adminName"></small>
       </div>
-      <nav>
-        <a href="#" onclick="showSection('dashboard')" class="active" data-section="dashboard">📊 Dashboard</a>
+      <nav aria-label="Menú principal">
+        <a href="#" onclick="showSection('dashboard'); return false;" class="active" data-section="dashboard">
+          <span aria-hidden="true">📊</span> Dashboard
+        </a>
         
-        <div class="nav-group-title" onclick="toggleNavGroup('turnos')">📅 Turnos <span class="nav-arrow" id="arrow-turnos">▸</span></div>
-        <div class="nav-group" id="group-turnos">
-          <a href="#" onclick="showSection('calendar')" data-section="calendar">🗓️ Calendario</a>
-          <a href="#" onclick="showSection('appointments')" data-section="appointments">📋 Gestión de Turnos</a>
-          <a href="#" onclick="showSection('schedules')" data-section="schedules">⏰ Horarios</a>
-          <a href="#" onclick="showSection('reminders')" data-section="reminders">📨 Recordatorios</a>
+        <button class="nav-group-title" onclick="toggleNavGroup('turnos')" aria-expanded="false" aria-controls="group-turnos" style="background:none; border:none; width:100%; text-align:left; cursor:pointer; font-family:var(--font-body);">
+          <span aria-hidden="true">📅</span> Turnos <span class="nav-arrow" id="arrow-turnos" aria-hidden="true">▸</span>
+        </button>
+        <div class="nav-group" id="group-turnos" role="group" aria-label="Turnos">
+          <a href="#" onclick="showSection('calendar'); return false;" data-section="calendar"><span aria-hidden="true">🗓️</span> Calendario</a>
+          <a href="#" onclick="showSection('appointments'); return false;" data-section="appointments"><span aria-hidden="true">📋</span> Gestión de Turnos</a>
+          <a href="#" onclick="showSection('schedules'); return false;" data-section="schedules"><span aria-hidden="true">⏰</span> Horarios</a>
+          <a href="#" onclick="showSection('reminders'); return false;" data-section="reminders"><span aria-hidden="true">📨</span> Recordatorios</a>
         </div>
 
-        <div class="nav-group-title" onclick="toggleNavGroup('clientes')">👥 Clientes <span class="nav-arrow" id="arrow-clientes">▸</span></div>
-        <div class="nav-group" id="group-clientes">
-          <a href="#" onclick="showSection('clients')" data-section="clients">👥 Gestión de Clientes</a>
-          <a href="#" onclick="showSection('reviews')" data-section="reviews">⭐ Reseñas</a>
-          <a href="#" onclick="showSection('clientUsers')" data-section="clientUsers">🔑 Usuarios Clientes</a>
+        <button class="nav-group-title" onclick="toggleNavGroup('clientes')" aria-expanded="false" aria-controls="group-clientes" style="background:none; border:none; width:100%; text-align:left; cursor:pointer; font-family:var(--font-body);">
+          <span aria-hidden="true">👥</span> Clientes <span class="nav-arrow" id="arrow-clientes" aria-hidden="true">▸</span>
+        </button>
+        <div class="nav-group" id="group-clientes" role="group" aria-label="Clientes">
+          <a href="#" onclick="showSection('clients'); return false;" data-section="clients"><span aria-hidden="true">👥</span> Gestión de Clientes</a>
+          <a href="#" onclick="showSection('reviews'); return false;" data-section="reviews"><span aria-hidden="true">⭐</span> Reseñas</a>
+          <a href="#" onclick="showSection('clientUsers'); return false;" data-section="clientUsers"><span aria-hidden="true">🔑</span> Usuarios Clientes</a>
         </div>
 
-        <div class="nav-group-title" onclick="toggleNavGroup('servicios')">💆 Servicios <span class="nav-arrow" id="arrow-servicios">▸</span></div>
-        <div class="nav-group" id="group-servicios">
-          <a href="#" onclick="showSection('services')" data-section="services">💆 Tratamientos</a>
-          <a href="#" onclick="showSection('products')" data-section="products">🧴 Productos</a>
+        <button class="nav-group-title" onclick="toggleNavGroup('servicios')" aria-expanded="false" aria-controls="group-servicios" style="background:none; border:none; width:100%; text-align:left; cursor:pointer; font-family:var(--font-body);">
+          <span aria-hidden="true">💆</span> Servicios <span class="nav-arrow" id="arrow-servicios" aria-hidden="true">▸</span>
+        </button>
+        <div class="nav-group" id="group-servicios" role="group" aria-label="Servicios">
+          <a href="#" onclick="showSection('services'); return false;" data-section="services"><span aria-hidden="true">💆</span> Tratamientos</a>
+          <a href="#" onclick="showSection('products'); return false;" data-section="products"><span aria-hidden="true">🧴</span> Productos</a>
         </div>
 
-        <a href="#" onclick="showSection('income')" data-section="income">💰 Ingresos</a>
-        <a href="#" onclick="showSection('whatsapp')" data-section="whatsapp">📱 WhatsApp</a>
-        <a href="#" onclick="showSection('users')" data-section="users">👤 Administradores</a>
-        <a href="#" onclick="doLogout()" class="logout-link">🚪 Cerrar sesión</a>
+        <a href="#" onclick="showSection('income'); return false;" data-section="income"><span aria-hidden="true">💰</span> Ingresos</a>
+        <a href="#" onclick="showSection('whatsapp'); return false;" data-section="whatsapp"><span aria-hidden="true">📱</span> WhatsApp</a>
+        <a href="#" onclick="showSection('users'); return false;" data-section="users"><span aria-hidden="true">👤</span> Administradores</a>
+        <a href="#" onclick="doLogout(); return false;" class="logout-link" aria-label="Cerrar sesión del panel"><span aria-hidden="true">🚪</span> Cerrar sesión</a>
       </nav>
     </aside>
 
-    <main class="main-content">
+    <main class="main-content" id="main-content" tabindex="-1">
       <!-- Dashboard -->
       <div class="section active" id="sec-dashboard">
         <div id="dashboardContent"></div>
@@ -634,16 +704,18 @@
           <h2>Gestión de Turnos</h2>
           <button class="btn btn-primary" onclick="openNewAppointment()">+ Nuevo turno</button>
         </div>
-        <div class="search-bar">
-          <input type="date" id="filterDate" onchange="loadAppointments()">
-          <select id="filterStatus" onchange="loadAppointments()">
+        <div class="search-bar" role="search" aria-label="Filtrar turnos">
+          <label for="filterDate" class="sr-only">Filtrar por fecha</label>
+          <input type="date" id="filterDate" onchange="loadAppointments()" aria-label="Filtrar por fecha">
+          <label for="filterStatus" class="sr-only">Filtrar por estado</label>
+          <select id="filterStatus" onchange="loadAppointments()" aria-label="Filtrar por estado">
             <option value="">Todos</option>
             <option value="confirmed">Confirmados</option>
             <option value="cancelled">Cancelados</option>
             <option value="completed">Completados</option>
           </select>
         </div>
-        <div id="appointmentsTable"></div>
+        <div id="appointmentsTable" aria-live="polite"></div>
       </div>
 
       <!-- Clientes -->
@@ -652,10 +724,11 @@
           <h2>Clientes</h2>
           <button class="btn btn-primary" onclick="openNewClient()">+ Nuevo cliente</button>
         </div>
-        <div class="search-bar">
-          <input type="text" id="clientSearch" placeholder="Buscar por nombre, teléfono o email..." oninput="searchClients()">
+        <div class="search-bar" role="search" aria-label="Buscar clientes">
+          <label for="clientSearch" class="sr-only">Buscar por nombre, teléfono o email</label>
+          <input type="search" id="clientSearch" placeholder="Buscar por nombre, teléfono o email..." oninput="searchClients()" aria-label="Buscar por nombre, teléfono o email">
         </div>
-        <div id="clientsTable"></div>
+        <div id="clientsTable" aria-live="polite"></div>
       </div>
 
       <!-- Servicios -->
@@ -693,10 +766,11 @@
           <h2>Usuarios Clientes</h2>
         </div>
         <p style="color:var(--color-text-muted); font-size:0.82rem; margin-bottom:1.25rem;">Clientes registrados con sus credenciales. Si algún cliente se olvida su contraseña, acá la podés ver.</p>
-        <div class="search-bar">
-          <input type="text" id="clientUserSearch" placeholder="Buscar por nombre, usuario o teléfono..." oninput="searchClientUsers()">
+        <div class="search-bar" role="search" aria-label="Buscar usuarios clientes">
+          <label for="clientUserSearch" class="sr-only">Buscar por nombre, usuario o teléfono</label>
+          <input type="search" id="clientUserSearch" placeholder="Buscar por nombre, usuario o teléfono..." oninput="searchClientUsers()" aria-label="Buscar por nombre, usuario o teléfono">
         </div>
-        <div id="clientUsersTable"></div>
+        <div id="clientUsersTable" aria-live="polite"></div>
       </div>
 
       <!-- Ingresos -->
@@ -704,14 +778,16 @@
         <div class="main-header">
           <h2>💰 Ingresos</h2>
         </div>
-        <div class="cards-grid" id="incomeStats" style="margin-bottom:1.5rem;"></div>
+        <div class="cards-grid" id="incomeStats" style="margin-bottom:1.5rem;" aria-live="polite"></div>
         <h3 style="font-family:var(--font-display); font-weight:600; margin-bottom:1rem;">Buscar por rango de fechas</h3>
-        <div class="search-bar">
-          <input type="date" id="incomeFrom">
-          <input type="date" id="incomeTo">
+        <div class="search-bar" role="search" aria-label="Buscar ingresos por fecha">
+          <label for="incomeFrom" class="sr-only">Fecha desde</label>
+          <input type="date" id="incomeFrom" aria-label="Fecha desde">
+          <label for="incomeTo" class="sr-only">Fecha hasta</label>
+          <input type="date" id="incomeTo" aria-label="Fecha hasta">
           <button class="btn btn-primary" onclick="searchIncome()">Buscar</button>
         </div>
-        <div id="incomeResults"></div>
+        <div id="incomeResults" aria-live="polite"></div>
       </div>
 
       <!-- Recordatorios -->
@@ -753,8 +829,8 @@
   </div>
 
   <!-- Modal -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modalContent"></div>
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal" id="modalContent" tabindex="-1"></div>
   </div>
 
   <script src="/js/panel.js"></script>
