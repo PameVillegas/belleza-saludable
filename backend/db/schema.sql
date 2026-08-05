@@ -107,3 +107,10 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reviews_approved ON reviews(is_approved, created_at DESC);
+
+-- Sesión de WhatsApp (persistida en BD para sobrevivir a los deploys)
+CREATE TABLE IF NOT EXISTS wa_sessions (
+  name VARCHAR(255) PRIMARY KEY,
+  data TEXT NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

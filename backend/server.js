@@ -240,6 +240,11 @@ app.listen(PORT, async () => {
         sent_at TIMESTAMP NOT NULL DEFAULT NOW(),
         method VARCHAR(50) DEFAULT 'whatsapp_link'
       );
+      CREATE TABLE IF NOT EXISTS wa_sessions (
+        name VARCHAR(255) PRIMARY KEY,
+        data TEXT NOT NULL,
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
     `);
 
     // Agregar columnas si faltan

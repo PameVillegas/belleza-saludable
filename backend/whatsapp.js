@@ -1,22 +1,15 @@
-const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const { makeWASocket, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const QRCodeLib = require('qrcode');
 const pino = require('pino');
-const path = require('path');
-const fs = require('fs');
+const { useDBAuthState, clearAll } = require('./waSessionStore');
 
 let sock = null;
 let waStatus = 'disconnected';
 let qrDataUrl = null;
 
-const SESSION_DIR = path.join(__dirname, '..', 'wa_session');
-
 async function initWhatsApp() {
   try {
-    if (!fs.existsSync(SESSION_DIR)) {
-      fs.mkdirSync(SESSION_DIR, { recursive: true });
-    }
-
-    const { state, saveCreds } = await useMultiFileAuthState(SESSION_DIR);
+    const { state, saveCreds } = await useDBAuthState();
     const { version } = await fetchLatestBaileysVersion();
 
     console.log('[WhatsApp] Conectando con versión:', version);
@@ -55,7 +48,7 @@ async function initWhatsApp() {
 
         if (code === 401 || code === 403) {
           // Sesión inválida, borrar y no reconectar
-          try { fs.rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
+          try { await clearAll(); } catch (e) { console.error('[WhatsApp] Error al borrar sesión:', e.message); }
         } else {
           // Reconectar
           setTimeout(() => initWhatsApp(), 5000);
@@ -98,7 +91,7 @@ async function logout() {
   }
   waStatus = 'disconnected';
   qrDataUrl = null;
-  try { fs.rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
+  try { await clearAll(); } catch (e) { console.error('[WhatsApp] Error al borrar sesión:', e.message); }
 }
 
 async function restart() {
@@ -108,7 +101,7 @@ async function restart() {
   }
   waStatus = 'disconnected';
   qrDataUrl = null;
-  try { fs.rmSync(SESSION_DIR, { recursive: true, force: true }); } catch {}
+  try { await clearAll(); } catch (e) { console.error('[WhatsApp] Error al borrar sesión:', e.message); }
   await initWhatsApp();
 }
 
