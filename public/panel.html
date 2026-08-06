@@ -724,6 +724,10 @@
           <h2>Clientes</h2>
           <button class="btn btn-primary" onclick="openNewClient()">+ Nuevo cliente</button>
         </div>
+        <div style="display:flex; align-items:flex-start; gap:0.6rem; background:rgba(37,211,102,0.08); border:1px solid rgba(37,211,102,0.25); border-radius:10px; padding:0.75rem 1rem; margin-bottom:1rem; font-size:0.8rem; color:#1a7a3c;">
+          <span style="font-size:1.1rem; flex-shrink:0;">📱</span>
+          <span>El botón <strong>📱 Credenciales</strong> abre WhatsApp con un mensaje listo para enviarle al cliente su <strong>usuario y contraseña</strong> de acceso a la app. Solo aparece en clientes que tienen cuenta creada.</span>
+        </div>
         <div class="search-bar" role="search" aria-label="Buscar clientes">
           <label for="clientSearch" class="sr-only">Buscar por nombre, teléfono o email</label>
           <input type="search" id="clientSearch" placeholder="Buscar por nombre, teléfono o email..." oninput="searchClients()" aria-label="Buscar por nombre, teléfono o email">
