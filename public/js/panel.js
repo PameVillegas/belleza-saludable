@@ -535,7 +535,7 @@ function renderClientsTable(clients) {
         <tr>
           <td>${c.name}</td>
           <td>${c.phone}</td>
-          <td><button class="btn btn-sm" onclick="viewClient('${c.id}')">Ver historial</button> <button class="btn btn-sm" onclick="editClient('${c.id}', '${c.name}', '${c.phone}', '${c.email}')">Editar</button> <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Eliminar</button> ${c.username ? `<button class="btn btn-sm" onclick="sendCredentials('${c.name}','${c.phone}','${c.username}','${c.password || ''}')">📱 Credenciales</button>` : ''}</td>
+          <td><button class="btn btn-sm" onclick="viewClient('${c.id}')">Ver historial</button> <button class="btn btn-sm" onclick="editClient('${c.id}', '${c.name}', '${c.phone}')">Editar</button> <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Eliminar</button> ${c.username ? `<button class="btn btn-sm" onclick="sendCredentials('${c.name}','${c.phone}','${c.username}','${c.password || ''}')">📱 Credenciales</button>` : ''}</td>
         </tr>
       `).join('')}</tbody>
     </table>
@@ -564,8 +564,7 @@ async function viewClient(id) {
 
   openModal(`
     <h3>${client.name}</h3>
-    <p style="margin-bottom:0.25rem;">📞 ${client.phone}</p>
-    <p style="margin-bottom:1rem;">✉️ ${client.email}</p>
+    <p style="margin-bottom:1rem;">📞 ${client.phone}</p>
     <h4 style="font-family:var(--font-display); margin-bottom:0.75rem;">Historial de turnos</h4>
     ${apptHtml}
     <button class="btn" onclick="closeModal()" style="margin-top:1rem;">Cerrar</button>
@@ -638,12 +637,11 @@ async function saveNewClient() {
   }
 }
 
-function editClient(id, name, phone, email) {
+function editClient(id, name, phone) {
   openModal(`
     <h3>Editar Cliente</h3>
     <div class="form-group"><label>Nombre</label><input type="text" id="ecName" value="${name}"></div>
     <div class="form-group"><label>Teléfono</label><input type="text" id="ecPhone" value="${phone}"></div>
-    <div class="form-group"><label>Email</label><input type="email" id="ecEmail" value="${email}"></div>
     <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
       <button class="btn" onclick="closeModal()">Cancelar</button>
       <button class="btn btn-primary" onclick="saveEditClient('${id}')">Guardar</button>
@@ -652,7 +650,7 @@ function editClient(id, name, phone, email) {
 }
 
 async function saveEditClient(id) {
-  const body = { name: document.getElementById('ecName').value, phone: document.getElementById('ecPhone').value, email: document.getElementById('ecEmail').value };
+  const body = { name: document.getElementById('ecName').value, phone: document.getElementById('ecPhone').value };
   const res = await fetch(`${API}/admin/clients/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
   if (!res.ok) { const d = await res.json(); alert(d.error); return; }
   closeModal();
