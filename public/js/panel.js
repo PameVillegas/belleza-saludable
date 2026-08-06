@@ -1358,8 +1358,8 @@ function buildManualReminderSection() {
     <div class="stat-card" style="margin-top:1rem; padding:1.5rem; text-align:left;">
       <h3 style="font-family:var(--font-display); font-size:1rem; font-weight:600; margin-bottom:0.5rem;">📨 Enviar recordatorios del día</h3>
       <p style="font-size:0.82rem; color:var(--color-text-muted); margin-bottom:1rem;">
-        Presioná el botón para enviar un recordatorio por WhatsApp a todas las clientas con turno hoy.
-        Podés hacerlo desde el celular por la mañana.
+        Presioná el botón para enviar un recordatorio por WhatsApp a todas las clientas con turno hoy.<br>
+        <span style="font-style:italic;">Si WhatsApp está conectado, los recordatorios también se envían automáticamente 30 min antes de cada turno.</span>
       </p>
       <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
         <button class="btn btn-primary" onclick="sendAllRemindersToday()">
@@ -1464,7 +1464,7 @@ async function loadWhatsAppStatus() {
         <div class="stat-card" style="text-align:center; padding:2rem;">
           <div style="font-size:3rem; margin-bottom:1rem;">⚠️</div>
           <h3 style="font-family:var(--font-display); margin-bottom:0.5rem;">WhatsApp no disponible</h3>
-          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1rem;">El servidor no tiene Chromium instalado para WhatsApp Web. Podés enviar recordatorios manualmente desde la sección Recordatorios.</p>
+          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1rem;">El servidor no tiene Chromium instalado para WhatsApp Web.</p>
         </div>
       `;
       stopWAPolling();
@@ -1477,8 +1477,6 @@ async function loadWhatsAppStatus() {
           <button class="btn btn-danger" onclick="disconnectWhatsApp()">Desconectar</button>
         </div>
       `;
-      // Mostrar sección de envío masivo
-      html += buildManualReminderSection();
       stopWAPolling();
     } else if (data.status === 'qr_pending' && data.qrDataUrl) {
       html = `
@@ -1502,6 +1500,9 @@ async function loadWhatsAppStatus() {
       `;
       stopWAPolling();
     }
+
+    // Sección de envío manual siempre visible (para usar desde el celular)
+    html += buildManualReminderSection();
 
     document.getElementById('whatsappContent').innerHTML = html;
   } catch {
