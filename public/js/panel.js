@@ -530,12 +530,11 @@ function renderClientsTable(clients) {
   }
   document.getElementById('clientsTable').innerHTML = `
     <table class="data-table">
-      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Acciones</th></tr></thead>
       <tbody>${clients.map(c => `
         <tr>
           <td>${c.name}</td>
           <td>${c.phone}</td>
-          <td>${c.email}</td>
           <td><button class="btn btn-sm" onclick="viewClient('${c.id}')">Ver historial</button> <button class="btn btn-sm" onclick="editClient('${c.id}', '${c.name}', '${c.phone}', '${c.email}')">Editar</button> <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Eliminar</button> ${c.username ? `<button class="btn btn-sm" onclick="sendCredentials('${c.name}','${c.phone}','${c.username}','${c.password || ''}')">📱 Credenciales</button>` : ''}</td>
         </tr>
       `).join('')}</tbody>
@@ -838,22 +837,28 @@ async function loadSchedules() {
   const bRes = await fetch(`${API}/admin/schedules/blocked`, { headers: authHeaders() });
   const blocked = await bRes.json();
   if (blocked.length === 0) {
-    document.getElementById('blockedTable').innerHTML = '<p style="color:var(--color-text-muted)">Sin bloqueos configurados.</p>';
+    document.getElementById('blockedTable').innerHTML = '<p style="color:var(--color-text-muted); margin-top:0.5rem;">Sin bloqueos configurados.</p>';
   } else {
+    // Mostrar solo los bloqueos activos primero, luego los inactivos
+    const activos = blocked.filter(b => b.is_active);
+    const inactivos = blocked.filter(b => !b.is_active);
+    const ordenados = [...activos, ...inactivos];
     document.getElementById('blockedTable').innerHTML = `
-      <table class="data-table">
+      <table class="data-table" style="margin-top:0.5rem;">
         <thead><tr><th>Fecha</th><th>Horario</th><th>Motivo</th><th>Estado</th><th>Acción</th></tr></thead>
-        <tbody>${blocked.map(b => `
-          <tr${b.is_active ? '' : ' style="opacity:0.6;"'}>
+        <tbody>${ordenados.map(b => `
+          <tr${!b.is_active ? ' style="opacity:0.55;"' : ''}>
             <td>${b.date.split('T')[0]}</td>
-            <td>${b.start_time ? b.start_time.slice(0,5) + ' - ' + b.end_time.slice(0,5) : 'Día completo'}</td>
+            <td>${b.start_time ? b.start_time.slice(0,5) + ' - ' + (b.end_time ? b.end_time.slice(0,5) : '') : 'Día completo'}</td>
             <td>${b.reason || '-'}</td>
-            <td>${b.is_active ? '<span style="color:var(--color-error); font-weight:600;">Bloqueado</span>' : '<span style="color:var(--color-success); font-weight:600;">Desbloqueado</span>'}</td>
-            <td>
+            <td>${b.is_active
+              ? '<span style="color:#ef4444; font-weight:600; font-size:0.78rem;">🔒 Bloqueado</span>'
+              : '<span style="color:#10b981; font-weight:600; font-size:0.78rem;">🔓 Libre</span>'}</td>
+            <td style="white-space:nowrap;">
               ${b.is_active
-                ? `<button class="btn btn-sm" onclick="toggleBlock('${b.id}', false)">🔓 Desbloquear</button>`
-                : `<button class="btn btn-sm" onclick="toggleBlock('${b.id}', true)">🔒 Bloquear</button>`}
-              <button class="btn btn-danger btn-sm" onclick="deleteBlock('${b.id}')">Eliminar</button>
+                ? `<button class="btn btn-sm btn-primary" onclick="toggleBlock('${b.id}', false)" style="font-size:0.72rem;">🔓 Desbloquear</button>`
+                : `<button class="btn btn-sm" onclick="toggleBlock('${b.id}', true)" style="font-size:0.72rem; background:#F3F4F6;">🔒 Volver a bloquear</button>`}
+              <button class="btn btn-danger btn-sm" onclick="deleteBlock('${b.id}')" style="font-size:0.72rem;">✕ Eliminar</button>
             </td>
           </tr>
         `).join('')}</tbody>
@@ -1115,12 +1120,11 @@ function renderClientUsers(users) {
   }
   document.getElementById('clientUsersTable').innerHTML = `
     <table class="data-table">
-      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Usuario</th><th>Contraseña</th><th>Registrado</th></tr></thead>
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Usuario</th><th>Contraseña</th><th>Registrado</th></tr></thead>
       <tbody>${users.map(c => `
         <tr>
           <td>${c.name}</td>
           <td>${c.phone}</td>
-          <td>${c.email}</td>
           <td><strong>${c.username}</strong></td>
           <td><code style="background:var(--color-beige); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem;">${c.password}</code></td>
           <td style="font-size:0.78rem; color:var(--color-text-muted);">${new Date(c.created_at).toLocaleDateString('es-AR')}</td>
