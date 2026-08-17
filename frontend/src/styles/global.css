@@ -1097,6 +1097,41 @@ body {
   color: var(--color-text-muted);
 }
 
+/* Footer credit */
+.app-footer-credit {
+  text-align: center;
+  padding: 1.25rem 1rem;
+  padding-bottom: calc(1.25rem + 70px);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.app-footer-credit p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.app-footer-credit a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.app-footer-credit a:hover {
+  text-decoration: underline;
+}
+
+.app-footer-copy {
+  font-size: 0.7rem !important;
+  margin-top: 0.15rem !important;
+}
+
+.app-footer-copy a {
+  font-weight: 400 !important;
+}
+
 /* Home page */
 .home-page { padding-bottom: 0; }
 

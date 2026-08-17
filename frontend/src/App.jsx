@@ -16,6 +16,7 @@ import BookAppointment from './pages/BookAppointment';
 import Voucher from './pages/Voucher';
 import BottomNav from './components/BottomNav';
 import WhatsAppButton from './components/WhatsAppButton';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
         </Routes>
         <WhatsAppButton />
         <BottomNav />
+        <Footer />
       </div>
     </BrowserRouter>
   );
