@@ -868,14 +868,22 @@ async function loadSchedules() {
 function openEditSchedules() {
   let html = '<h3>Editar Horarios</h3>';
   for (let day = 0; day < 7; day++) {
+    const isActive = day >= 1 && day <= 5;
     html += `<div style="margin-bottom:0.75rem; padding:0.75rem; border:1px solid var(--color-border); border-radius:var(--radius-sm);">
       <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-        <input type="checkbox" id="day${day}Active" ${day >= 1 && day <= 5 ? 'checked' : ''}> <strong>${DAYS[day]}</strong>
+        <input type="checkbox" id="day${day}Active" ${isActive ? 'checked' : ''}> <strong>${DAYS[day]}</strong>
       </label>
+      <div style="font-size:0.82rem; color:var(--color-text-muted); margin-bottom:0.4rem;">Mañana</div>
       <div class="form-row">
-        <div class="form-group"><label>Inicio</label><input type="time" id="day${day}Start" value="09:00"></div>
-        <div class="form-group"><label>Fin</label><input type="time" id="day${day}End" value="19:00"></div>
-        <div class="form-group"><label>Slot (min)</label><input type="number" id="day${day}Slot" value="60" min="5"></div>
+        <div class="form-group"><label>Inicio</label><input type="time" id="day${day}AMStart" value="09:00"></div>
+        <div class="form-group"><label>Fin</label><input type="time" id="day${day}AMEnd" value="12:00"></div>
+        <div class="form-group"><label>Slot (min)</label><input type="number" id="day${day}AMSlot" value="60" min="5"></div>
+      </div>
+      <div style="font-size:0.82rem; color:var(--color-text-muted); margin:0.4rem 0 0.3rem;">Tarde</div>
+      <div class="form-row">
+        <div class="form-group"><label>Inicio</label><input type="time" id="day${day}PMStart" value="14:00"></div>
+        <div class="form-group"><label>Fin</label><input type="time" id="day${day}PMEnd" value="19:00"></div>
+        <div class="form-group"><label>Slot (min)</label><input type="number" id="day${day}PMSlot" value="60" min="5"></div>
       </div>
     </div>`;
   }
@@ -891,7 +899,14 @@ async function saveSchedules() {
   for (let day = 0; day < 7; day++) {
     const active = document.getElementById(`day${day}Active`).checked;
     if (active) {
-      schedules.push({ day_of_week: day, start_time: document.getElementById(`day${day}Start`).value, end_time: document.getElementById(`day${day}End`).value, slot_duration_minutes: parseInt(document.getElementById(`day${day}Slot`).value), is_active: true });
+      const amStart = document.getElementById(`day${day}AMStart`).value;
+      const amEnd = document.getElementById(`day${day}AMEnd`).value;
+      const amSlot = parseInt(document.getElementById(`day${day}AMSlot`).value);
+      const pmStart = document.getElementById(`day${day}PMStart`).value;
+      const pmEnd = document.getElementById(`day${day}PMEnd`).value;
+      const pmSlot = parseInt(document.getElementById(`day${day}PMSlot`).value);
+      if (amStart && amEnd) schedules.push({ day_of_week: day, start_time: amStart, end_time: amEnd, slot_duration_minutes: amSlot, is_active: true });
+      if (pmStart && pmEnd) schedules.push({ day_of_week: day, start_time: pmStart, end_time: pmEnd, slot_duration_minutes: pmSlot, is_active: true });
     }
   }
   const res = await fetch(`${API}/admin/schedules`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ schedules }) });
