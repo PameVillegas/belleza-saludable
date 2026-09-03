@@ -75,7 +75,7 @@ function Confirmation() {
       </section>
 
       <div className="cancel-notice" style={{ marginTop: 0, marginBottom: '1.5rem' }} role="note">
-        <span aria-hidden="true">⚠️</span> Si no podés asistir, avisanos con anticipación por WhatsApp al 3388-403225 para cancelar y dar lugar a otra persona.
+        <span aria-hidden="true">📱</span> Te enviamos un WhatsApp con los detalles de tu turno. Si necesitás cancelar o reprogramar, podés hacerlo desde <strong>Mis turnos</strong> o escribinos al 3388-403225 con anticipación.
       </div>
 
       <button className="btn btn-primary" onClick={handleNewBooking} style={{ width: '100%' }}>

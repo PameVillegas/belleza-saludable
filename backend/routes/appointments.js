@@ -5,6 +5,43 @@ const authMiddleware = require('../middleware/auth');
 const { sendBookingConfirmation } = require('../email');
 const { calculateEndTime, getGabinete } = require('../utils/availabilityHelpers');
 
+let whatsappModule = null;
+try { whatsappModule = require('../whatsapp'); } catch {}
+
+const BUSINESS_PHONE = '543388403225';
+const BUSINESS_NAME = 'Belleza Saludable';
+
+function buildClientConfirmMsg(clientName, serviceName, date, startTime) {
+  const d = new Date(date.split('T')[0] + 'T12:00:00');
+  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  return `¡Hola ${clientName.split(' ')[0]}! 🌸\n\nTu turno fue confirmado:\n\n💆 *${serviceName}*\n📅 ${dateStr}\n⏰ ${startTime.slice(0, 5)} hs\n\n📍 Calle 30 N°416, entre calle 9 y 11\n\n⚠️ Si necesitás cancelar o modificar, avisá con anticipación al *${BUSINESS_PHONE}*.\n\n*${BUSINESS_NAME}*`;
+}
+
+function buildAdminNewApptMsg(clientName, serviceName, date, startTime, source) {
+  const d = new Date(date.split('T')[0] + 'T12:00:00');
+  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const src = source === 'manual' ? 'cargado por la administradora' : 'reservado online';
+  return `📅 *Nuevo turno ${src}*\n\n👤 ${clientName}\n💆 ${serviceName}\n📅 ${dateStr}\n⏰ ${startTime.slice(0, 5)} hs`;
+}
+
+function buildCancelMsg(clientName, serviceName, date, startTime) {
+  const d = new Date(date.split('T')[0] + 'T12:00:00');
+  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  return `❌ *Turno cancelado*\n\n👤 ${clientName}\n💆 ${serviceName}\n📅 ${dateStr}\n⏰ ${startTime.slice(0, 5)} hs`;
+}
+
+function buildRescheduleMsg(clientName, serviceName, oldDate, oldTime, newDate, newTime) {
+  const d1 = new Date(oldDate.split('T')[0] + 'T12:00:00');
+  const d2 = new Date(newDate.split('T')[0] + 'T12:00:00');
+  const fmt = d => d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  return `🔄 *Turno reprogramado*\n\n👤 ${clientName}\n💆 ${serviceName}\n\n📅 Antes: ${fmt(d1)} a las ${oldTime.slice(0, 5)} hs\n📅 Ahora: ${fmt(d2)} a las ${newTime.slice(0, 5)} hs`;
+}
+
+async function sendWa(phone, text) {
+  if (!whatsappModule) return;
+  try { await whatsappModule.sendMessage(phone, text); } catch {}
+}
+
 // POST /api/appointments - Público: reserva online
 router.post('/', async (req, res) => {
   const client = await pool.connect();
@@ -95,7 +132,11 @@ router.post('/', async (req, res) => {
       serviceName: service.name,
       date: appointmentResult.rows[0].date,
       startTime: appointmentResult.rows[0].start_time,
-    }).catch(() => {}); // ya se loguea internamente
+    }).catch(() => {});
+
+    // WhatsApp: confirmación al cliente + notificación a admin
+    sendWa(client_phone, buildClientConfirmMsg(client_name, service.name, appointmentResult.rows[0].date, appointmentResult.rows[0].start_time));
+    sendWa(BUSINESS_PHONE, buildAdminNewApptMsg(client_name, service.name, appointmentResult.rows[0].date, appointmentResult.rows[0].start_time, 'online'));
 
     res.status(201).json({
       message: 'Turno reservado exitosamente.',
@@ -266,7 +307,7 @@ router.post('/manual', authMiddleware, async (req, res) => {
 
     // Obtener datos del cliente para enviar email de confirmación
     const clientData = await pool.query(
-      'SELECT name, email FROM clients WHERE id = $1',
+      'SELECT name, email, phone FROM clients WHERE id = $1',
       [resolvedClientId]
     );
 
@@ -277,8 +318,14 @@ router.post('/manual', authMiddleware, async (req, res) => {
         serviceName: service.name,
         date: appointmentResult.rows[0].date,
         startTime: appointmentResult.rows[0].start_time,
-      }).catch(() => {}); // ya se loguea internamente
+      }).catch(() => {});
     }
+
+    // WhatsApp: confirmación al cliente + notificación a admin
+    if (clientData.rows.length > 0 && clientData.rows[0].phone) {
+      sendWa(clientData.rows[0].phone, buildClientConfirmMsg(clientData.rows[0].name, service.name, appointmentResult.rows[0].date, appointmentResult.rows[0].start_time));
+    }
+    sendWa(BUSINESS_PHONE, buildAdminNewApptMsg(clientData.rows[0]?.name || 'Cliente', service.name, appointmentResult.rows[0].date, appointmentResult.rows[0].start_time, 'manual'));
 
     res.status(201).json({
       message: 'Turno creado manualmente.',
@@ -372,6 +419,119 @@ router.patch('/:id/cancel', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Error al cancelar turno:', err);
     res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// PATCH /api/appointments/:id/cancel-client - Cliente: cancelar turno (verifica por teléfono)
+router.patch('/:id/cancel-client', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: 'Teléfono requerido.' });
+
+    const appt = await pool.query(
+      `SELECT a.*, c.name as client_name, c.phone as client_phone, s.name as service_name
+       FROM appointments a
+       JOIN clients c ON a.client_id = c.id
+       JOIN services s ON a.service_id = s.id
+       WHERE a.id = $1`, [id]
+    );
+
+    if (appt.rows.length === 0) {
+      return res.status(404).json({ error: 'Turno no encontrado.' });
+    }
+
+    const appointment = appt.rows[0];
+    if (appointment.status === 'cancelled') {
+      return res.status(400).json({ error: 'Este turno ya fue cancelado.' });
+    }
+    if (appointment.status === 'completed') {
+      return res.status(400).json({ error: 'No se puede cancelar un turno ya completado.' });
+    }
+
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const apptPhone = appointment.client_phone.replace(/[^0-9]/g, '');
+    if (cleanPhone !== apptPhone && !apptPhone.endsWith(cleanPhone) && !cleanPhone.endsWith(apptPhone)) {
+      return res.status(403).json({ error: 'No tenés permiso para cancelar este turno.' });
+    }
+
+    await pool.query(`UPDATE appointments SET status = 'cancelled', updated_at = NOW() WHERE id = $1`, [id]);
+
+    sendWa(BUSINESS_PHONE, buildCancelMsg(appointment.client_name, appointment.service_name, appointment.date, appointment.start_time));
+
+    res.json({ message: 'Turno cancelado correctamente.' });
+  } catch (err) {
+    console.error('Error al cancelar turno (cliente):', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+});
+
+// PUT /api/appointments/:id/reschedule - Cliente: reprogramar turno (verifica por teléfono)
+router.put('/:id/reschedule', async (req, res) => {
+  const dbClient = await pool.connect();
+  try {
+    const { id } = req.params;
+    const { phone, date, start_time } = req.body;
+    if (!phone || !date || !start_time) {
+      return res.status(400).json({ error: 'Teléfono, fecha y hora son requeridos.' });
+    }
+
+    const appt = await dbClient.query(
+      `SELECT a.*, c.name as client_name, c.phone as client_phone, s.name as service_name, s.duration_minutes
+       FROM appointments a
+       JOIN clients c ON a.client_id = c.id
+       JOIN services s ON a.service_id = s.id
+       WHERE a.id = $1 AND a.status != 'cancelled'`, [id]
+    );
+
+    if (appt.rows.length === 0) {
+      return res.status(404).json({ error: 'Turno no encontrado o cancelado.' });
+    }
+
+    const appointment = appt.rows[0];
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const apptPhone = appointment.client_phone.replace(/[^0-9]/g, '');
+    if (cleanPhone !== apptPhone && !apptPhone.endsWith(cleanPhone) && !cleanPhone.endsWith(apptPhone)) {
+      return res.status(403).json({ error: 'No tenés permiso para modificar este turno.' });
+    }
+
+    await dbClient.query('BEGIN');
+
+    const newEndTime = calculateEndTime(start_time, appointment.duration_minutes);
+
+    // Verificar disponibilidad
+    const conflict = await dbClient.query(
+      `SELECT id FROM appointments
+       WHERE date = $1 AND status != 'cancelled' AND id != $4
+       AND start_time < $3 AND end_time > $2`,
+      [date, start_time, newEndTime, id]
+    );
+
+    if (conflict.rows.length > 0) {
+      await dbClient.query('ROLLBACK');
+      return res.status(409).json({ error: 'La nueva franja horaria ya está ocupada.' });
+    }
+
+    const oldDate = appointment.date;
+    const oldTime = appointment.start_time;
+
+    await dbClient.query(
+      `UPDATE appointments SET date = $1, start_time = $2, end_time = $3, updated_at = NOW() WHERE id = $4`,
+      [date, start_time, newEndTime, id]
+    );
+
+    await dbClient.query('COMMIT');
+
+    // WhatsApp notificación a admin
+    sendWa(BUSINESS_PHONE, buildRescheduleMsg(appointment.client_name, appointment.service_name, oldDate, oldTime, date, start_time));
+
+    res.json({ message: 'Turno reprogramado correctamente.' });
+  } catch (err) {
+    await dbClient.query('ROLLBACK');
+    console.error('Error al reprogramar turno (cliente):', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  } finally {
+    dbClient.release();
   }
 });
 
