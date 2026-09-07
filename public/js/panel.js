@@ -397,6 +397,7 @@ async function loadAppointments() {
             <td><span class="badge badge-${a.status}">${a.status}</span></td>
             <td>
               ${a.status === 'confirmed' ? `<button class="btn btn-danger btn-sm" onclick="cancelAppointment('${a.id}')">Cancelar</button>` : ''}
+              ${a.status === 'cancelled' ? `<button class="btn btn-danger btn-sm" title="Eliminar el registro definitivamente" onclick="deleteAppointment('${a.id}')">Eliminar registro</button>` : ''}
             </td>
           </tr>
         `).join('')}</tbody>
@@ -414,6 +415,16 @@ async function cancelAppointment(id) {
     loadDashboard();
     loadAppointments();
   } catch { alert('Error al cancelar el turno.'); }
+}
+
+async function deleteAppointment(id) {
+  if (!confirm('¿Eliminar este registro definitivamente? El turno ya está cancelado y no podrá recuperarse.')) return;
+  try {
+    const res = await fetch(`${API}/admin/appointments/${id}`, { method: 'DELETE', headers: authHeaders() });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error || 'Error'); }
+    loadDashboard();
+    loadAppointments();
+  } catch { alert('Error al eliminar el registro.'); }
 }
 
 function openNewAppointment() {

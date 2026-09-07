@@ -437,6 +437,38 @@ router.patch('/:id/cancel', authMiddleware, async (req, res) => {
   }
 });
 
+// DELETE /api/admin/appointments/:id - Admin: eliminar definitivamente el registro de un turno cancelado
+router.delete('/:id', authMiddleware, async (req, res) => {
+  const dbClient = await pool.connect();
+  try {
+    const { id } = req.params;
+    await dbClient.query('BEGIN');
+
+    const existing = await dbClient.query('SELECT status FROM appointments WHERE id = $1', [id]);
+    if (existing.rows.length === 0) {
+      await dbClient.query('ROLLBACK');
+      return res.status(404).json({ error: 'Turno no encontrado.' });
+    }
+
+    if (existing.rows[0].status !== 'cancelled') {
+      await dbClient.query('ROLLBACK');
+      return res.status(409).json({ error: 'Solo se pueden eliminar registros de turnos cancelados.' });
+    }
+
+    await dbClient.query('DELETE FROM reminders_sent WHERE appointment_id = $1', [id]);
+    await dbClient.query('DELETE FROM appointments WHERE id = $1', [id]);
+    await dbClient.query('COMMIT');
+
+    res.json({ message: 'Turno eliminado definitivamente.' });
+  } catch (err) {
+    await dbClient.query('ROLLBACK');
+    console.error('Error al eliminar turno:', err);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  } finally {
+    dbClient.release();
+  }
+});
+
 // PATCH /api/appointments/:id/cancel-client - Cliente: cancelar turno (verifica por teléfono)
 router.patch('/:id/cancel-client', async (req, res) => {
   try {
