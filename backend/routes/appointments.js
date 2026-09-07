@@ -11,28 +11,33 @@ try { whatsappModule = require('../whatsapp'); } catch {}
 const BUSINESS_PHONE = '543388403225';
 const BUSINESS_NAME = 'Belleza Saludable';
 
+function msgDate(date) {
+  const ds = date instanceof Date ? date.toISOString().slice(0, 10) : String(date).split('T')[0];
+  return new Date(ds + 'T12:00:00');
+}
+
 function buildClientConfirmMsg(clientName, serviceName, date, startTime) {
-  const d = new Date(date.split('T')[0] + 'T12:00:00');
+  const d = msgDate(date);
   const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   return `¡Hola ${clientName.split(' ')[0]}! 🌸\n\nTu turno fue confirmado:\n\n💆 *${serviceName}*\n📅 ${dateStr}\n⏰ ${startTime.slice(0, 5)} hs\n\n📍 Calle 30 N°416, entre calle 9 y 11\n\n⚠️ Si necesitás cancelar o modificar, avisá con anticipación al *${BUSINESS_PHONE}*.\n\n*${BUSINESS_NAME}*`;
 }
 
 function buildAdminNewApptMsg(clientName, serviceName, date, startTime, source) {
-  const d = new Date(date.split('T')[0] + 'T12:00:00');
+  const d = msgDate(date);
   const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   const src = source === 'manual' ? 'cargado por la administradora' : 'reservado online';
   return `📅 *Nuevo turno ${src}*\n\n👤 ${clientName}\n💆 ${serviceName}\n📅 ${dateStr}\n⏰ ${startTime.slice(0, 5)} hs`;
 }
 
 function buildCancelMsg(clientName, serviceName, date, startTime) {
-  const d = new Date(date.split('T')[0] + 'T12:00:00');
+  const d = msgDate(date);
   const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   return `❌ *Turno cancelado*\n\n👤 ${clientName}\n💆 ${serviceName}\n📅 ${dateStr}\n⏰ ${startTime.slice(0, 5)} hs`;
 }
 
 function buildRescheduleMsg(clientName, serviceName, oldDate, oldTime, newDate, newTime) {
-  const d1 = new Date(oldDate.split('T')[0] + 'T12:00:00');
-  const d2 = new Date(newDate.split('T')[0] + 'T12:00:00');
+  const d1 = msgDate(oldDate);
+  const d2 = msgDate(newDate);
   const fmt = d => d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
   return `🔄 *Turno reprogramado*\n\n👤 ${clientName}\n💆 ${serviceName}\n\n📅 Antes: ${fmt(d1)} a las ${oldTime.slice(0, 5)} hs\n📅 Ahora: ${fmt(d2)} a las ${newTime.slice(0, 5)} hs`;
 }
@@ -256,17 +261,23 @@ router.post('/manual', authMiddleware, async (req, res) => {
     const service = serviceResult.rows[0];
     const end_time = calculateEndTime(start_time, service.duration_minutes);
 
-    // Verificar disponibilidad
+    // Determinar gabinete del servicio (facial o corporal) - se trabaja en cabinas separadas
+    const serviceGabinete = getGabinete(service.name);
+
+    // Verificar disponibilidad: solo choca con turnos del MISMO gabinete
     const conflictResult = await dbClient.query(
-      `SELECT id FROM appointments
-       WHERE date = $1 AND status != 'cancelled'
-       AND start_time < $3 AND end_time > $2`,
+      `SELECT a.id, s.name as service_name FROM appointments a
+       JOIN services s ON a.service_id = s.id
+       WHERE a.date = $1 AND a.status != 'cancelled'
+       AND a.start_time < $3 AND a.end_time > $2`,
       [date, start_time, end_time]
     );
 
-    if (conflictResult.rows.length > 0) {
+    const hasConflict = conflictResult.rows.some(c => getGabinete(c.service_name) === serviceGabinete);
+
+    if (hasConflict) {
       await dbClient.query('ROLLBACK');
-      return res.status(409).json({ error: 'La franja horaria ya está ocupada.' });
+      return res.status(409).json({ error: 'La franja horaria ya está ocupada en este gabinete.' });
     }
 
     // Resolver cliente
@@ -365,21 +376,25 @@ router.put('/:id', authMiddleware, async (req, res) => {
     const newStartTime = start_time || existing.start_time;
     const newServiceId = service_id || existing.service_id;
 
-    // Obtener duración del servicio
-    const serviceResult = await dbClient.query('SELECT duration_minutes FROM services WHERE id = $1', [newServiceId]);
+    // Obtener duración y gabinete del servicio (facial o corporal - cabinas separadas)
+    const serviceResult = await dbClient.query('SELECT duration_minutes, name FROM services WHERE id = $1', [newServiceId]);
     const newEndTime = calculateEndTime(newStartTime, serviceResult.rows[0].duration_minutes);
+    const newServiceGabinete = getGabinete(serviceResult.rows[0].name);
 
-    // Verificar disponibilidad (excluyendo el turno actual)
+    // Verificar disponibilidad (excluyendo el turno actual): solo choca con el MISMO gabinete
     const conflictResult = await dbClient.query(
-      `SELECT id FROM appointments
-       WHERE date = $1 AND status != 'cancelled' AND id != $4
-       AND start_time < $3 AND end_time > $2`,
+      `SELECT a.id, s.name as service_name FROM appointments a
+       JOIN services s ON a.service_id = s.id
+       WHERE a.date = $1 AND a.status != 'cancelled' AND a.id != $4
+       AND a.start_time < $3 AND a.end_time > $2`,
       [newDate, newStartTime, newEndTime, id]
     );
 
-    if (conflictResult.rows.length > 0) {
+    const hasConflict = conflictResult.rows.some(c => getGabinete(c.service_name) === newServiceGabinete);
+
+    if (hasConflict) {
       await dbClient.query('ROLLBACK');
-      return res.status(409).json({ error: 'La nueva franja horaria ya está ocupada.' });
+      return res.status(409).json({ error: 'La nueva franja horaria ya está ocupada en este gabinete.' });
     }
 
     const result = await dbClient.query(
@@ -499,17 +514,21 @@ router.put('/:id/reschedule', async (req, res) => {
 
     const newEndTime = calculateEndTime(start_time, appointment.duration_minutes);
 
-    // Verificar disponibilidad
+    // Verificar disponibilidad: solo choca con turnos del MISMO gabinete (cabinas separadas)
+    const serviceGabinete = getGabinete(appointment.service_name);
     const conflict = await dbClient.query(
-      `SELECT id FROM appointments
-       WHERE date = $1 AND status != 'cancelled' AND id != $4
-       AND start_time < $3 AND end_time > $2`,
+      `SELECT a.id, s.name as service_name FROM appointments a
+       JOIN services s ON a.service_id = s.id
+       WHERE a.date = $1 AND a.status != 'cancelled' AND a.id != $4
+       AND a.start_time < $3 AND a.end_time > $2`,
       [date, start_time, newEndTime, id]
     );
 
-    if (conflict.rows.length > 0) {
+    const hasConflict = conflict.rows.some(c => getGabinete(c.service_name) === serviceGabinete);
+
+    if (hasConflict) {
       await dbClient.query('ROLLBACK');
-      return res.status(409).json({ error: 'La nueva franja horaria ya está ocupada.' });
+      return res.status(409).json({ error: 'La nueva franja horaria ya está ocupada en este gabinete.' });
     }
 
     const oldDate = appointment.date;
