@@ -26,6 +26,9 @@ function ServiceDetail() {
     navigate('/fecha-hora');
   };
 
+  const esPerfilado = /^perfilado\s+de\s+cejas$/i.test((service.name || '').trim());
+  const mensajeWhatsApp = 'Hola! Quiero solicitar un turno para Perfilado de Cejas. ¿Qué disponibilidad tenés?';
+
   return (
     <div className="booking-container fade-up">
       <button className="btn btn-secondary" onClick={() => navigate('/turnos')} style={{ marginBottom: '1.5rem' }}>
@@ -49,9 +52,21 @@ function ServiceDetail() {
         </p>
       </div>
 
-      <button className="btn btn-primary" style={{ width: '100%', padding: '1rem' }} onClick={handleReservar}>
-        📅 Reservar turno
-      </button>
+      {esPerfilado ? (
+        <a
+          className="btn btn-primary"
+          style={{ width: '100%', padding: '1rem' }}
+          href={`https://wa.me/543388403225?text=${encodeURIComponent(mensajeWhatsApp)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📲 Consultar turno
+        </a>
+      ) : (
+        <button className="btn btn-primary" style={{ width: '100%', padding: '1rem' }} onClick={handleReservar}>
+          📅 Reservar turno
+        </button>
+      )}
     </div>
   );
 }

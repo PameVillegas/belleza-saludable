@@ -39,7 +39,7 @@ function BookAppointment() {
     setSelectedSlot(null);
     setDates([]);
 
-    if (service) {
+    if (service && !esPerfilado(service)) {
       setLoadingDates(true);
       fetch(`/api/availability/${service.id}`)
         .then(res => res.json())
@@ -124,6 +124,9 @@ function BookAppointment() {
     return d.toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
   };
 
+  const esPerfilado = (s) => /^perfilado\s+de\s+cejas$/i.test((s?.name || '').trim());
+  const mensajeWhatsApp = 'Hola! Quiero solicitar un turno para Perfilado de Cejas. ¿Qué disponibilidad tenés?';
+
   if (loading) return <div className="loading">Cargando...</div>;
 
   return (
@@ -165,8 +168,25 @@ function BookAppointment() {
         </div>
       )}
 
+      {selectedService && esPerfilado(selectedService) && (
+        <div className="fade-in" style={{ marginTop: '1rem' }}>
+          <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', marginBottom: '1rem' }}>
+            Este servicio se agenda consultando por WhatsApp.
+          </p>
+          <a
+            className="btn btn-primary"
+            style={{ width: '100%', padding: '1rem', textAlign: 'center' }}
+            href={`https://wa.me/543388403225?text=${encodeURIComponent(mensajeWhatsApp)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            📲 Consultar turno
+          </a>
+        </div>
+      )}
+
       {/* Seleccionar fecha */}
-      {selectedService && (
+      {selectedService && !esPerfilado(selectedService) && (
         <fieldset className="form-group" style={{ border: 'none', padding: 0, margin: 0, marginBottom: '1.25rem' }}>
           <legend style={{ fontWeight: '500', display: 'block', marginBottom: '0.4rem', fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
             Fecha disponible
