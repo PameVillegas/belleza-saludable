@@ -18,8 +18,10 @@ function msgDate(date) {
 
 function buildClientConfirmMsg(clientName, serviceName, date, startTime) {
   const d = msgDate(date);
-  const dateStr = d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
-  return `¡Hola ${clientName.split(' ')[0]}! 🌸\n\nTu turno fue confirmado:\n\n💆 *${serviceName}*\n📅 ${dateStr}\n⏰ ${startTime.slice(0, 5)} hs\n\n📍 Calle 30 N°416, entre calle 9 y 11\n\n⚠️ Si necesitás cancelar o modificar, avisá con anticipación al *${BUSINESS_PHONE}*.\n\n*${BUSINESS_NAME}*`;
+  const dateStr = `${d.getDate()}/${d.getMonth() + 1}`;
+  const t = startTime.slice(0, 5);
+  const timeStr = t.slice(3, 5) === '00' ? `${Number(t.slice(0, 2))}hs` : `${t.replace(/^0/, '')}hs`;
+  return `📌Perfecto, ${clientName.split(' ')[0]}, tu turno quedó agendado para *${dateStr}* a las *${timeStr}* — ${serviceName}.\n\n📍Te espero en calle 30 N 416, al lado de Pami entre calle 9 y 11. ¡Gracias por contactarte! 🤗\n\n❗️Por favor, si no podés tomar el turno avisá con antelación. Para mí es importante poder reorganizar la agenda y/o dar lugar a otras personas interesadas en tomar tu horario 💫`;
 }
 
 function buildAdminNewApptMsg(clientName, serviceName, date, startTime, source) {
