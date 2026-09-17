@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../db/pool');
 const { generateSlots, timeOverlaps, getGabinete } = require('../utils/availabilityHelpers');
 
-// GET /api/availability/:serviceId - Fechas disponibles para un servicio (próximos 30 días)
+// GET /api/availability/:serviceId - Fechas disponibles para un servicio (próximos 90 días)
 router.get('/:serviceId', async (req, res) => {
   try {
     const { serviceId } = req.params;
@@ -26,9 +26,23 @@ router.get('/:serviceId', async (req, res) => {
     const schedules = schedulesResult.rows;
     const availableDates = [];
     const today = new Date();
+    const lastDate = new Date(today);
+    lastDate.setDate(lastDate.getDate() + 90);
 
-    // Verificar próximos 30 días
-    for (let i = 0; i < 30; i++) {
+    const todayStr = today.toISOString().split('T')[0];
+    const lastDateStr = lastDate.toISOString().split('T')[0];
+
+    // Días completos bloqueados dentro del rango (una sola consulta)
+    const blockedResult = await pool.query(
+      `SELECT date::text AS day FROM blocked_slots
+       WHERE date >= $1 AND date <= $2
+         AND start_time IS NULL AND end_time IS NULL AND is_active = true`,
+      [todayStr, lastDateStr]
+    );
+    const blockedDays = new Set(blockedResult.rows.map(r => r.day));
+
+    // Verificar próximos 90 días
+    for (let i = 0; i < 90; i++) {
       const date = new Date(today);
       date.setDate(date.getDate() + i);
       const dayOfWeek = date.getDay();
@@ -37,15 +51,9 @@ router.get('/:serviceId', async (req, res) => {
       const hasSchedule = schedules.some(s => s.day_of_week === dayOfWeek);
       if (!hasSchedule) continue;
 
-      // Verificar si el día completo está bloqueado
+      // Omitir si el día completo está bloqueado
       const dateStr = date.toISOString().split('T')[0];
-      const blockResult = await pool.query(
-        `SELECT id FROM blocked_slots
-         WHERE date = $1 AND start_time IS NULL AND end_time IS NULL AND is_active = true`,
-        [dateStr]
-      );
-
-      if (blockResult.rows.length === 0) {
+      if (!blockedDays.has(dateStr)) {
         availableDates.push(dateStr);
       }
     }
