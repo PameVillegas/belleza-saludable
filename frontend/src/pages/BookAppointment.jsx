@@ -197,7 +197,7 @@ function BookAppointment() {
             <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)' }} role="status">No hay fechas disponibles.</p>
           ) : (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }} role="group" aria-label="Fechas disponibles">
-              {dates.slice(0, 14).map(date => (
+              {dates.map(date => (
                 <button
                   key={date}
                   type="button"

@@ -78,7 +78,7 @@ function SelectDateTime() {
             Fecha disponible:
           </legend>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }} role="group" aria-label="Fechas disponibles">
-            {dates.slice(0, 14).map(date => (
+            {dates.map(date => (
               <button
                 key={date}
                 className={`slot-btn ${selectedDate === date ? 'selected' : ''}`}
