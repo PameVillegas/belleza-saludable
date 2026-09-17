@@ -1,0 +1,27 @@
+# Belleza Saludable - docker-compose de referencia para entender EasyPanel
+# (La app + la base se crean como servicios dentro de un "proyecto" en el panel.
+#  Este archivo es complemento informativo. En el panel la config se hace con clics.)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: belleza
+      POSTGRES_PASSWORD: CAMBIAR_PASSWORD_SEGURA
+      POSTGRES_DB: belleza_saludable
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  belleza:
+    build: .
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://belleza:CAMBIAR_PASSWORD_SEGURA@postgres:5432/belleza_saludable
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
