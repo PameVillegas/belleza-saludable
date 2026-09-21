@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import ClientCareCards from '../components/ClientCareCards';
 
 function Home() {
   const navigate = useNavigate();
@@ -44,6 +45,9 @@ function Home() {
           Cerrar sesión
         </button>
       </header>
+
+      {/* Tarjeta próxima cita + tip autocuidado */}
+      <ClientCareCards />
 
       {/* Banner con saludo */}
       <div className="home-banner" role="img" aria-label={`Bienvenida${firstName ? `, ${firstName}` : ''} a Belleza Saludable`}>
