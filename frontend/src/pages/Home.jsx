@@ -46,9 +46,6 @@ function Home() {
         </button>
       </header>
 
-      {/* Tarjeta próxima cita + tip autocuidado */}
-      <ClientCareCards />
-
       {/* Banner con saludo */}
       <div className="home-banner" role="img" aria-label={`Bienvenida${firstName ? `, ${firstName}` : ''} a Belleza Saludable`}>
         <img src="/fotoportada2.png" alt="" role="presentation" className="home-banner-img" />
@@ -59,6 +56,9 @@ function Home() {
           </div>
         </div>
       </div>
+
+      {/* Tarjeta próxima cita + tip autocuidado */}
+      <ClientCareCards />
 
       {/* Grid de secciones */}
       <main id="main-content">
