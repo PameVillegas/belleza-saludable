@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CARE_TIPS = [
@@ -55,6 +55,17 @@ function isUpcoming(appt) {
   return false;
 }
 
+function computeNext(list) {
+  return (Array.isArray(list) ? list : [])
+    .filter((a) => a.status === 'confirmed')
+    .filter(isUpcoming)
+    .sort((a, b) => {
+      const dA = String(a.date || '').split('T')[0];
+      const dB = String(b.date || '').split('T')[0];
+      return dA.localeCompare(dB) || String(a.start_time || '').localeCompare(String(b.start_time || ''));
+    })[0] || null;
+}
+
 function formatNiceDate(dateStr) {
   const d = new Date(String(dateStr).split('T')[0] + 'T12:00:00');
   if (isNaN(d.getTime())) return String(dateStr).split('T')[0];
@@ -64,9 +75,10 @@ function formatNiceDate(dateStr) {
 function ClientCareCards() {
   const navigate = useNavigate();
   const clientSession = JSON.parse(sessionStorage.getItem('clientSession') || 'null');
-  const [next, setNext] = useState(null);
+  const [appointments, setAppointments] = useState([]);
   const [checked, setChecked] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [nowTick, setNowTick] = useState(Date.now());
 
   useEffect(() => {
     const searchValue = clientSession?.phone || clientSession?.email;
@@ -75,28 +87,26 @@ function ClientCareCards() {
       return;
     }
     let cancelled = false;
-    fetch(`/api/appointments/my?search=${encodeURIComponent(searchValue)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        const upcoming = (Array.isArray(data) ? data : [])
-          .filter((a) => a.status === 'confirmed')
-          .filter(isUpcoming)
-          .sort((a, b) => {
-            const dA = String(a.date || '').split('T')[0];
-            const dB = String(b.date || '').split('T')[0];
-            return dA.localeCompare(dB) || String(a.start_time || '').localeCompare(String(b.start_time || ''));
-          });
-        setNext(upcoming[0] || null);
-        setChecked(true);
-      })
-      .catch(() => {
-        if (!cancelled) setChecked(true);
-      });
+    const load = () => {
+      fetch(`/api/appointments/my?search=${encodeURIComponent(searchValue)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!cancelled) setAppointments(Array.isArray(data) ? data : []);
+        })
+        .catch(() => {});
+    };
+    load();
+    const intervalId = setInterval(() => {
+      setNowTick(Date.now());
+      load();
+    }, 60 * 1000);
     return () => {
       cancelled = true;
+      clearInterval(intervalId);
     };
   }, []);
+
+  const next = useMemo(() => computeNext(appointments), [appointments, nowTick]);
 
   if (!checked || dismissed) return null;
 
