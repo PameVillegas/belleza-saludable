@@ -100,27 +100,26 @@ async function checkAndSendReminders() {
 
     for (const appointment of result.rows) {
       const message = buildReminderMessage(appointment);
-      const whatsappLink = buildWhatsAppLink(appointment.client_phone, message);
-
-      // Registrar el recordatorio como enviado
-      await pool.query(
-        'INSERT INTO reminders_sent (appointment_id, method) VALUES ($1, $2)',
-        [appointment.id, 'whatsapp_auto']
-      );
 
       console.log(`[Recordatorio] Turno ${appointment.id} - ${appointment.client_name} (${appointment.start_time.slice(0,5)})`);
 
-      // Enviar por WhatsApp si está conectado
+      // Solo enviar si WhatsApp está conectado
       const waState = getStatus();
-      if (waState.status === 'connected') {
-        const sent = await sendMessage(appointment.client_phone, message);
-        if (sent) {
-          console.log(`  ✓ WhatsApp enviado a ${appointment.client_name}`);
-        } else {
-          console.log(`  ✗ No se pudo enviar WhatsApp a ${appointment.client_name}`);
-        }
+      if (waState.status !== 'connected') {
+        console.log(`  ⚠ WhatsApp no conectado. Recordatorio pendiente, se reintentará en el próximo ciclo.`);
+        continue;
+      }
+
+      const sent = await sendMessage(appointment.client_phone, message);
+      if (sent) {
+        // Marcar como enviado SOLO si el mensaje realmente llegó
+        await pool.query(
+          'INSERT INTO reminders_sent (appointment_id, method) VALUES ($1, $2)',
+          [appointment.id, 'whatsapp_auto']
+        );
+        console.log(`  ✓ WhatsApp enviado a ${appointment.client_name}`);
       } else {
-        console.log(`  ⚠ WhatsApp no conectado. Recordatorio registrado pero no enviado.`);
+        console.log(`  ✗ No se pudo enviar WhatsApp a ${appointment.client_name}. Se reintentará.`);
       }
     }
   } catch (err) {
@@ -129,14 +128,16 @@ async function checkAndSendReminders() {
 }
 
 /**
- * Endpoint para ver recordatorios pendientes (admin puede enviar manualmente)
+ * Endpoint para ver recordatorios del día (admin puede enviar manualmente)
+ * Acepta una fecha opcional (YYYY-MM-DD); por defecto usa el día HOY.
  */
-async function getPendingReminders() {
+async function getPendingReminders(targetDate = null) {
   const now = new Date();
   const argentinaOffset = -3 * 60;
   const utcOffset = now.getTimezoneOffset();
   const argentinaTime = new Date(now.getTime() + (utcOffset + argentinaOffset) * 60000);
-  const tomorrow = new Date(argentinaTime.getTime() + 86400000).toISOString().split('T')[0];
+  const today = argentinaTime.toISOString().split('T')[0];
+  const date = targetDate || today;
 
   const result = await pool.query(
     `SELECT a.id, a.date, a.start_time,
@@ -149,7 +150,7 @@ async function getPendingReminders() {
      LEFT JOIN reminders_sent r ON r.appointment_id = a.id
      WHERE a.date = $1 AND a.status = 'confirmed'
      ORDER BY a.start_time`,
-    [tomorrow]
+    [date]
   );
 
   return result.rows.map(row => ({
