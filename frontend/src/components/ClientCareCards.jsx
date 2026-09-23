@@ -91,9 +91,13 @@ function ClientCareCards() {
       fetch(`/api/appointments/my?search=${encodeURIComponent(searchValue)}`)
         .then((res) => res.json())
         .then((data) => {
-          if (!cancelled) setAppointments(Array.isArray(data) ? data : []);
+          if (cancelled) return;
+          setAppointments(Array.isArray(data) ? data : []);
+          setChecked(true);
         })
-        .catch(() => {});
+        .catch(() => {
+          if (!cancelled) setChecked(true);
+        });
     };
     load();
     const intervalId = setInterval(() => {
