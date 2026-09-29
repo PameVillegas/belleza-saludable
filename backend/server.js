@@ -42,7 +42,7 @@ app.use('/api/reviews', reviewsRoutes);
 app.use('/api/admin/reviews', reviewsRoutes);
 
 // Sistema de recordatorios automáticos por WhatsApp
-const { startRemindersCron, getPendingReminders } = require('./reminders');
+const { startRemindersCron, getPendingReminders, sendMorningRemindersForTomorrow } = require('./reminders');
 let whatsapp = null;
 try {
   whatsapp = require('./whatsapp');
@@ -60,12 +60,26 @@ try {
 startRemindersCron();
 
 // Endpoint admin: ver recordatorios del día
+// ?day=today|tomorrow&period=all|morning|afternoon
 app.get('/api/admin/reminders', require('./middleware/auth'), async (req, res) => {
   try {
-    const reminders = await getPendingReminders();
+    const day = req.query.day === 'tomorrow' ? 'tomorrow' : 'today';
+    const period = ['morning', 'afternoon'].includes(req.query.period) ? req.query.period : 'all';
+    const reminders = await getPendingReminders(day, period);
     res.json(reminders);
   } catch (err) {
     console.error('Error al obtener recordatorios:', err);
+    res.status(500).json({ error: 'Error interno.' });
+  }
+});
+
+// Endpoint admin: enviar de una vez los recordatorios de los turnos de la mañana de mañana
+app.post('/api/admin/reminders/send-morning', require('./middleware/auth'), async (req, res) => {
+  try {
+    const result = await sendMorningRemindersForTomorrow();
+    res.json(result);
+  } catch (err) {
+    console.error('Error al enviar recordatorios de la mañana:', err);
     res.status(500).json({ error: 'Error interno.' });
   }
 });

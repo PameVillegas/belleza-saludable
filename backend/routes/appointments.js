@@ -11,17 +11,23 @@ try { whatsappModule = require('../whatsapp'); } catch {}
 const BUSINESS_PHONE = '543388403225';
 const BUSINESS_NAME = 'Belleza Saludable';
 
+const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
+function msgDateTime(dateInput) {
+  const ds = dateInput instanceof Date ? dateInput.toISOString().slice(0, 10) : String(dateInput).split('T')[0];
+  const d = new Date(ds + 'T12:00:00');
+  return `${WEEKDAYS[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`;
+}
+
 function msgDate(date) {
   const ds = date instanceof Date ? date.toISOString().slice(0, 10) : String(date).split('T')[0];
   return new Date(ds + 'T12:00:00');
 }
 
 function buildClientConfirmMsg(clientName, serviceName, date, startTime) {
-  const d = msgDate(date);
-  const dateStr = `${d.getDate()}/${d.getMonth() + 1}`;
-  const t = startTime.slice(0, 5);
-  const timeStr = t.slice(3, 5) === '00' ? `${Number(t.slice(0, 2))}hs` : `${t.replace(/^0/, '')}hs`;
-  return `📌Perfecto, ${clientName.split(' ')[0]}, tu turno quedó agendado para *${dateStr}* a las *${timeStr}* — ${serviceName}.\n\n📍Te espero en calle 30 N 416, al lado de Pami entre calle 9 y 11. ¡Gracias por contactarte! 🤗\n\n❗️Por favor, si no podés tomar el turno avisá con antelación. Para mí es importante poder reorganizar la agenda y/o dar lugar a otras personas interesadas en tomar tu horario 💫`;
+  const dateStr = msgDateTime(date);
+  const timeStr = startTime.slice(0, 5) + ' hs';
+  return `📌 Perfecto, ${clientName.split(' ')[0]}, tu turno quedó agendado para el *${dateStr}* a las *${timeStr}* — ${serviceName}.\n\n📍Te espero en calle 30 N 416, al lado de Pami entre calle 9 y 11. ¡Gracias por contactarte! 🤗\n\n❗️Por favor, si no podés tomar el turno avisá con antelación. Para mí es importante poder reorganizar la agenda y/o dar lugar a otras personas interesadas en tomar tu horario 💫`;
 }
 
 function buildAdminNewApptMsg(clientName, serviceName, date, startTime, source) {

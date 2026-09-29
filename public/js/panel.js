@@ -1376,21 +1376,21 @@ async function loadReminders() {
 // === WhatsApp ===
 let waPollingInterval = null;
 
-// Construye la sección de envío manual de recordatorios
+// Construye la sección de envío manual de recordatorios (turnos de la MAÑANA de mañana)
 function buildManualReminderSection() {
   return `
     <div class="stat-card" style="margin-top:1rem; padding:1.5rem; text-align:left;">
-      <h3 style="font-family:var(--font-display); font-size:1rem; font-weight:600; margin-bottom:0.5rem;">📨 Enviar recordatorios del día</h3>
+      <h3 style="font-family:var(--font-display); font-size:1rem; font-weight:600; margin-bottom:0.5rem;">📨 Recordatorios de mañana (turnos de la mañana)</h3>
       <p style="font-size:0.82rem; color:var(--color-text-muted); margin-bottom:1rem;">
-        Presioná el botón para enviar un recordatorio por WhatsApp a todas las clientas con turno hoy.<br>
-        <span style="font-style:italic;">Si WhatsApp está conectado, los recordatorios también se envían automáticamente el día anterior a cada turno.</span>
+        La noche anterior, mandá de una vez el recordatorio a todas las clientas con turno en la <b>mañana del día siguiente</b>.<br>
+        <span style="font-style:italic;">Los turnos de la tarde se envían automáticamente 60 min antes.</span>
       </p>
       <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="sendAllRemindersToday()">
-          📤 Enviar a todos los turnos de hoy
+        <button class="btn btn-primary" onclick="sendMorningReminders()">
+          📤 Enviar recordatorios de mañana
         </button>
-        <button class="btn btn-secondary" onclick="loadTodayRemindersPreview()">
-          👁 Ver turnos de hoy
+        <button class="btn btn-secondary" onclick="loadTomorrowMorningPreview()">
+          👁 Ver turnos de mañana
         </button>
       </div>
       <div id="remindersPreview" style="margin-top:1rem;"></div>
@@ -1398,15 +1398,15 @@ function buildManualReminderSection() {
   `;
 }
 
-async function loadTodayRemindersPreview() {
+async function loadTomorrowMorningPreview() {
   const preview = document.getElementById('remindersPreview');
   if (!preview) return;
   preview.innerHTML = '<p style="font-size:0.82rem; color:var(--color-text-muted);">Cargando...</p>';
   try {
-    const res = await fetch(`${API}/admin/reminders`, { headers: authHeaders() });
+    const res = await fetch(`${API}/admin/reminders?day=tomorrow&period=morning`, { headers: authHeaders() });
     const reminders = await res.json();
     if (!Array.isArray(reminders) || reminders.length === 0) {
-      preview.innerHTML = '<p style="font-size:0.82rem; color:var(--color-text-muted);">No hay turnos para hoy.</p>';
+      preview.innerHTML = '<p style="font-size:0.82rem; color:var(--color-text-muted);">No hay turnos de mañana para mañana.</p>';
       return;
     }
     preview.innerHTML = `
@@ -1427,48 +1427,29 @@ async function loadTodayRemindersPreview() {
   }
 }
 
-async function sendAllRemindersToday() {
+async function sendMorningReminders() {
   const btn = event.target;
   btn.disabled = true;
   btn.textContent = '⏳ Enviando...';
   try {
-    const res = await fetch(`${API}/admin/reminders`, { headers: authHeaders() });
-    const reminders = await res.json();
-    if (!Array.isArray(reminders) || reminders.length === 0) {
-      alert('No hay turnos para hoy.');
-      btn.disabled = false;
-      btn.textContent = '📤 Enviar a todos los turnos de hoy';
-      return;
+    const res = await fetch(`${API}/admin/reminders/send-morning`, {
+      method: 'POST',
+      headers: authHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Error al enviar recordatorios.');
+    } else if (data.total === 0) {
+      alert('No hay turnos de mañana para mañana.');
+    } else {
+      alert(`✅ Enviados: ${data.sent}\n${data.pending > 0 ? `⚠️ Pendientes (no llegaron): ${data.pending}` : ''}`);
     }
-
-    const pending = reminders.filter(r => !r.reminder_sent);
-    if (pending.length === 0) {
-      alert('✅ Todos los recordatorios de hoy ya fueron enviados.');
-      btn.disabled = false;
-      btn.textContent = '📤 Enviar a todos los turnos de hoy';
-      return;
-    }
-
-    let sent = 0;
-    let failed = 0;
-    for (const r of pending) {
-      try {
-        const sendRes = await fetch(`${API}/admin/whatsapp/send`, {
-          method: 'POST',
-          headers: authHeaders(),
-          body: JSON.stringify({ phone: r.client_phone, message: r.reminder_message || buildReminderText(r) })
-        });
-        if (sendRes.ok) { sent++; } else { failed++; }
-      } catch { failed++; }
-    }
-
-    alert(`✅ Recordatorios enviados: ${sent}\n${failed > 0 ? `⚠️ No enviados: ${failed}` : ''}`);
-    loadTodayRemindersPreview();
   } catch {
-    alert('Error al cargar los turnos.');
+    alert('Error al enviar recordatorios.');
   }
   btn.disabled = false;
-  btn.textContent = '📤 Enviar a todos los turnos de hoy';
+  btn.textContent = '📤 Enviar recordatorios de mañana';
+  loadTomorrowMorningPreview();
 }
 
 function buildReminderText(r) {
@@ -1497,7 +1478,7 @@ async function loadWhatsAppStatus() {
         <div class="stat-card" style="text-align:center; padding:2rem;">
           <div style="font-size:3rem; margin-bottom:1rem;">✅</div>
           <h3 style="font-family:var(--font-display); margin-bottom:0.5rem;">WhatsApp Conectado</h3>
-          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Los recordatorios se envían automáticamente el día anterior a cada turno.</p>
+          <p style="color:var(--color-text-muted); font-size:0.85rem; margin-bottom:1.5rem;">Los turnos de la tarde reciben recordatorio automáticamente 60 minutos antes. Los de la mañana se envían manualmente.</p>
           <button class="btn btn-danger" onclick="disconnectWhatsApp()">Desconectar</button>
         </div>
       `;
